@@ -1817,12 +1817,12 @@ JUGADAS.push(
      ok:{local:14,mundo:-6,rend:1,msg:"La popular te adoptó"},mal:{roja:1,plata:-60,escandalo:1,rend:-3,msg:"Sanción de la federación"}},
     {b:"Dárselo todo al cuarto",s:"Frialdad",st:"car",base:90,fijo:1,
      ok:{mundo:5,mor:4,msg:"Imagen impecable en la tele"}},
-    {b:"Ir a hablar con la barra",s:"Meterte donde no va nadie",st:"car",base:38,
+    {b:"Ir a hablar con la barra",s:"Cara a cara con {BARRA_LIDER}",st:"car",base:38,
      ok:{local:24,car:4,msg:"Pararon porque se lo pediste vos"},mal:{local:-12,bandera:["deudaConLaBarra",8],msg:"Ahora te deben un favor y lo van a cobrar"}}]},
 
 {id:"w1_fiebre",pos:["DEL","MED","DEF","ARQ"],comp:["liga","copa","final"],seg:3.6,cd:8,peso:2,
  t:"JUGÁS CON 39 DE FIEBRE",
- x:"El médico dijo que no. El técnico te puso igual y la tribuna no sabe nada. Vas al vestuario al entretiempo temblando.",
+ x:"El médico dijo que no. {DT} te puso igual y la tribuna no sabe nada. Vas al vestuario al entretiempo temblando.",
  o:[{b:"Aguantar los 90",s:"A puro carácter",st:"car",base:42,
      ok:{local:20,car:6,rend:3,msg:"Jugaste el partido de tu vida hecho pelota"},mal:{salud:["isqR",-22],forma:-14,rend:-2,msg:"Te desplomaste en el 70"}},
     {b:"Pedir el cambio",s:"Sensato",st:"car",base:92,fijo:1,
@@ -1832,7 +1832,7 @@ JUGADAS.push(
     {b:"Pincharte para aguantar",s:"El médico mira al piso",st:"car",base:55,
      ok:{rend:3,forma:8,msg:"No sentiste nada y la rompiste"},mal:{salud:["pubis",-26],escandalo:1,bandera:["analisisRaro",4],msg:"Te dopaste sin saber con qué"}},
     {b:"Contarle a la prensa",s:"Que se sepa",st:"car",base:58,
-     ok:{local:16,mundo:6,msg:"Quedaste de guerrero y el técnico de verdugo"},mal:{mor:-12,local:-8,msg:"El vestuario te trató de llorón"}}]},
+     ok:{local:16,mundo:6,msg:"Quedaste de guerrero y {DT} de verdugo"},mal:{mor:-12,local:-8,msg:"El vestuario te trató de llorón"}}]},
 
 {id:"w1_companiero",pos:["DEL","MED","DEF"],comp:["liga","copa","clasico","inter","final"],seg:3,cd:6,
  t:"SE ROMPIÓ TU COMPAÑERO Y NO QUEDAN CAMBIOS",
@@ -1891,7 +1891,7 @@ JUGADAS.push(
 
 {id:"w15_capitan",pos:["DEL","MED","DEF","ARQ"],comp:["liga","copa"],seg:3.4,cd:9,
  t:"SE DEFINE LA CINTA DE CAPITÁN",
- x:"El técnico dijo que la votan entre ustedes. {COMPA} la quiere y no lo disimula. Vos también.",
+ x:"{DT} dijo que la votan entre ustedes. {COMPA} la quiere y no lo disimula. Vos también.",
  o:[{b:"Hacer campaña por vos",s:"Política de vestuario",st:"car",base:52,
      ok:{capitan:1,car:5,local:10,relBaja:10,msg:"Sos capitán y él se enteró último"},mal:{mor:-10,relBaja:16,msg:"Perdiste la votación y quedaste expuesto"}},
     {b:"Proponerlo a él",s:"Gesto grande",st:"car",base:94,fijo:1,ok:{relSube:22,mor:8,msg:"No se lo esperaba de vos"}},
@@ -1915,7 +1915,7 @@ JUGADAS.push(
 
 {id:"w15_cubrir",pos:["DEL","MED","DEF","ARQ"],comp:["liga","copa","clasico"],seg:2.8,cd:10,
  t:"{COMPA} LLEGÓ HECHO PEDAZOS AL ENTRENAMIENTO",
- x:"No durmió. El técnico está por pasar lista y falta él en el vestuario. Te mira desde la puerta.",
+ x:"No durmió. {DT} está por pasar lista y falta él en el vestuario. Te mira desde la puerta.",
  o:[{b:"Decir que lo viste llegar",s:"Mentir por él",st:"car",base:60,
      ok:{relSube:26,mor:5,msg:"Zafó y te debe una grande"},mal:{mor:-12,forma:-6,relSube:10,escandalo:1,msg:"Los agarraron a los dos mintiendo"}},
     {b:"No decir nada",s:"Ni a favor ni en contra",st:"car",base:95,fijo:1,ok:{msg:"Que se arregle solo"}},
@@ -2205,8 +2205,8 @@ const EXTRA=[
     {b:"Escuchar y no decir nada",s:"Perfil bajo",st:"car",base:88,fijo:1,
      ok:{car:2,msg:"Comiste, escuchaste y te fuiste temprano"}},
     {b:"Contarle todo a tu técnico",s:"Que decida él",st:"car",base:64,
-     ok:{afa:-8,local:8,mor:6,msg:"El técnico te agradeció la lealtad"},
-     mal:{afa:-20,mor:-8,msg:"El técnico ya estaba en la mesa antes que vos"}},
+     ok:{afa:-8,local:8,mor:6,msg:"{DT} te agradeció la lealtad"},
+     mal:{afa:-20,mor:-8,msg:"{DT} ya estaba en la mesa antes que vos"}},
     {b:"Sacar una foto y guardarla",s:"Munición para después",st:"car",base:42,
      ok:{bandera:["tengo_audio",6],mundo:8,msg:"Tenés la foto y nadie lo sabe"},
      mal:{afa:-30,escandalo:1,bandera:["afa_venganza",4],msg:"Te vieron sacando la foto"}}]},
@@ -2482,7 +2482,7 @@ const EXTRA=[
     {b:"Quedarte a dormir en el predio",s:"Que se cansen",st:"car",base:76,
      ok:{mor:-6,msg:"A las cuatro de la mañana no quedaba nadie"},
      mal:{local:-14,escandalo:1,msg:"Aguantaron toda la noche y se supo"}},
-    {b:"Llamar a la barra para que te saquen",s:"Deber un favor",st:"car",base:54,
+    {b:"Llamar a la barra para que te saquen",s:"Le vas a deber una a {BARRA_LIDER}",st:"car",base:54,
      ok:{plata:-80,local:10,msg:"Te sacaron ellos y ahora les debés una"},
      mal:{plata:-180,escandalo:2,local:-16,msg:"Te sacaron y después te cobraron por años"}}]},
 /* ══════ v10 · CONURBANO NOVENTOSO · OKUPAS · DIEGO · REDONDOS ══════ */
@@ -2636,7 +2636,7 @@ const EXTRA=[
      ok:{plata:-20,msg:"Te vinieron a buscar y no pasó nada"},
      mal:{escandalo:1,local:-10,msg:"Vinieron los de la barra y fue peor"}}]},
 {id:"con_asado",max:2,cd:6,req:{edadMin:18},t:"EL ASADO DE LOS DOMINGOS",
- x:"Tu vieja sigue haciendo asado todos los domingos para veinte personas en el patio de atrás. Este domingo hay partido a las cinco y el técnico pidió concentración desde el mediodía.",
+ x:"Tu vieja sigue haciendo asado todos los domingos para veinte personas en el patio de atrás. Este domingo hay partido a las cinco y {DT} pidió concentración desde el mediodía.",
  o:[{b:"Ir al asado igual y avisar después",s:"Familia primero",st:"car",base:48,
      ok:{mor:16,local:10,msg:"Comiste, dormiste la siesta y metiste dos goles"},
      mal:{mor:-10,relBaja:10,rend:-1,msg:"Te multaron y te sentaron en el banco"}},
@@ -2686,7 +2686,7 @@ const EXTRA=[
      ok:{capitan:1,relSube:16,msg:"Funcionó y quedaste como el que ordena"},
      mal:{relBaja:10,msg:"Fue un caos y terminaron peor"}}]},
 {id:"con_monoblock",max:1,cd:8,req:{edadMin:19},t:"NO TE QUERÉS IR DEL MONOBLOCK",
- x:"Tenés plata para comprarte una casa en un country y seguís viviendo en el mismo departamento de dos ambientes donde te criaste. Tu representante dice que es una mala imagen. Tu vieja dice que no te va a llevar la comida a ningún country.",
+ x:"Tenés plata para comprarte una casa en un country y seguís viviendo en el mismo departamento de dos ambientes donde te criaste. {REPRE} dice que es una mala imagen. Tu vieja dice que no te va a llevar la comida a ningún country.",
  o:[{b:"Quedarte donde estás",s:"Todo un palo, ya lo ves",st:"car",base:84,
      ok:{local:28,mor:14,car:4,msg:"Te quedaste y el barrio te hizo un mural"},
      mal:{mor:-6,escandalo:1,msg:"Te entraron a robar dos veces en un mes"}},
@@ -2709,7 +2709,7 @@ const EXTRA=[
     {b:"Darle la camiseta que tenés puesta",s:"Ahí nomás",st:"car",base:99,fijo:1,
      ok:{local:22,mor:12,msg:"Se la diste en la vereda y se le cayeron las lágrimas"}}]},
 {id:"con_hermano",max:1,cd:9,req:{edadMin:19},t:"TU HERMANO SE QUIERE METER DE REPRESENTANTE",
- x:"Nunca laburó de esto. Te dice que él te cuida mejor que cualquiera y que la comisión se queda en la familia. Tu representante actual te consiguió los dos mejores contratos de tu vida.",
+ x:"Nunca laburó de esto. Te dice que él te cuida mejor que cualquiera y que la comisión se queda en la familia. {REPRE}, tu representante de siempre, te consiguió los dos mejores contratos de tu vida.",
  o:[{b:"Ponerlo a él y bancarte el riesgo",s:"La sangre primero",st:"car",base:40,
      ok:{plata:120,mor:14,local:10,msg:"Resultó ser un fenómeno negociando"},
      mal:{plata:-260,forzarMercado:1,mor:-14,msg:"Te arruinó dos operaciones en un año"}},
@@ -2799,7 +2799,7 @@ const EXTRA=[
     {b:"No ir: los streams no son lo tuyo",s:"Perfil bajo",st:"car",base:90,fijo:1,
      ok:{mundo:-4,forma:4,msg:"Te quedaste entrenando"}}]},
 {id:"ev_capitan",max:1,cd:8,req:{conClub:1,tempMin:2},t:"TE OFRECEN LA CINTA DE CAPITÁN",
- x:"Se fue el capitán histórico y el técnico te llama a la oficina. Hay dos referentes con más años que vos en el club que se sienten con más derecho, y lo hicieron saber en el vestuario.",
+ x:"Se fue el capitán histórico y {DT} te llama a la oficina y cierra la puerta con llave. Hay dos referentes con más años que vos en el club que se sienten con más derecho, y lo hicieron saber en el vestuario.",
  o:[{b:"Aceptarla y bancarte el ruido",s:"Hacerse cargo",st:"car",base:60,
      ok:{capitan:1,relSube:14,local:16,mor:12,msg:"Sos capitán y el plantel te siguió"},
      mal:{capitan:1,relBaja:24,mor:-10,msg:"Sos capitán de un vestuario que no te quiere"}},
@@ -2813,7 +2813,7 @@ const EXTRA=[
      ok:{capitan:1,plata:150,msg:"Cinta y aumento en la misma reunión"},
      mal:{plata:0,relBaja:14,local:-10,msg:"Se filtró que pediste plata por la cinta"}}]},
 {id:"ev_renovacion",max:2,cd:6,req:{conClub:1,tempMin:1},t:"TE QUIEREN RENOVAR A LA BAJA",
- x:"Venís de un buen año pero el club está fundido. Te ofrecen renovar por menos plata y con una cláusula de salida baja. Tu representante dice que es una trampa; el presidente te habla de amor a la camiseta.",
+ x:"Venís de un buen año pero el club está fundido. Te ofrecen renovar por menos plata y con una cláusula de salida baja. {REPRE} dice que es una trampa; el presidente te habla de amor a la camiseta.",
  o:[{b:"Firmar por amor a la camiseta",s:"U$D −80k · idolatría",st:"car",base:99,fijo:1,
      ok:{plata:-80,local:30,idol:6,mor:10,msg:"Firmaste a la baja y sos ídolo eterno"}},
     {b:"Negociar duro y bancarte el ruido",s:"Que paguen lo que vale",st:"car",base:50,
@@ -2826,7 +2826,7 @@ const EXTRA=[
      ok:{forzarMercado:1,plata:120,msg:"Quedás libre y te llueven las ofertas"},
      mal:{forzarMercado:1,local:-20,mor:-10,msg:"Te mandaron a la reserva hasta que te fueras"}}]},
 {id:"ev_juvenil",max:2,cd:6,req:{conClub:1,tempMin:2},t:"SUBIÓ UN PIBE QUE JUEGA EN TU PUESTO",
- x:"Tiene diecisiete, no le pesa nada y en la primera práctica te hizo un caño delante de todos. El técnico lo miró más de lo que te mira a vos desde hace un año.",
+ x:"Tiene diecisiete, no le pesa nada y en la primera práctica te hizo un caño delante de todos. {DT} lo miró más de lo que te mira a vos desde hace un año.",
  o:[{b:"Adoptarlo y enseñarle todo",s:"Bancar al pibe",st:"car",base:76,
      ok:{relSube:20,local:14,mor:10,msg:"Te lo ganaste de por vida y el plantel lo vio"},
      mal:{mor:-8,rend:-1,msg:"Aprendió rápido y te sacó el puesto"}},
@@ -2904,7 +2904,7 @@ const EXTRA=[
      ok:{plata:180,mundo:6,msg:"Cobraste una indemnización"},
      mal:{plata:-90,mundo:-12,escandalo:1,msg:"Perdiste y te quedó fama de conflictivo"}}]},
 {id:"ev_idioma",max:1,cd:8,req:{edadMin:20},t:"NO ENTENDÉS UNA PALABRA DE LO QUE TE DICEN",
- x:"Tercer país, tercer idioma y una charla táctica de veinte minutos donde entendiste tres palabras. El técnico te preguntó algo y contestaste que sí. Ahora todos te miran esperando que hagas algo.",
+ x:"Tercer país, tercer idioma y una charla táctica de veinte minutos donde entendiste tres palabras. {DT} te preguntó algo y contestaste que sí. Ahora todos te miran esperando que hagas algo.",
  o:[{b:"Tomar clases todos los días",s:"U$D −40k",st:"car",base:80,
      ok:{plata:-40,car:5,rend:2,relSube:12,msg:"En seis meses hablabas mejor que el traductor"},
      mal:{plata:-40,mor:-8,msg:"No te entró nunca y seguiste perdido"}},
@@ -2929,7 +2929,7 @@ const EXTRA=[
     {b:"Aguantarlo y seguir jugando",s:"Tragarse todo",st:"car",base:88,fijo:1,
      ok:{mor:-14,car:4,msg:"Te lo tragaste y no dormiste esa noche"}}]},
 {id:"ev_barra2",max:2,cd:7,req:{conClub:1,tempMin:2},t:"LA BARRA QUIERE ENTRADAS Y UN PORCENTAJE",
- x:"El jefe de la barra te espera en el gimnasio del club. No amenaza: te explica, tranquilo, cuántas entradas necesita por partido y qué porcentaje de los premios le corresponde al plantel entregar.",
+ x:"{BARRA_LIDER} te espera en el gimnasio del club. No amenaza: te explica, tranquilo, cuántas entradas necesita por partido y qué porcentaje de los premios le corresponde al plantel entregar.",
  o:[{b:"Pagar y comprar paz",s:"U$D −120k",st:"car",base:99,fijo:1,
      ok:{plata:-120,local:8,msg:"Pagaste y no te molestaron más en dos años"}},
     {b:"Llevarlo a la dirigencia",s:"Que lo resuelva el club",st:"car",base:56,
@@ -2942,7 +2942,7 @@ const EXTRA=[
      ok:{nac:16,mundo:14,local:-10,msg:"Cayeron seis y te pusieron custodia"},
      mal:{local:-30,escandalo:2,salud:["gemR",-18],msg:"Te pintaron la casa y te cantaron un mes"}}]},
 {id:"ev_fundacion",max:1,cd:9,req:{edadMin:22,plataMin:250},t:"ARMAR TU PROPIA FUNDACIÓN",
- x:"Tu representante te dice que conviene por impuestos. Tu vieja te dice que conviene porque en el barrio hace falta. Las dos cosas son ciertas y no se llevan bien.",
+ x:"{REPRE} te cayó al entrenamiento con un bolso lleno de contratos y te dice que conviene por impuestos. Tu vieja te dice que conviene porque en el barrio hace falta. Las dos cosas son ciertas y no se llevan bien.",
  o:[{b:"Armarla en serio y meterte vos",s:"U$D −260k",st:"car",base:70,
      ok:{plata:-260,local:34,mundo:18,mor:16,msg:"Funciona, da de comer a 400 pibes y vas todas las semanas"},
      mal:{plata:-340,escandalo:1,msg:"Se te fue de las manos y la tuviste que cerrar"}},
@@ -3033,7 +3033,7 @@ const EXTRA=[
 {id:"ev_dt_pelea",max:2,cd:6,req:{conClub:1,tempMin:1},t:"EL TÉCNICO TE SACÓ EN EL ENTRETIEMPO",
  x:"Ibas ganando, venías jugando bien y te sacó sin mirarte. Cuando pasaste al lado del banco le dijiste algo. Él te contestó. Hay treinta cámaras y un micrófono ambiental a dos metros.",
  o:[{b:"Ir al vestuario y no salir más",s:"Que se pudra",st:"car",base:40,
-     ok:{local:14,car:4,msg:"El técnico se fue a fin de año y vos quedaste"},
+     ok:{local:14,car:4,msg:"{DT} se fue a fin de año y vos quedaste"},
      mal:{escandalo:2,relBaja:20,rend:-2,local:-18,msg:"Te suspendieron dos fechas y te multaron"}},
     {b:"Sentarte en el banco y aplaudir",s:"Tragarse todo",st:"car",base:84,
      ok:{car:5,relSube:10,mor:-6,msg:"Te la bancaste y el vestuario lo valoró"},
@@ -3103,7 +3103,7 @@ const EXTRA=[
     {b:"Meterlo a nombre de tu viejo",s:"Astucia fiscal",st:"car",base:60,ok:{plata:70,msg:"Nadie te ata a nada"},mal:{plata:-90,mundo:-12,msg:"Investigación de la AFIP"}},
     {b:"No meterte en quilombos",s:"Perfil bajo",st:"car",base:99,fijo:1,ok:{mor:-4,msg:"Seguís tranquilo"}}]},
 {id:"ex_barra",max:2,t:"TE ESPERAN EN EL ESTACIONAMIENTO",
- x:"Cuatro tipos de la barra te frenan el auto. No vienen a pedirte la camiseta.",
+ x:"{BARRA_LIDER} te frena el auto en la puerta del predio con cuatro tipos más. No vienen a pedirte la camiseta.",
  o:[{b:"Bancar la parada",s:"Riesgo de gambas",st:"car",base:52,ok:{car:6,local:16,msg:"Los frenaste de palabra"},mal:{salud:["rodL",-30],mor:-10,msg:"Te dieron una paliza"}},
     {b:"Pagarles y listo",s:"U$D −60k",st:"car",base:95,fijo:1,ok:{plata:-60,msg:"Compraste paz"}},
     {b:"Denunciarlos",s:"Prensa nacional",st:"car",base:58,ok:{nac:14,mundo:8,msg:"Sos el tipo que se plantó"},mal:{local:-30,salud:["tobL",-16],msg:"Te pintaron la casa"}},
@@ -3640,8 +3640,8 @@ function cartaMundialClubes(){
 function cartaPretemporada(){
   const c=rnd(disponibles(PRETEMP));marcar(c.id);nuevosTokens();
   c.__o=seis(c.o,"pretemp");
-  carta({eye:"PRETEMPORADA "+p.anio,titulo:c.t,texto:c.x,ciego:1,
-    opts:c.__o.map(o=>({b:o.b,s:o.s,fijo:o.fijo,cb:()=>resolverSimple(o,"PRETEMPORADA",faseSiguiente)}))});
+  carta({eye:"PRETEMPORADA "+p.anio,titulo:tokens(c.t),texto:tokens(c.x),ciego:1,
+    opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"PRETEMPORADA",faseSiguiente)}))});
 }
 /* ── FASE 3 · EXTRADEPORTIVO ── */
 function cartaExtra(){
@@ -3649,8 +3649,8 @@ function cartaExtra(){
   const bizarro=dado(.11);
   const c=rnd(disponibles(bizarro?BIZARROS:EXTRA));marcar(c.id);nuevosTokens();
   c.__o=seis(c.o,"extra");
-  carta({eye:bizarro?"ESTO NO PASA NUNCA":"FUERA DE LA CANCHA",titulo:c.t,texto:c.x,ciego:1,
-    opts:c.__o.map(o=>({b:o.b,s:o.s,fijo:o.fijo,cb:()=>resolverSimple(o,"POLÉMICA",cierreTemporada)}))});
+  carta({eye:bizarro?"ESTO NO PASA NUNCA":"FUERA DE LA CANCHA",titulo:tokens(c.t),texto:tokens(c.x),ciego:1,
+    opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"POLÉMICA",cierreTemporada)}))});
 }
 
 function resolverSimple(o,eyebrow,sigue){
@@ -3663,7 +3663,7 @@ function resolverSimple(o,eyebrow,sigue){
   if(ef.relPibe)tuitarPibe(ef.relPibe);      /* v8 · reacción de X al programa */
   calcOVR();render();
   let h='<div class="card"><div class="eyebrow"><span>'+eyebrow+'</span><em>'+p.anio+'</em></div>';
-  h+='<div class="res"><h4 class="'+(ok?"ok":"no")+'">'+(ef.msg||(ok?"SALIÓ":"NO SALIÓ")).toUpperCase()+'</h4>';
+  h+='<div class="res"><h4 class="'+(ok?"ok":"no")+'">'+tokens(ef.msg||(ok?"SALIÓ":"NO SALIÓ")).toUpperCase()+'</h4>';
   h+='<p>'+(ok?"Elegiste y salió como querías.":"Elegiste y te salió por la culata. Así es esto.")+'</p>';
   if(chips)h+='<div class="chips2">'+chips+'</div>';
   h+='</div><button class="cta" id="btn-seguir">Seguir</button></div>';
@@ -3946,7 +3946,7 @@ function momento(){
   T.jug=j;T.m=m;
   carta({eye:"TEMPORADA "+p.anio,comp:m.comp,compTxt:m.fecha,compSub:subCompetencia(m),
     titulo:tokens(j.t),texto:tokens(j.x),seg:SEG(j.seg),mk:m,prog:[T.i,T.mom.length],ciego:1,
-    opts:seis(j.o,"jugada").map(o=>({b:tokens(o.b),s:o.s,fijo:o.fijo,cb:()=>resolverJugada(o,false)})),
+    opts:seis(j.o,"jugada").map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverJugada(o,false)})),
     onTimeout:()=>resolverJugada(null,true)});
 }
 
@@ -4030,7 +4030,7 @@ function resolverJugada(o,dormido){
   else if(res==="perdio"){T.perdidos++;T.rend-=Math.round(m.peso*0.7);}
   copaProgreso(m,res);          /* v10 · avanza la llave de copa si toca */
 
-  const tit=dormido?"TE DORMISTE":(ef.msg||(ok?"SALIÓ":"NO SALIÓ"));
+  const tit=dormido?"TE DORMISTE":tokens(ef.msg||(ok?"SALIÓ":"NO SALIÓ"));
   const cls=dormido?"no":(ok?"ok":"no");
   const resTxt=(res==="gano"?"GANARON ":res==="perdio"?"PERDIERON ":"EMPATE ")+m.mk[0]+"-"+m.mk[1];
 
@@ -5383,7 +5383,7 @@ function dtFase(){
 function dtCarta(deck,eye){
   const c=rnd(disponibles(deck));marcar(c.id);
   carta({eye:eye,titulo:c.t,texto:c.x,seg:SEG(c.seg),ciego:1,
-    opts:seis(c.o,"dt").map(o=>({b:o.b,s:o.s,fijo:o.fijo,cb:()=>dtResolver(o,eye)})),
+    opts:seis(c.o,"dt").map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>dtResolver(o,eye)})),
     onTimeout:c.seg?()=>dtResolver(null,eye):null});
 }
 function dtResolver(o,eye){
@@ -5502,7 +5502,7 @@ function aniosDelMedio(){
   const salto=ri(4,6);
   c.__o=seis(c.o,"medio");
   carta({eye:"AÑOS DEL MEDIO · "+p.edad+" AÑOS",titulo:c.t,texto:c.x,ciego:1,
-    opts:c.__o.map(o=>({b:o.b,s:o.s,fijo:o.fijo,cb:()=>{
+    opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>{
       const ok=o.fijo?true:dado(prob(o)/100);
       const ef=ok?o.ok:(o.mal||{msg:"No pasó nada"});
       const chips=aplicar(ef);
@@ -5922,6 +5922,21 @@ const EF_OK=["gol","asist","gol_rival","roja","rend","forma","mor","local","mund
   "forzarMercado","rivalPica","libre","msg","bandera","quitarBandera","escandalo","idol",
   "finPor","dtPts","dtPac","dtPres","relSube","relBaja","relPibe",
   "afa","mote"];
+/* v11 · Para medir rótulos hay que reemplazar los tokens por el valor más
+   largo que pueden llegar a tomar, si no se cuelan botones que se cortan. */
+function masLargo(arr){let m="";arr.forEach(x=>{if(String(x).length>m.length)m=String(x);});return m;}
+function medirToken(t){
+  const barras=[];Object.keys(BARRAS_CLUBES).forEach(k=>BARRAS_CLUBES[k].forEach(x=>barras.push(x)));
+  const idolos=[];Object.keys(IDOLOS_CLUBES).forEach(k=>IDOLOS_CLUBES[k].forEach(x=>idolos.push(x)));
+  const dts=Object.keys(TECNICOS_CLUBES).map(k=>TECNICOS_CLUBES[k]);
+  return String(t)
+    .replace(/\{COMPA\}/g,"Nicolás Marcoff").replace(/\{ELLOS\}/g,"Tadeo Giordano")
+    .replace(/\{PIBE\}/g,"Nicolás Marcoff").replace(/\{PIB\}/g,"Nicolás")
+    .replace(/\{DT\}/g,masLargo(dts))
+    .replace(/\{BARRA_LIDER\}/g,masLargo(barras))
+    .replace(/\{REPRE\}/g,masLargo(REPRESENTANTES))
+    .replace(/\{IDOLO\}/g,masLargo(idolos));
+}
 function validarMazos(){
   const errs=[],ids={},zonas=Object.keys(ZONAS);
   const mazos={JUGADAS:JUGADAS,PRETEMP:PRETEMP,EXTRA:EXTRA,MEDIO:MEDIO,
@@ -5948,7 +5963,7 @@ function validarMazos(){
   Object.keys(COMODINES).forEach(pool=>{
     const lim=pool==="jugada"?28:42;
     COMODINES[pool].forEach((o,i)=>{
-      const et=o.b.replace("{COMPA}","Nicolás Marcoff").replace("{ELLOS}","Tadeo Giordano");
+      const et=medirToken(o.b);
       if(et.length>lim)errs.push("comodín "+pool+"["+i+"]: rótulo de "+et.length+" chars (máx "+lim+") · "+et);
       if(!o.fijo&&o.base===undefined)errs.push("comodín "+pool+"["+i+"]: sin base ni fijo");
       if(!o.fijo&&!o.mal)errs.push("comodín "+pool+"["+i+"]: sin rama mal");
@@ -5966,8 +5981,8 @@ function validarMazos(){
       if(nm==="JUGADAS"&&(!c.pos||!c.pos.length))errs.push(c.id+": sin campo pos");
       c.o.forEach((o,i)=>{
         if(!o.b)errs.push(c.id+" op"+i+": sin rótulo");
-        else{const lim=c.seg?28:42;
-          if(o.b.length>lim)errs.push(c.id+" op"+i+": rótulo de "+o.b.length+" chars (máx "+lim+") · "+o.b);}
+        else{const lim=c.seg?28:42, et=medirToken(o.b);
+          if(et.length>lim)errs.push(c.id+" op"+i+": rótulo de "+et.length+" chars (máx "+lim+") · "+et);}
         if(!o.fijo&&o.base===undefined)errs.push(c.id+" op"+i+": sin base ni fijo");
         if(!o.fijo&&!o.mal)errs.push(c.id+" op"+i+": sin rama mal");
         [o.ok,o.mal].forEach(ef=>{
@@ -6576,7 +6591,7 @@ function granPrueba(){
   p.edad=15;render();ledDin();
   carta({eye:"LA GRAN PRUEBA · 2026",titulo:"MINUTO 28, TE QUEDA A VOS",ciego:1,seg:SEG(6.5),
     texto:"Cancha auxiliar en Moreno, ocho de la mañana, escarcha. Trescientos pibes con pecheras y cuatro veedores con carpeta sobre la línea de cal. Vos sos el 47. Al lado tuyo, el Chapa Ferreyra al arco y Tomi Aguirre por izquierda. Enfrente, la pechera 12: botines nuevos y representante propio a los quince. Quedan dos minutos y el de Lanús ya cerró la carpeta. Te queda la pelota a veinticinco metros.",
-    opts:baraja(GP_JUGADA).map(o=>({b:o.b,s:o.s,cb:()=>gpResolver(o)})),
+    opts:baraja(GP_JUGADA).map(o=>({b:o.b,s:tokens(o.s||''),cb:()=>gpResolver(o)})),
     onTimeout:()=>gpResolver(null)});
 }
 function gpResolver(o){
@@ -6968,7 +6983,7 @@ function munQTE(){
     compSub:"cuatro segundos · necesitás dos de tres",
     prog:[_mun.qte,3],
     titulo:tokens(c.t),texto:tokens(c.x),seg:4.0,ciego:1,
-    opts:c.o.map(o=>({b:o.b,s:o.s,fijo:o.fijo,cb:()=>munQTEResolver(o)})),
+    opts:c.o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>munQTEResolver(o)})),
     onTimeout:()=>munQTEResolver(null)});
 }
 function munQTEResolver(o){
@@ -7658,7 +7673,7 @@ function cartaEdad(){
   const mostrar=(c,eye,cierre)=>{
     p.edadEvento=p.edad;p.evTemp=p.temporadas;marcar(c.id);nuevosTokens();
     carta({eye:eye,titulo:c.t,texto:tokens(c.x),ciego:1,
-      opts:baraja(c.o).map(o=>({b:tokens(o.b),s:o.s,fijo:o.fijo,
+      opts:baraja(c.o).map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,
         cb:()=>resolverSimple(o,cierre,faseSiguiente)}))});
     return true;
   };
