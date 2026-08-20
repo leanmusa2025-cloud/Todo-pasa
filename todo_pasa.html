@@ -1869,7 +1869,7 @@ function nuevoJugador(){return{
   tier:0,gp:{pts:0,tono:"envidia"},arq:{lirico:0,rustico:0,egoista:0,creador:0},arquetipo:"",
   vestuario:0,karma:null,karmaUsado:false,sobreTemp:-99,camaTemp:-99,cama:false,feed:[],
   pais:"ARG",ligaCasa:"ARG",tabla:null,pos:0,copaHab:"",descensos:0,tribTemp:-99,
-  recopa:false,mundialClubes:false,campeonContAnio:0,zonaNom:"",
+  recopa:false,mundialClubes:false,campeonContAnio:0,zonaNom:"",compaNom:"",compaClub:"",
   nucaTemp:-99,afaFavor:0,secatoallas:false,idoloTemp:-99,
 
   edadEvento:-1,evTemp:-99,locuraVistas:[],
@@ -2111,7 +2111,13 @@ function jugarTemporada(){
 }
 function faseSiguiente(){
   if(p.fase===-1){p.fase=0;if(cartaEdad())return;}   /* el evento de la edad */
-  if(p.fase===0){p.fase=1;return p.club==="Libre"?cartaSinClub():cartaPretemporada();}
+  if(p.fase===0){
+    if(p.club==="Libre"){p.fase=1;return cartaSinClub();}
+    /* v10 · premios por haber ganado la Libertadores, uno atrás del otro */
+    if(p.recopa){p.recopa=false;return cartaRecopa();}
+    if(p.mundialClubes){p.mundialClubes=false;return cartaMundialClubes();}
+    p.fase=1;return cartaPretemporada();
+  }
   if(p.fase===1){
     const T=p.temp;
     if(T.i>=T.mom.length&&!T.finalDada&&T.rend>=2&&p.club!=="Libre")agregarFinal(T);
@@ -2124,6 +2130,134 @@ function faseSiguiente(){
     if(p.temporadas%3!==0&&p.evTemp!==p.temporadas)return cartaExtra();
   }
   cierreTemporada();
+}
+
+/* ── v10 · PREMIOS DE CAMPEÓN CONTINENTAL ───────────────────────────
+   Ganaste la Libertadores: te esperan la Recopa contra el campeón de la
+   Sudamericana y, después, el Mundial de Clubes con final europea.    */
+function campeonEuropeo(){
+  const l=CAMPEONES_EUR.filter(n=>n!==p.club&&club(n).n!=="Libre");
+  return club(l.length?rnd(l):"Real Madrid");
+}
+function tirada(base,st){
+  const v=base+((p.stats[st||"car"]||55)-55)*0.55+(p.stats.forma-60)*0.15;
+  return dado(clamp(v,6,95)/100);
+}
+function cartaRecopa(){
+  const riv=rivalContinental(2), nom="Recopa Sudamericana";
+  const cierre=(gano,pen)=>{
+    if(gano){
+      p.vitrina.push({ico:"🥈",n:nom,y:p.anio,oro:true});
+      mod(p.rep,"local",14);mod(p.rep,"mundo",8);mod(p.stats,"mor",10,5,100);
+      p.plata+=120; if(p.club!=="Libre")hist(p.club).tit++;
+      placa({clase:"oro",eye:"RECOPA SUDAMERICANA · "+p.anio,titulo:"¡CAMPEONES DE LA RECOPA!",
+        crest:club(p.club),
+        sub:p.club+" le ganó a "+riv.n+" el partido de los campeones"+(pen?" por penales":"")
+          +". Segunda vuelta olímpica en dos meses y el barrio todavía no bajó de la nube.",
+        stats:[["COPA","RECOPA","up"],["HINCHADA","+14","up"],["U$D","+120k","up"]],
+        btn:"Seguir",onClose:faseSiguiente});
+    }else{
+      mod(p.rep,"local",-8);mod(p.stats,"mor",-8,5,100);
+      placa({clase:"malo",eye:"RECOPA SUDAMERICANA · "+p.anio,titulo:"SE LA LLEVARON ELLOS",
+        crest:riv,
+        sub:riv.n+" te ganó el partido de los campeones"+(pen?" por penales":"")
+          +". Te quedás con la Libertadores del año pasado y con una foto que duele.",
+        stats:[["HINCHADA","−8","dn"],["MORAL","−8","dn"]],
+        btn:"Seguir",onClose:faseSiguiente});
+    }
+  };
+  carta({eye:"RECOPA SUDAMERICANA · "+p.anio,comp:"final",compTxt:"RECOPA SUDAMERICANA",
+    compSub:"campeón de libertadores vs campeón de sudamericana",
+    titulo:"EL PARTIDO DE LOS CAMPEONES",
+    texto:"Levantaste la Libertadores y la CONMEBOL te pone enfrente a "+riv.n+", que ganó la "
+      +"Sudamericana. Partido único, de noche, con las dos copas en la mesa del medio del campo.",
+    ciego:1,
+    opts:baraja([
+      {b:"Salir a comerlos de entrada",s:"Presión alta",cb:()=>{
+        mod(p.stats,"forma",6,10,100);cierre(tirada(56,"fis"),false);}},
+      {b:"Aguantar y esperar el error",s:"Paciencia de fierro",cb:()=>{
+        cierre(tirada(52,"car"),false);}},
+      {b:"Hacerte cargo de la pelota",s:"Que pase todo por vos",cb:()=>{
+        mod(p.rep,"mundo",6);cierre(tirada(50,"tec"),false);}},
+      {b:"Jugarla al empate y a los penales",s:"Cero riesgo",cb:()=>{
+        cierre(dado(clamp(.5+(p.stats.car-55)/180,.25,.78)),true);}}
+    ])});
+}
+function cartaMundialClubes(){
+  const nom="Mundial de Clubes";
+  const semi=rivalContinental(1);
+  const fin=()=>{
+    const eur=campeonEuropeo();
+    const cierre=(gano)=>{
+      if(gano){
+        p.vitrina.push({ico:"🌐",n:nom,y:p.anio,oro:true});
+        mod(p.rep,"mundo",30);mod(p.rep,"local",22);mod(p.rep,"nac",12);
+        mod(p.stats,"mor",18,5,100);subir("car",5);p.plata+=400;
+        if(p.club!=="Libre")hist(p.club).tit++;
+        placa({clase:"oro",eye:"MUNDIAL DE CLUBES · "+p.anio,titulo:"CAMPEONES DEL MUNDO",
+          crest:club(p.club),
+          sub:p.club+" le ganó la final a "+eur.n+". Un equipo sudamericano dio la vuelta "
+            +"contra el campeón de Europa y "+p.nombre+" estaba adentro de la cancha. "
+            +"De esto se habla hasta que se muera el último que lo vio.",
+          stats:[["MUNDO","+30","up"],["HINCHADA","+22","up"],["U$D","+400k","up"]],
+          btn:"Vuelta olímpica",onClose:faseSiguiente});
+      }else{
+        mod(p.rep,"mundo",10);mod(p.stats,"mor",-10,5,100);p.plata+=180;
+        placa({clase:"malo",eye:"MUNDIAL DE CLUBES · "+p.anio,titulo:"SUBCAMPEÓN DEL MUNDO",
+          crest:eur,
+          sub:eur.n+" te ganó la final. Jugaste de igual a igual contra el campeón de Europa "
+            +"y perdiste. En el mundo te miran distinto; en el barrio, no tanto.",
+          stats:[["MUNDO","+10","up"],["MORAL","−10","dn"],["U$D","+180k","up"]],
+          btn:"Seguir",onClose:faseSiguiente});
+      }
+    };
+    carta({eye:"MUNDIAL DE CLUBES · "+p.anio,comp:"final",compTxt:"FINAL DEL MUNDIAL DE CLUBES",
+      compSub:"campeón de américa vs campeón de europa",
+      titulo:"LA FINAL CONTRA "+eur.n.toUpperCase(),
+      texto:eur.n+" llega de ganar la Champions y sale a la cancha valiendo diez veces más "
+        +"que todo tu plantel junto. Noventa minutos para que la historia diga otra cosa.",
+      ciego:1,
+      opts:baraja([
+        {b:"Meterlos contra el arco",s:"No dejarlos jugar",cb:()=>{
+          mod(p.stats,"forma",5,10,100);cierre(tirada(42,"fis"));}},
+        {b:"Encerrarse y salir de contra",s:"El plan de siempre",cb:()=>{
+          cierre(tirada(46,"car"));}},
+        {b:"Jugarles de igual a igual",s:"Sin complejo",cb:()=>{
+          mod(p.rep,"mundo",8);cierre(tirada(38,"tec"));}},
+        {b:"Romper el partido a patadas",s:"Que sea un quilombo",cb:()=>{
+          mod(p.rep,"local",8);mod(p.rep,"mundo",-6);cierre(tirada(44,"fis"));}}
+      ])});
+  };
+  const cierreSemi=(gano)=>{
+    if(gano){
+      mod(p.stats,"mor",8,5,100);p.plata+=150;
+      placa({eye:"MUNDIAL DE CLUBES · "+p.anio,titulo:"A LA FINAL DEL MUNDO",crest:club(p.club),
+        sub:p.club+" pasó por arriba de "+semi.n+" y se metió en la final del Mundial de Clubes. "
+          +"Del otro lado espera el campeón de Europa.",
+        stats:[["RONDA","FINAL","up"],["U$D","+150k","up"]],btn:"Ir a la final",onClose:fin});
+    }else{
+      mod(p.stats,"mor",-10,5,100);mod(p.rep,"mundo",4);p.plata+=90;
+      placa({clase:"malo",eye:"MUNDIAL DE CLUBES · "+p.anio,titulo:"AFUERA EN LA SEMI",crest:semi,
+        sub:semi.n+" te dejó afuera en la semifinal. Viajaste medio mundo para jugar el partido "
+          +"por el tercer puesto delante de doce mil personas.",
+        stats:[["MORAL","−10","dn"],["U$D","+90k","up"]],btn:"Seguir",onClose:faseSiguiente});
+    }
+  };
+  carta({eye:"MUNDIAL DE CLUBES · "+p.anio,comp:"inter",compTxt:"SEMIFINAL DEL MUNDIAL DE CLUBES",
+    compSub:"torneo de campeones continentales",
+    titulo:"SEMIFINAL CONTRA "+semi.n.toUpperCase(),
+    texto:"Como campeón de América te subieron a un avión de catorce horas. Cancha neutral, "
+      +"pasto sintético y "+semi.n+" enfrente. El que gana juega la final contra Europa.",
+    ciego:1,
+    opts:baraja([
+      {b:"Salir a definirlo temprano",s:"Sin especular",cb:()=>{cierre_(56,"fis");}},
+      {b:"Manejar los tiempos",s:"Que se haga largo",cb:()=>{cierre_(54,"car");}},
+      {b:"Ponerte el equipo al hombro",s:"Todo por tu pie",cb:()=>{
+        mod(p.rep,"mundo",5);cierre_(50,"tec");}},
+      {b:"Guardarte para la final",s:"Jugar al 70%",cb:()=>{
+        mod(p.stats,"forma",4,10,100);cierre_(44,"car");}}
+    ])});
+  function cierre_(b,st){cierreSemi(tirada(b,st));}
 }
 
 /* ── FASE 1 · PRETEMPORADA ── */
@@ -2331,15 +2465,31 @@ function agregarFinal(T){
    nombre en las cartas: {COMPA} un compañero, {ELLOS} un rival.        */
 let _tok=null;
 function nuevosTokens(){_tok=null;}
+/* v10 · Compañero de relleno: cuando ninguno de la camada juega en tu
+   club hace falta un nombre que SÍ sea del plantel. Se guarda por club
+   para que no cambie de carta en carta.                                */
+function compaFicticio(){
+  if(p.club==="Libre")return null;
+  if(p.compaClub!==p.club||!p.compaNom){p.compaClub=p.club;p.compaNom=persona();}
+  return p.compaNom;
+}
 function tokens(txt){
   if(!_tok){
-    const G=todosLosDeLaGeneracion();
-    const compas=G.filter(q=>q.club===p.club&&p.club!=="Libre");
-    const rivales=G.filter(q=>q.club!==p.club);
+    const G=todosLosDeLaGeneracion().filter(q=>q&&q.nombre);
+    /* {COMPA}: SÓLO gente que hoy comparte vestuario con vos. Si Fochi
+       juega en Independiente y vos en Boca, no es tu compañero.        */
+    const compas=(p.club&&p.club!=="Libre")
+      ? G.filter(q=>q.club&&q.club===p.club) : [];
+    /* {ELLOS}: SÓLO rivales. Primero los del equipo que tenés enfrente
+       en este partido; si no hay, cualquiera que no sea de tu club.    */
+    const mRiv=(p.temp&&p.temp.m&&p.temp.m.rival)?p.temp.m.rival.n:null;
+    const noMios=G.filter(q=>!q.club||q.club!==p.club||p.club==="Libre");
+    const delRival=mRiv?noMios.filter(q=>q.club===mRiv):[];
+    const rivales=delRival.length?delRival:noMios;
     /* v8 · uno de la camada queda "elegido" para esta carta: {PIBE} */
     const eleg=(p.rival&&p.rival.ap&&dado(.5))?p.rival:(G.length?rnd(G):null);
-    _tok={c:compas.length?rnd(compas).nombre:"tu compañero",
-          e:rivales.length?rnd(rivales).nombre:"el nueve rival",
+    _tok={c:compas.length?rnd(compas).nombre:(compaFicticio()||"un compañero del plantel"),
+          e:rivales.length?rnd(rivales).nombre:(mRiv?"el nueve de "+mRiv:"el nueve rival"),
           q:eleg};
   }
   return txt.replace(/\{COMPA\}/g,_tok.c).replace(/\{ELLOS\}/g,_tok.e)
@@ -3027,8 +3177,15 @@ function buscarOfertas(){
   p.forzarMercado=false;
   pool.sort(()=>Math.random()-.5);
   /* v9 · los clubes de tu liga pesan más: el mercado no es una tómbola */
+  /* v10 · y el país de origen pesa muchísimo más mientras seas pibe:
+     antes de cruzar el charco te pelean los clubes de tu tierra.       */
   const casa=club(p.club).liga||ligaCasa();
-  const peso=c=>c.lv+(c.liga===casa?7:c.liga===ligaCasa()?4:0);
+  const orig=ligaCasa(), joven=p.edad<23;
+  if(joven){                     /* si no hay ninguno de tu país, se mete uno */
+    const local=CLUBES.filter(c=>c.liga===orig&&c.n!==p.club&&c.lv<=atr+4&&c.lv>=lv-8);
+    if(local.length&&!pool.some(c=>c.liga===orig))pool=pool.concat([rnd(local)]);
+  }
+  const peso=c=>c.lv+(c.liga===casa?7:0)+(c.liga===orig?(joven?24:4):0);
   pool.sort((a,b)=>peso(b)-peso(a));
   const top=pool.slice(0,4);top.sort(()=>Math.random()-.5);
   return top.slice(0,3);
@@ -4721,8 +4878,15 @@ function clubesDeTier(t){
         :t===3?(c=>c.lv>=50&&c.lv<=59&&c.liga===L)
         :(c=>c.lv<=49&&c.liga===L);
   let l=CLUBES.filter(c=>!c.petro&&f(c));
-  if(l.length<3)l=l.concat(CLUBES.filter(c=>!c.petro&&c.lv<=(t===1?80:60)&&l.indexOf(c)<0)).slice(0,6);
-  return baraja(l).slice(0,3);
+  /* v10 · Si falta gente, primero se completa con clubes del MISMO país
+     y recién después con el resto. Un pibe brasileño debuta en Brasil.  */
+  if(l.length<3)l=l.concat(CLUBES.filter(c=>!c.petro&&c.liga===L&&l.indexOf(c)<0));
+  if(l.length<3){
+    const conf=CONF[L]||"sud";
+    l=l.concat(CLUBES.filter(c=>!c.petro&&(CONF[c.liga]||"sud")===conf&&l.indexOf(c)<0));
+  }
+  if(l.length<3)l=l.concat(CLUBES.filter(c=>!c.petro&&c.lv<=(t===1?80:60)&&l.indexOf(c)<0));
+  return baraja(l.slice(0,8)).slice(0,3);
 }
 function gpFichaje(){
   const pts=p.gp.pts||0;
@@ -4792,6 +4956,70 @@ function mundialSim(mult){
   const idx=campeon?5:Math.min(4,Math.max(0,Math.round(q*6)+ri(-1,1)));
   return{campeon:campeon,ronda:RONDAS[Math.min(idx,4)]||"octavos de final",verdugo:rnd(SELECS),q:q};
 }
+/* ── v10 · MUNDIAL POR ETAPAS ────────────────────────────────────────
+   Fase de grupos completa y después eliminación directa. Cada llave son
+   tres decisiones de CUATRO SEGUNDOS clavados: con dos que te salgan,
+   pasás de ronda. Si dudás, la jugada se muere sola.                  */
+const MUNDIAL_KO=["Octavos de final","Cuartos de final","Semifinal","Final"];
+const MUN_QTE=[
+{id:"mq_contra",t:"CONTRA A LOS 88 Y ESTÁS SOLO",
+ x:"Robaste en la mitad, quedaste mano a mano con el lateral y atrás vienen tres. El estadio hace un ruido que no escuchaste nunca.",
+ o:[{b:"Encararlo y tirarle el caño",s:"Técnica",st:"tec",base:46,m:"Caño, centro atrás y gol",mm:"Te la sacó y quedaste de payaso"},
+    {b:"Tirarla larga y correr",s:"Físico",st:"fis",base:56,m:"Le ganaste la carrera y definiste",mm:"Te alcanzó el central"},
+    {b:"Frenar y esperar compañía",s:"Cabeza fría",st:"car",base:62,m:"Aguantaste y llegó la ayuda",mm:"Se cerraron todos y la perdiste"},
+    {b:"Reventarla al arco de una",s:"Sin pensar",st:"fis",base:38,m:"Golazo de treinta metros",mm:"A la tribuna, minuto 88"}]},
+{id:"mq_penal",t:"PENAL EN EL ÚLTIMO MINUTO",
+ x:"El árbitro señala el punto y cuarenta millones de personas dejan de respirar al mismo tiempo. La pelota es tuya si la agarrás ahora.",
+ o:[{b:"Agarrar la pelota y patear vos",s:"Hacerte cargo",st:"car",base:52,m:"La clavaste abajo. Silencio y después grito",mm:"Se la atajó. Te van a recordar por esto"},
+    {b:"Reventarla al medio",s:"El arquero siempre vuela",st:"fis",base:58,m:"Al medio y adentro",mm:"El arquero se quedó parado"},
+    {b:"Picarla despacito",s:"Segurola y Habana",st:"tec",base:34,m:"Panenka en un Mundial. Locura total",mm:"Papelón que se ve hasta en Marte"},
+    {b:"Dejársela al capitán",s:"Que cargue otro",fijo:1,m:"La metió él. Zafaste de la responsabilidad"}]},
+{id:"mq_marca",t:"TE PUSIERON UN PERRO ENCIMA",
+ x:"Número cinco, un metro noventa, y ya te dijo tres cosas al oído. Te viene siguiendo hasta cuando vas a tomar agua.",
+ o:[{b:"Irte a la banda a buscar aire",s:"Cabeza",st:"car",base:60,m:"Lo desarmaste y liberaste el medio",mm:"Te fuiste del partido solo"},
+    {b:"Pisarla y esperarlo de frente",s:"Técnica",st:"tec",base:48,m:"Se lo comió entero y quedó en el piso",mm:"Te la robó limpita"},
+    {b:"Meterle un codo cuando no miran",s:"¿A quién te comiste?",st:"fis",base:44,m:"Entendió el mensaje y aflojó",mm:"Lo vio el VAR. Amarilla y sermón"},
+    {b:"Aguantarlo de espaldas",s:"Físico puro",st:"fis",base:54,m:"Lo tuviste noventa minutos atrás tuyo",mm:"Te durmió el brazo y te sacó la pelota"}]},
+{id:"mq_cabezazo",t:"CÓRNER Y LA VAN A TIRAR AL SEGUNDO PALO",
+ x:"Último córner del partido. Subió hasta el arquero. Vos sabés dónde va a caer antes de que la pateen.",
+ o:[{b:"Anticiparse en el primer palo",s:"Timing",st:"tec",base:46,m:"Peinaste y entró como un tiro",mm:"Se te fue larga por arriba"},
+    {b:"Saltar a matar o morir",s:"Físico",st:"fis",base:54,m:"Cabezazo al ángulo. Se rompió todo",mm:"Choque de cabezas y quedaste tirado"},
+    {b:"Quedarte al borde del área",s:"Esperar el rebote",st:"car",base:58,m:"Rebote y volea. Adentro",mm:"El rebote fue para el otro lado"},
+    {b:"Agarrar del brazo al central",s:"Viveza criolla",st:"car",base:40,m:"Lo trabaste y entraste solo",mm:"Penal en contra. Un desastre"}]},
+{id:"mq_expulsion",t:"TE QUEDA UN AMARILLO ENCIMA",
+ x:"Ya tenés una y el nueve rival viene lanzado por tu lado. Si no lo frenás ahora, quedan solos contra el arquero.",
+ o:[{b:"Bajarlo y comerte la roja",s:"Sacrificio",st:"car",base:64,m:"Roja, pero el equipo aguantó y pasó",mm:"Roja y encima les quedó el tiro libre"},
+    {b:"Correrlo y meter la pierna limpia",s:"Riesgo total",st:"fis",base:42,m:"Se la sacaste limpita. Ovación",mm:"Llegaste tarde. Roja y penal"},
+    {b:"Dejarlo ir y volver al área",s:"Cabeza fría",st:"car",base:56,m:"Volviste a tiempo y se salvó todo",mm:"Definió cruzado y la puso"},
+    {b:"Gritarle para descolocarlo",s:"Psicología barata",st:"car",base:36,m:"Se puso nervioso y la tiró afuera",mm:"Ni te escuchó. Gol"}]},
+{id:"mq_tiempo",t:"GANÁS 1-0 Y QUEDAN CINCO MINUTOS",
+ x:"El banco te grita que la tires afuera. La tribuna te grita que la juegues. Vos tenés la pelota en el pie y el reloj en contra.",
+ o:[{b:"Tirarla a la tribuna",s:"Oficio",st:"car",base:70,m:"Perdiste treinta segundos de oro",mm:"Amarilla por demorar y la devolvieron rápido"},
+    {b:"Ir al córner a aguantarla",s:"Bandera y cuerpo",st:"fis",base:60,m:"Aguantaste hasta la falta. Fin del partido",mm:"Te la robaron en el córner"},
+    {b:"Salir jugando como si nada",s:"El lujo es vulgaridad",st:"tec",base:44,m:"Salieron jugando y la manejaron hasta el final",mm:"Pase corto, robo y empate"},
+    {b:"Buscar el segundo y liquidarlo",s:"Codicia",st:"tec",base:40,m:"Contra, gol y a dormir tranquilo",mm:"Te quedaste largo y te empataron"}]},
+{id:"mq_lesion",t:"SENTISTE UN TIRÓN EN EL ISQUIO",
+ x:"Semifinal del Mundial, minuto 60, y la gamba te avisó. El médico te mira desde afuera esperando la seña.",
+ o:[{b:"Pedir el cambio",s:"Cuidar el chasis",fijo:1,m:"Saliste sano. El equipo siguió sin vos"},
+    {b:"Aguantar hasta que se corte",s:"La pelota no se mancha",st:"car",base:46,m:"Aguantaste y hasta metiste una asistencia",mm:"Se te cortó del todo. Salís en camilla"},
+    {b:"Infiltrarte en el entretiempo",s:"A lo bruto",st:"fis",base:52,m:"Volviste enchufado y no lo sentiste más",mm:"Se te durmió la pierna y fuiste un fantasma"},
+    {b:"Bajar el ritmo y jugar de memoria",s:"Cabeza",st:"tec",base:58,m:"Jugaste al trote y la seguiste tocando bien",mm:"Te comieron por tu lado toda la noche"}]},
+{id:"mq_arquero",t:"EL ARQUERO RIVAL TE HABLA ANTES DEL TIRO LIBRE",
+ x:"Borde del área, falta a favor y el arquero se acerca a decirte que ya sabe para dónde la vas a poner.",
+ o:[{b:"Cruzarla al ángulo lejano",s:"Técnica",st:"tec",base:42,m:"Al ángulo. No la vio salir",mm:"A la barrera y contra en tu contra"},
+    {b:"Rasante por abajo de la barrera",s:"Astucia",st:"tec",base:48,m:"Saltaron todos y la pelota pasó por abajo",mm:"Un tipo se tiró al piso y la tapó"},
+    {b:"Reventarla y que sea lo que sea",s:"Físico",st:"fis",base:50,m:"Le pegó tan fuerte que el arquero la soltó. Gol",mm:"Se fue diez metros por arriba"},
+    {b:"Simular y tocarla al costado",s:"Jugada ensayada",st:"car",base:52,m:"Salió la ensayada como en el video",mm:"Se cruzaron entre ustedes. Papelón"}]}
+];
+let _mun=null;
+function munPantalla(eye,titulo,cls,cuerpo,btn,cb){
+  let h='<div class="card"><div class="eyebrow"><span>'+eye+'</span><em>'+p.anio+'</em></div>';
+  h+='<div class="res"><h4 class="'+(cls||"")+'">'+titulo+'</h4>'+cuerpo+'</div>';
+  h+='<button class="cta" id="btn-seguir">'+(btn||"Seguir")+'</button></div>';
+  const c=document.getElementById("cartas");c.dataset.ficha="0";c.innerHTML=h;
+  const bs=document.getElementById("btn-seguir");if(bs)bs.onclick=cb;
+  c.scrollIntoView({behavior:"smooth",block:"end"});
+}
 function cartaMundial(ofertas){
   const sigue=()=>{if(ofertas&&ofertas.length)cartaOferta(ofertas);else finTurno();};
   const punt=p.ovr*.6+p.rep.nac*.3+p.rep.local*.1;
@@ -4812,43 +5040,16 @@ function cartaMundial(ofertas){
       ])});
   }
   p.enSel=true;p.mundiales++;
+  _mun={sigue:sigue,mult:1,ko:0,qte:0,ok:0,cartas:[],riv:"",ultRival:""};
   const ir=(mult,extra,lb)=>({b:lb.b,s:lb.s,cb:()=>{
-    const R=mundialSim(mult);
     if(extra)extra();
-    const cerrar=()=>{
-      if(R.campeon){
-        mod(p.rep,"nac",40);mod(p.rep,"mundo",30);mod(p.rep,"local",20);
-        mod(p.stats,"mor",22,5,100);subir("car",8);
-        p.vitrina.push({ico:"🌍",n:"Mundial",y:p.anio,oro:true});
-        feedDe("mundial",{campeon:true});
-        placa({clase:"oro",eye:"🏆 COPA DEL MUNDO "+p.anio,titulo:"CAMPEÓN DEL MUNDO",
-          sub:p.nombre+" dio la vuelta con la Selección. "+rnd(["Entró en el segundo tiempo de la final y no la perdió nunca más.","Jugó los siete partidos.","Metió el gol del desempate en la semi y en la final aguantó como un animal."])+" Ahora manda en la mesa grande y nadie se lo discute.",
-          stats:[["NACIONAL","+40","up"],["MUNDO","+30","up"],["MUNDIALES",p.mundiales,""]],
-          btn:"Vuelta olímpica",onClose:sigue});
-      }else{
-        const dur=R.ronda==="fase de grupos"||R.ronda==="octavos de final";
-        mod(p.rep,"nac",dur?-8:10);mod(p.rep,"mundo",dur?0:6);mod(p.stats,"mor",dur?-14:-6,5,100);
-        const pers=rnd([
-          p.nombre+" fue titular y no apareció nunca.",
-          p.nombre+" entró de titular, metió uno y falló el que abría todo.",
-          p.nombre+" se comió una roja infantil que dejó al equipo con diez.",
-          p.nombre+" erró el penal en la tanda. Lo van a repetir en loop veinte años.",
-          p.nombre+" fue de los pocos que se salvó, pero eso no lo salva de nada."
-        ]);
-        const ver=dur?"En la tele piden que no lo convoquen nunca más.":"El país está partido: la mitad lo banca, la otra mitad pide sangre.";
-        feedDe("mundial",{ronda:R.ronda,verdugo:R.verdugo,veredicto:ver});
-        const tit=R.ronda==="la final"?"PERDIMOS LA FINAL":"AFUERA EN "+R.ronda.toUpperCase();
-        placa({clase:"malo",eye:"🏆 COPA DEL MUNDO "+p.anio,titulo:tit,
-          sub:(R.ronda==="la final"?"Perdimos la final con ":"Nos eliminó ")+R.verdugo+
-            (R.ronda==="la final"?". ":" en "+R.ronda+". ")+pers+" "+ver,
-          stats:[["NACIONAL",(dur?"−8":"+10"),dur?"dn":"up"],["MORAL",dur?"−14":"−6","dn"]],
-          btn:"Volver al club",onClose:sigue});
-      }
-    };
-    if(karmaPendiente())dispararKarma("el Mundial "+p.anio,cerrar);else cerrar();
+    _mun.mult=mult;
+    if(karmaPendiente())dispararKarma("el Mundial "+p.anio,munGrupos);else munGrupos();
   }});
-  carta({eye:"🏆 COPA DEL MUNDO "+p.anio,titulo:"ESTÁS EN LA LISTA DE 26",ciego:1,
-    texto:"Leyeron tu apellido y se te cayó el teléfono. Concentración de cinco semanas, un país entero encima y un solo torneo que se acuerda todo el mundo. ¿Cómo lo jugás?",
+  carta({eye:"🏆 COPA DEL MUNDO "+p.anio,comp:"inter",compTxt:"COPA DEL MUNDO "+p.anio,
+    compSub:"fase de grupos · un país entero encima",
+    titulo:"ESTÁS EN LA LISTA DE 26",ciego:1,
+    texto:"Leyeron tu apellido y se te cayó el teléfono. Concentración de cinco semanas, un país entero encima y un solo torneo que se acuerda todo el mundo. Primero hay que salir del grupo. ¿Cómo lo jugás?",
     opts:baraja([
       ir(1,null,{b:"Jugarlo callado y a lo que salga"}),
       ir(1.25,()=>{mod(p.rep,"mundo",12);},{b:"Pedir la 10 y hacerte cargo"}),
@@ -4857,6 +5058,138 @@ function cartaMundial(ofertas){
       ir(1.3,()=>{modVest(12);mod(p.stats,"mor",8,5,100);},{b:"Ser el que ordena el vestuario"}),
       ir(.9,()=>{p.plata+=60;mod(p.rep,"local",-8);},{b:"Llevar a toda la familia a la concentra"})
     ])});
+}
+/* ── FASE DE GRUPOS DEL MUNDIAL ── */
+function munGrupos(){
+  const rivs=baraja(SELECS.slice()).slice(0,3);
+  const fuerza=clamp(52+(p.ovr-62)*1.05+p.rep.nac*0.10+(_mun.mult-1)*26
+    +(MODO==="fantasia"?12:0),30,94);
+  const G=[{n:"Tu selección",lv:fuerza,pts:0,gf:0,gc:0,pj:0,yo:true}];
+  rivs.forEach(n=>G.push({n:n,lv:ri(58,86),pts:0,gf:0,gc:0,pj:0}));
+  const lineas=[];
+  for(let i=1;i<=3;i++){
+    const g=golesRapido(G[0].lv,G[i].lv);
+    anotarGrupo(G,G[0].n,G[i].n,g[0],g[1]);
+    lineas.push("Fecha "+i+" · vs "+G[i].n+": "+g[0]+"-"+g[1]);
+  }
+  const pares=[[1,2],[1,3],[2,3]];
+  pares.forEach(x=>{const g=golesRapido(G[x[0]].lv,G[x[1]].lv);
+    anotarGrupo(G,G[x[0]].n,G[x[1]].n,g[0],g[1]);});
+  const tabla=ordenarGrupo(G);
+  let mi=1;tabla.forEach((x,i)=>{if(x.yo)mi=i+1;});
+  const paso=mi<=2;
+  _mun.grupoPos=mi;
+  const cuerpo='<p>'+lineas.join(" · ")+'</p>'+tablaGrupoHTML(tabla,"Copa del Mundo "+p.anio);
+  if(paso){
+    mod(p.rep,"nac",6);
+    munPantalla("🏆 COPA DEL MUNDO "+p.anio,"CLASIFICADOS "+mi+"º DEL GRUPO","ok",cuerpo,
+      "Ir a octavos",munKO);
+  }else{
+    mod(p.rep,"nac",-14);mod(p.stats,"mor",-16,5,100);
+    feedDe("mundial",{ronda:"fase de grupos",verdugo:tabla[0].n,
+      veredicto:"En la tele piden que no lo convoquen nunca más."});
+    munPantalla("🏆 COPA DEL MUNDO "+p.anio,"ELIMINADOS EN FASE DE GRUPOS","no",cuerpo,
+      "Volver al club",()=>munFin(false,"fase de grupos",tabla[0].n));
+  }
+}
+/* ── ELIMINACIÓN DIRECTA · TRES DECISIONES DE CUATRO SEGUNDOS ── */
+function munKO(){
+  const R=MUNDIAL_KO[_mun.ko];
+  const pool=SELECS.filter(n=>n!==_mun.ultRival);
+  _mun.riv=pool.length?rnd(pool):"Brasil";
+  _mun.ultRival=_mun.riv;
+  _mun.qte=0;_mun.ok=0;
+  _mun.cartas=baraja(MUN_QTE.slice()).slice(0,3);
+  munPantalla("🏆 COPA DEL MUNDO "+p.anio,R.toUpperCase()+" CONTRA "+_mun.riv.toUpperCase(),"",
+    '<p>Se define en noventa minutos: el que pierde se vuelve a casa. '
+    +'Van a pasar <b>tres momentos</b> y en cada uno tenés <b>cuatro segundos</b> para elegir. '
+    +'Con <b>dos de tres</b> que te salgan, pasás de ronda. Si dudás, la jugada se muere sola.</p>',
+    "Salir a la cancha",munQTE);
+}
+function munQTE(){
+  if(_mun.qte>=3)return munKOResuelto();
+  const c=_mun.cartas[_mun.qte];
+  const esFinal=_mun.ko>=MUNDIAL_KO.length-1;
+  nuevosTokens();
+  carta({eye:"🏆 "+MUNDIAL_KO[_mun.ko].toUpperCase()+" · VS "+_mun.riv.toUpperCase(),
+    comp:esFinal?"final":"inter",
+    compTxt:"DECISIÓN "+(_mun.qte+1)+" DE 3",
+    compSub:"cuatro segundos · necesitás dos de tres",
+    prog:[_mun.qte,3],
+    titulo:tokens(c.t),texto:tokens(c.x),seg:4.0,ciego:1,
+    opts:c.o.map(o=>({b:o.b,s:o.s,fijo:o.fijo,cb:()=>munQTEResolver(o)})),
+    onTimeout:()=>munQTEResolver(null)});
+}
+function munQTEResolver(o){
+  clearTimeout(tJug);
+  let ok=false,msg,tit;
+  if(!o){tit="TE DORMISTE";msg="Cuatro segundos y te quedaste pensando. La jugada pasó de largo.";
+    mod(p.stats,"mor",-4,5,100);}
+  else{
+    ok=o.fijo?true:dado(prob(o)/100);
+    tit=ok?"SALIÓ":"NO SALIÓ";
+    msg=ok?(o.m||"Salió como querías."):(o.mm||"Te salió por la culata.");
+    if(ok){mod(p.stats,"forma",4,10,100);}else{mod(p.stats,"forma",-3,10,100);}
+  }
+  if(ok)_mun.ok++;
+  _mun.qte++;
+  const faltan=3-_mun.qte;
+  const estado="Llevás "+_mun.ok+" de "+_mun.qte+"."
+    +(faltan?" Quedan "+faltan+".":"");
+  calcOVR();render();
+  munPantalla("🏆 "+MUNDIAL_KO[_mun.ko].toUpperCase()+" · VS "+_mun.riv.toUpperCase(),
+    tit,ok?"ok":"no",'<p>'+msg+' '+estado+'</p>',
+    faltan?"Seguir":"Ver el resultado",munQTE);
+}
+function munKOResuelto(){
+  const paso=_mun.ok>=2;
+  const R=MUNDIAL_KO[_mun.ko];
+  if(paso){
+    if(_mun.ko>=MUNDIAL_KO.length-1)return munFin(true,"la final",_mun.riv);
+    _mun.ko++;
+    mod(p.rep,"nac",8);mod(p.stats,"mor",6,5,100);
+    munPantalla("🏆 COPA DEL MUNDO "+p.anio,"PASAMOS A "+MUNDIAL_KO[_mun.ko].toUpperCase(),"ok",
+      '<p>'+_mun.ok+' de 3 y el país se vuelve loco. Le ganaste a '+_mun.riv
+      +' y ahora viene '+MUNDIAL_KO[_mun.ko].toLowerCase()+'.</p>',
+      "Seguir en carrera",munKO);
+  }else{
+    munFin(false,R.toLowerCase(),_mun.riv);
+  }
+}
+function munFin(campeon,ronda,verdugo){
+  const sigue=_mun.sigue;
+  if(campeon){
+    mod(p.rep,"nac",40);mod(p.rep,"mundo",30);mod(p.rep,"local",20);
+    mod(p.stats,"mor",22,5,100);subir("car",8);
+    p.vitrina.push({ico:"🌍",n:"Copa del Mundo",y:p.anio,oro:true});
+    feedDe("mundial",{campeon:true});
+    return placa({clase:"oro",eye:"🏆 COPA DEL MUNDO "+p.anio,titulo:"CAMPEÓN DEL MUNDO",
+      sub:p.nombre+" dio la vuelta con la Selección. Le ganaron la final a "+verdugo
+        +" y "+rnd(["entró en el segundo tiempo y no la perdió nunca más.",
+          "jugó los siete partidos de titular.",
+          "metió el gol del desempate en la semi y en la final aguantó como un animal."])
+        +" Ahora manda en la mesa grande y no se lo discute nadie.",
+      stats:[["NACIONAL","+40","up"],["MUNDO","+30","up"],["MUNDIALES",p.mundiales,""]],
+      btn:"Vuelta olímpica",onClose:sigue});
+  }
+  const dur=ronda==="fase de grupos"||ronda==="octavos de final";
+  mod(p.rep,"nac",dur?-8:10);mod(p.rep,"mundo",dur?0:6);mod(p.stats,"mor",dur?-14:-6,5,100);
+  const pers=rnd([
+    p.nombre+" fue titular y no apareció nunca.",
+    p.nombre+" entró de titular, metió uno y falló el que abría todo.",
+    p.nombre+" se comió una roja infantil que dejó al equipo con diez.",
+    p.nombre+" erró el penal en la tanda. Lo van a repetir en loop veinte años.",
+    p.nombre+" fue de los pocos que se salvó, pero eso no lo salva de nada."
+  ]);
+  const ver=dur?"En la tele piden que no lo convoquen nunca más."
+    :"El país está partido: la mitad lo banca, la otra mitad pide sangre.";
+  feedDe("mundial",{ronda:ronda,verdugo:verdugo,veredicto:ver});
+  const tit=ronda==="la final"?"PERDIMOS LA FINAL":"AFUERA EN "+ronda.toUpperCase();
+  placa({clase:"malo",eye:"🏆 COPA DEL MUNDO "+p.anio,titulo:tit,
+    sub:(ronda==="la final"?"Perdimos la final con ":"Nos eliminó ")+verdugo
+      +(ronda==="la final"?". ":" en "+ronda+". ")+pers+" "+ver,
+    stats:[["NACIONAL",(dur?"−8":"+10"),dur?"dn":"up"],["MORAL",dur?"−14":"−6","dn"]],
+    btn:"Volver al club",onClose:sigue});
 }
 
 /* ── 8 · MIGRACIÓN DE PARTIDAS VIEJAS ────────────────────────────── */
