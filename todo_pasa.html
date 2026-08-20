@@ -1968,7 +1968,7 @@ const BIZARROS=[
 ];
 const EXTRA=[
 /* ══════ v10 · EL JEFE DE LA LIGA Y LA CALESITA DE VIAMONTE ══════ */
-{id:"afa_nuca",max:1,cd:9,req:{conClub:1,tempMin:1},t:"LA NUCA DEL JEFE",
+{id:"afa_nuca",max:1,cd:9,req:{conClub:1,tempMin:1,calor:1},t:"LA NUCA DEL JEFE",
  x:"Cuarenta grados a la sombra, el asfalto derretido y un partido que no se puede jugar. Desde el palco, el Jefe de la Liga te hace la seña: subí. Tiene la toalla en la mano y la nuca empapada. Cuarenta mil personas ven todo.",
  o:[{b:"Subir y secarle la nuca",s:"U$D +900k · te odia el barrio",st:"car",base:99,fijo:1,
      ok:{plata:900,nac:26,afa:34,local:-40,mundo:-12,escandalo:1,mote:"secatoallas",
@@ -3077,7 +3077,7 @@ function nuevoJugador(){return{
   vestuario:0,karma:null,karmaUsado:false,sobreTemp:-99,camaTemp:-99,cama:false,feed:[],
   pais:"ARG",ligaCasa:"ARG",tabla:null,pos:0,copaHab:"",descensos:0,tribTemp:-99,
   recopa:false,mundialClubes:false,campeonContAnio:0,zonaNom:"",compaNom:"",compaClub:"",
-  nucaTemp:-99,afaFavor:0,secatoallas:false,idoloTemp:-99,mote:"",
+  afaFavor:0,idoloTemp:-99,mote:"",calor:false,
 
   edadEvento:-1,evTemp:-99,locuraVistas:[],
   declaracionTemp:-99,charlaTemp:{},relGen:{},sorteoGen:null,
@@ -3152,6 +3152,7 @@ function cumpleReq(c){
   if(r.noBandera&&banderaViva(r.noBandera))return false;
   if(r.pos&&r.pos.indexOf(p.pos)<0)return false;
   if(r.conClub&&p.club==="Libre")return false;
+  if(r.calor&&!p.calor)return false;      /* v10 · sólo con ola de calor */
   return true;
 }
 function disponibles(deck,extraFiltro){
@@ -3311,6 +3312,8 @@ function jugarTemporada(){
   p.rol=calcRol();
   let n=p.club==="Libre"?0:({Estrella:5,Titular:4,"Rotación":3,Suplente:3,Promesa:3}[p.rol]||3);
   if(p.express)n=Math.min(n,3);
+  /* v10 · verano de cuarenta grados: habilita lo que sólo pasa con calor */
+  p.calor=dado(.26);
   p.temp={mom:[],i:0,goles:0,asist:0,rend:0,rojas:0,ganados:0,perdidos:0};
   p.temp.mom=armarMomentos(n);
   p.fase=-1;
@@ -5785,7 +5788,19 @@ function validarMazos(){
   });
   if(MUN_QTE.length<3)errs.push("MUN_QTE: hacen falta 3 cartas mínimo (una por decisión)");
 
-  /* 7 · la prensa negativa la encabeza Azzaro, siempre */
+  /* 7 · los requisitos de carta tienen que existir en cumpleReq */
+  const REQ_OK=["edadMin","edadMax","nivelMin","nivelMax","plataMin","ovrMin","tempMin",
+    "bandera","noBandera","pos","conClub","calor"];
+  [JUGADAS,PRETEMP,EXTRA,BIZARROS,MEDIO,LOCURA].forEach(mz=>{
+    mz.forEach(c=>{
+      if(!c.req)return;
+      Object.keys(c.req).forEach(k=>{
+        if(REQ_OK.indexOf(k)<0)errs.push(c.id+": requisito desconocido '"+k+"'");
+      });
+    });
+  });
+
+  /* 8 · la prensa negativa la encabeza Azzaro, siempre */
   if(!PERIO.length||PERIO[0].u!=="Flavio Azzaro")
     errs.push("PERIO: Flavio Azzaro tiene que ser el primero (lidera la prensa negativa)");
   if(AZZARO.u!=="Flavio Azzaro")errs.push("AZZARO: no apunta a Flavio Azzaro");
@@ -6646,10 +6661,9 @@ function migrarV6(q){
   if(q.zonaNom===undefined)q.zonaNom="";
   if(q.compaNom===undefined)q.compaNom="";
   if(q.compaClub===undefined)q.compaClub="";
-  if(q.nucaTemp===undefined)q.nucaTemp=-99;
   if(q.afaFavor===undefined)q.afaFavor=0;
-  if(q.secatoallas===undefined)q.secatoallas=false;
   if(q.idoloTemp===undefined)q.idoloTemp=-99;
+  if(q.calor===undefined)q.calor=false;
   if(q.mote===undefined)q.mote="";
   if(q.tier===undefined)q.tier=0;
   if(!q.arq)q.arq={lirico:0,rustico:0,egoista:0,creador:0};
