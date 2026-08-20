@@ -86,10 +86,18 @@
   text-transform:uppercase;line-height:1.15;color:var(--ink)}
 .comp .cs{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--dim);
   text-transform:uppercase;margin-top:3px}
+.comp.liga{border-left-color:var(--a1)} .comp.liga .cn{color:#9BE9F4}
 .comp.clasico{border-left-color:var(--bad)} .comp.clasico .cn{color:#FF8A9B}
 .comp.final{border-left-color:var(--oro)} .comp.final .cn{color:#F5C542}
 .comp.inter{border-left-color:#3DDC97} .comp.inter .cn{color:#7BE8B8}
 .comp.copa{border-left-color:#6CACE4} .comp.copa .cn{color:#A8D3F2}
+/* v10 · el cartel se tiñe según el peso del partido */
+.comp.clasico{background:linear-gradient(90deg,rgba(255,77,109,.10),transparent 62%)}
+.comp.copa{background:linear-gradient(90deg,rgba(108,172,228,.10),transparent 62%)}
+.comp.inter{background:linear-gradient(90deg,rgba(61,220,151,.10),transparent 62%)}
+.comp.final{background:linear-gradient(90deg,rgba(245,197,66,.14),transparent 66%);
+  box-shadow:inset 0 0 24px rgba(245,197,66,.07)}
+.comp .cn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* rostros de la generación con el mismo arte que el tuyo */
 .mini-cara{width:34px;height:39px;border-radius:5px;overflow:hidden;flex-shrink:0;
@@ -148,6 +156,100 @@
 .vitnote{font-family:var(--mono);font-size:10.5px;color:#9d8a5e;line-height:1.75;
   padding:4px 0 4px 13px;position:relative}
 .vitnote::before{content:'\203A';position:absolute;left:0;top:4px;color:#F5C542}
+
+/* ══════ v10 · VITRINA REDISEÑADA · oscuro y dorado ══════════════ */
+.vt-hero{position:relative;overflow:hidden;border-radius:18px;margin-bottom:14px;
+  padding:20px 16px 18px;border:1px solid #4a3c18;
+  background:radial-gradient(120% 140% at 50% -20%,rgba(249,212,35,.16),transparent 60%),
+             linear-gradient(165deg,#1d1608 0%,#0c0c11 72%)}
+.vt-hero::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.05) 50%,transparent 58%)}
+.vt-hero .vt-eye{font-family:var(--mono);font-size:8.5px;letter-spacing:.34em;color:#B4923A;
+  text-transform:uppercase}
+.vt-count{display:flex;align-items:baseline;gap:9px;margin:6px 0 2px}
+.vt-count b{font-family:var(--disp);font-size:52px;line-height:.9;letter-spacing:-.02em;
+  background:var(--grad-oro);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:#F5C542}
+.vt-count span{font-family:var(--cond);font-weight:700;font-size:17px;color:#F7E7B0;
+  text-transform:uppercase;letter-spacing:.06em}
+.vt-who{display:flex;align-items:center;gap:9px;margin-top:10px;
+  padding-top:11px;border-top:1px solid rgba(245,197,66,.18)}
+.vt-who .vt-nom{font-family:var(--cond);font-weight:700;font-size:16px;color:#EAEEF7;
+  text-transform:uppercase;line-height:1.1}
+.vt-who .vt-sub{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:#9d8a5e;
+  text-transform:uppercase;margin-top:2px}
+.vt-sec{margin:0 0 9px;display:flex;align-items:center;gap:8px}
+.vt-sec i{font-style:normal;font-size:13px}
+.vt-sec b{font-family:var(--mono);font-size:8.5px;letter-spacing:.28em;color:#B4923A;
+  text-transform:uppercase;font-weight:700}
+.vt-sec s{flex:1;height:1px;background:linear-gradient(90deg,rgba(245,197,66,.35),transparent);
+  text-decoration:none}
+.vt-list{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.vt-row{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:12px;
+  border:1px solid #332914;background:linear-gradient(100deg,#17130b,#0d0d12 78%);
+  position:relative;overflow:hidden}
+.vt-row.oro{border-color:#5d4a1d;
+  background:linear-gradient(100deg,#241b09,#0f0e13 78%)}
+.vt-row.oro::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--grad-oro)}
+.vt-row i{font-style:normal;font-size:25px;line-height:1;flex-shrink:0;
+  filter:drop-shadow(0 3px 10px rgba(249,212,35,.3))}
+.vt-row .vt-txt{flex:1;min-width:0}
+.vt-row .vt-nm{font-family:var(--cond);font-weight:700;font-size:16px;line-height:1.12;
+  color:#F7E7B0;text-transform:uppercase;letter-spacing:.01em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vt-row.oro .vt-nm{color:#F5C542}
+.vt-row .vt-yr{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:#8e7c53;
+  margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vt-row .vt-x{flex-shrink:0;font-family:var(--cond);font-weight:700;font-size:15px;
+  color:#1C1500;background:var(--grad-oro);border-radius:999px;padding:2px 10px;
+  box-shadow:0 3px 12px rgba(249,212,35,.32)}
+.vt-row .vt-x.uno{background:none;color:#8e7c53;box-shadow:none;
+  font-family:var(--mono);font-size:9px;letter-spacing:.14em;padding:2px 4px}
+.vt-vacia{text-align:center;border:1px dashed #3a2f18;border-radius:14px;padding:26px 16px;
+  background:linear-gradient(170deg,#141109,#0b0b0f 70%)}
+.vt-vacia b{display:block;font-family:var(--cond);font-weight:700;font-size:19px;
+  color:#7a6a44;text-transform:uppercase;letter-spacing:.04em}
+.vt-vacia small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  color:#5e5236;margin-top:7px;line-height:1.8}
+.vt-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:13px}
+.vt-cel{background:linear-gradient(165deg,#15120b,#0c0c11 75%);border:1px solid #2e2513;
+  border-radius:12px;padding:11px 6px;text-align:center}
+.vt-cel small{display:block;font-family:var(--mono);font-size:7px;letter-spacing:.18em;
+  color:#8e7c53;text-transform:uppercase;line-height:1.6}
+.vt-cel b{font-family:var(--cond);font-weight:700;font-size:22px;color:#F7E7B0;line-height:1.3}
+.vt-cel.dorada{border-color:#5d4a1d}
+.vt-cel.dorada b{background:var(--grad-oro);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:#F5C542}
+.vt-exp{border:1px solid #2b2313;border-radius:12px;padding:12px 13px;
+  background:linear-gradient(170deg,#13100a,#0b0b0f 70%)}
+.vt-nota{font-family:var(--mono);font-size:10.5px;color:#9d8a5e;line-height:1.75;
+  padding:4px 0 4px 14px;position:relative}
+.vt-nota::before{content:'\203A';position:absolute;left:0;top:4px;color:#F5C542}
+
+/* ── v10 · Tabla de grupo de las copas ─────────────────────── */
+.gtab{border:1px solid #2b3446;border-radius:12px;overflow:hidden;margin:10px 0 2px;
+  background:#0c1017}
+.gth{font-family:var(--mono);font-size:8px;letter-spacing:.24em;color:#7BE8B8;
+  text-transform:uppercase;padding:8px 10px;background:#101722;
+  border-bottom:1px solid #2b3446}
+.gtr{display:flex;align-items:center;gap:8px;padding:7px 10px;
+  border-bottom:1px solid #171f2b;font-family:var(--mono);font-size:10.5px;color:#8b97ad}
+.gtr:last-child{border-bottom:0}
+.gtr.pasa{background:rgba(61,220,151,.05)}
+.gtr.yo{background:rgba(245,197,66,.08)}
+.gtr.yo .gn{color:#F5C542;font-weight:700}
+.gtr .gp{width:16px;flex-shrink:0;color:#4A5468;text-align:center}
+.gtr.pasa .gp{color:#3DDC97}
+.gtr .gn{flex:1;min-width:0;color:#CFD6E4;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.gtr .gd{width:30px;text-align:right;flex-shrink:0;color:#5f6b80;font-size:9.5px}
+.gtr .gv{width:22px;text-align:right;flex-shrink:0;color:#EAEEF7;font-weight:700}
+.cnota{font-family:var(--mono);font-size:10px;letter-spacing:.06em;margin-top:7px;
+  color:#8b97ad;line-height:1.7}
+.cnota.oro{color:#F5C542}
+.cnota.ok{color:#3DDC97}
+.cnota.mal{color:#FF8A9B}
 
 /* ── FICHA DE LA GENERACIoN · v8 ────────────────────────────── */
 .fstat{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0 4px}
@@ -5060,7 +5162,7 @@ function cierreDT(){
   const campeon=dado(clamp(0.12+rend*0.05+(D.prestigio-C.lv)/120+(MODO==="fantasia"?.25:0),0,.8));
   const cola=[];
   if(D.club===p.favorito){const H=hist(D.club);H.temp++;if(rend<0)H.mal+=8;}
-  if(campeon){D.titulos++;p.vitrina.push({ico:"🏆",n:"Título DT",y:p.anio,oro:true});
+  if(campeon){D.titulos++;p.vitrina.push({ico:"📋",n:nombreLiga(C)+" (DT)",y:p.anio,oro:true});
     if(D.club===p.favorito)hist(D.club).tit++;
     D.paciencia=clamp(D.paciencia+25,0,100);D.prestigio=clamp(D.prestigio+8,10,99);
     cola.push({clase:"oro",eye:"TAPA OLÉ",titulo:"CAMPEÓN COMO DT",crest:C,
@@ -5243,7 +5345,30 @@ function cerrarMandato(campeon,plata,msg){
    la lista no tiene condición: nunca te quedás sin final.              */
 const tieneMundial=q=>q.vitrina.some(v=>v.n==="Mundial");
 const titsEn=(q,c)=>((q.historia[c]||{}).tit||0);
-const FINALES=[
+/* v10 · FINALES DE CONURBANO
+   La otra salida: la que no termina en estatua ni en country. Prioridad
+   alta para que le ganen a los finales genéricos cuando se cumplen.   */
+const FINALES_CONURBANO=[
+{id:"fc_monoblock",prio:101,tit:"TODO UN PALO, YA LO VES",
+ txt:"El fútbol te dio la espalda. Terminaste en un monoblock en Quilmes, tomando mate cocido y contando anécdotas que nadie te cree. Juguetes perdidos.",
+ cond:q=>q.plata<=0&&q.escandalos>=4},
+{id:"fc_traidor",prio:102,tit:"VIVIR SOLO CUESTA VIDA",
+ txt:"Llegaste a lo más alto, pero te quedaste más solo que perro malo. Billetera gorda, casa en country, pero en tu barrio natal te cruzás de vereda.",
+ cond:q=>q.rep.local<10&&q.plata>500},
+{id:"fc_remis",prio:103,tit:"EL REY DEL RELÁMPAGO",
+ txt:"Tiraste toda la guita en el casino y negocios falopa. Hoy hacés changas con el remis y los domingos jugás torneos relámpago por guita en La Matanza.",
+ cond:q=>q.plata<50&&q.tot.pj>100},
+{id:"fc_okupa",prio:104,tit:"SOY EL MÁS PORONGA",
+ txt:"Te comiste el personaje. Te peleaste con los dirigentes, con la barra y con la tele. Terminaste manejando el club desde las sombras, a puro apriete.",
+ cond:q=>q.escandalos>=6&&q.rolFinal==="presidente"},
+{id:"fc_secatoallas",prio:105,tit:"EL SECATOALLAS",
+ txt:"Ganaste plata, ganaste títulos y ganaste el favor del Jefe. Pero en la tribuna, treinta años después, siguen cantando la misma canción. Nadie se acuerda de los goles.",
+ cond:q=>q.mote==="secatoallas"&&q.rep.local<35},
+{id:"fc_guerra_afa",prio:106,tit:"LE HICISTE LA GUERRA AL JEFE",
+ txt:"Te comiste causas, arbitrajes en contra y una inspección atrás de otra. Nunca bajaste la cabeza. En Viamonte todavía no pueden decir tu apellido sin torcer la boca.",
+ cond:q=>(q.afaFavor||0)<=-45&&q.rep.local>=70}
+];
+const FINALES=FINALES_CONURBANO.concat([
 {id:"f_estatua",prio:100,tit:"LE PUSIERON TU NOMBRE A LA TRIBUNA",
  txt:"Jugó ahí, lo dirigió y lo presidió. Tres vidas en el mismo club y las tres terminaron con vuelta olímpica. La tribuna sur ya no se llama como se llamaba.",
  cond:q=>q.rolFinal==="presidente"&&q.presi&&q.presi.titulos>=1},
@@ -5285,7 +5410,7 @@ const FINALES=[
  cond:q=>q.escandalos>=4&&q.plata<50},
 {id:"f_causa",prio:84,tit:"LO ARREGLARON EN LA JUSTICIA",
  txt:"El expediente sigue abierto en un juzgado de provincia. Los abogados le cobraron más de lo que ganó jugando.",
- cond:q=>banderaViva("causaAbierta")},
+ cond:q=>(((q.banderas||{})["causaAbierta"])||-1)>=(q.temporadas||0)},
 {id:"f_traidor",prio:83,tit:"EN EL BARRIO NO VOLVIÓ A ENTRAR",
  txt:"Cruzó la vereda por plata. Hizo carrera, hizo guita, y la casa donde nació todavía tiene la pared pintada.",
  cond:q=>{for(var k in q.historia){if((q.historia[k].mal||0)>=40)return true;}return false;}},
@@ -5328,7 +5453,7 @@ const FINALES=[
 {id:"f_jijiji",prio:0,tit:"JI JI JI",
  txt:"Ni héroe ni villano. Jugó lo que pudo, cobró lo que le dieron y un día se fue. Como casi todos.",
  cond:q=>true}
-];
+]);
 function evaluarFinal(){
   const lista=FINALES.slice().sort((a,b)=>b.prio-a.prio);
   for(let i=0;i<lista.length;i++){
@@ -5559,6 +5684,87 @@ function validarMazos(){
       });
     });
   });
+
+  /* ── v10 · CHEQUEOS ESTRUCTURALES ────────────────────────────────
+     No sólo los mazos: también la geografía, las copas y los finales. */
+
+  /* 1 · cada liga jugable tiene nombre, copa, supercopa y formato */
+  Object.keys(LIGA_FORMATO).forEach(L=>{
+    if(!LIGA_NOM[L])errs.push("liga "+L+": sin nombre oficial en LIGA_NOM");
+    if(!COPA_NOM[L])errs.push("liga "+L+": sin copa nacional en COPA_NOM");
+    if(!SUPERCOPA_NOM[L])errs.push("liga "+L+": sin supercopa en SUPERCOPA_NOM");
+    if(!CONF[L])errs.push("liga "+L+": sin confederación en CONF");
+    const eq=equiposDe(L),F=formatoDe(L);
+    if(eq.length!==F.eq)
+      errs.push("liga "+L+": tiene "+eq.length+" equipos y el formato pide "+F.eq);
+    if(F.zonas>1&&(!F.nomZona||F.nomZona.length!==F.zonas))
+      errs.push("liga "+L+": "+F.zonas+" zonas pero "+((F.nomZona||[]).length)+" nombres de zona");
+    /* toda liga necesita al menos un club fichable para no dejar colgado el mercado */
+    if(!CLUBES.some(c=>c.liga===L))errs.push("liga "+L+": ningún club fichable en CLUBES");
+  });
+
+  /* 2 · cada confederación necesita 2+ países para que haya copa continental */
+  const porConf={};
+  Object.keys(CONF).forEach(L=>{(porConf[CONF[L]]=porConf[CONF[L]]||[]).push(L);});
+  Object.keys(porConf).forEach(cf=>{
+    if(porConf[cf].length<2)errs.push("confederación "+cf+": un solo país, no hay rival posible");
+  });
+  Object.keys(COPAS).forEach(cf=>{
+    if(!porConf[cf])errs.push("COPAS."+cf+": no hay ninguna liga en esa confederación");
+  });
+
+  /* 3 · clubes: sin nombres repetidos y sin chocar con los virtuales */
+  const vistosC={};
+  CLUBES.forEach(c=>{
+    if(vistosC[c.n])errs.push("club duplicado en CLUBES: "+c.n);
+    vistosC[c.n]=1;
+    if(!c.c||c.c.length<2)errs.push("club "+c.n+": sin par de colores");
+    if(!CONF[c.liga])errs.push("club "+c.n+": liga '"+c.liga+"' sin confederación");
+  });
+  Object.keys(CLUB_VIRT).forEach(n=>{
+    if(vistosC[n])errs.push("equipo virtual pisa a uno de CLUBES: "+n);
+  });
+
+  /* 4 · los ídolos son de clubes que existen */
+  Object.keys(IDOLOS_CLUBES).forEach(n=>{
+    if(club(n).n==="Libre")errs.push("IDOLOS_CLUBES: '"+n+"' no es un club del juego");
+    if(!IDOLOS_CLUBES[n].length)errs.push("IDOLOS_CLUBES: '"+n+"' sin ídolos");
+  });
+
+  /* 5 · finales: ids únicos y condiciones que no explotan */
+  const idsF={};
+  const maniqui=nuevoJugador();
+  maniqui.rolFinal="presidente";maniqui.tot={pj:120,g:40,a:20};
+  FINALES.forEach(F=>{
+    if(!F.id)return errs.push("final sin id: "+F.tit);
+    if(idsF[F.id])errs.push("ID DE FINAL DUPLICADO: "+F.id);
+    idsF[F.id]=1;
+    if(typeof F.cond!=="function")return errs.push("final "+F.id+": sin cond");
+    try{F.cond(maniqui);}catch(e){errs.push("final "+F.id+": la condición rompe · "+e.message);}
+  });
+  if(!FINALES.length||FINALES[FINALES.length-1].prio!==Math.min.apply(null,FINALES.map(x=>x.prio)))
+    errs.push("FINALES: el último del array debería ser el de menor prioridad (es el fallback)");
+
+  /* 6 · el Mundial: los QTE tienen que ir a cuatro segundos clavados */
+  if(MUNDIAL_KO.length<2)errs.push("MUNDIAL_KO: hacen falta al menos dos rondas");
+  MUN_QTE.forEach((c,i)=>{
+    if(!c.id)errs.push("MUN_QTE["+i+"]: sin id");
+    if(ids[c.id])errs.push("ID DUPLICADO: "+c.id+" (MUN_QTE y "+ids[c.id]+")");
+    ids[c.id]="MUN_QTE";
+    if(!c.o||c.o.length<3)errs.push((c.id||i)+": el QTE necesita 3 opciones o más");
+    (c.o||[]).forEach((o,j)=>{
+      if(!o.b)errs.push((c.id||i)+" op"+j+": sin rótulo");
+      else if(o.b.length>42)errs.push((c.id||i)+" op"+j+": rótulo de "+o.b.length+" chars (máx 42)");
+      if(!o.fijo&&o.base===undefined)errs.push((c.id||i)+" op"+j+": sin base ni fijo");
+    });
+  });
+  if(MUN_QTE.length<3)errs.push("MUN_QTE: hacen falta 3 cartas mínimo (una por decisión)");
+
+  /* 7 · la prensa negativa la encabeza Azzaro, siempre */
+  if(!PERIO.length||PERIO[0].u!=="Flavio Azzaro")
+    errs.push("PERIO: Flavio Azzaro tiene que ser el primero (lidera la prensa negativa)");
+  if(AZZARO.u!=="Flavio Azzaro")errs.push("AZZARO: no apunta a Flavio Azzaro");
+
   return errs;
 }
 
@@ -6408,6 +6614,18 @@ function munFin(campeon,ronda,verdugo){
 
 /* ── 8 · MIGRACIÓN DE PARTIDAS VIEJAS ────────────────────────────── */
 function migrarV6(q){
+  /* v10 · campos nuevos: copas propias, arco de la AFA, ídolos y motes */
+  if(q.recopa===undefined)q.recopa=false;
+  if(q.mundialClubes===undefined)q.mundialClubes=false;
+  if(q.campeonContAnio===undefined)q.campeonContAnio=0;
+  if(q.zonaNom===undefined)q.zonaNom="";
+  if(q.compaNom===undefined)q.compaNom="";
+  if(q.compaClub===undefined)q.compaClub="";
+  if(q.nucaTemp===undefined)q.nucaTemp=-99;
+  if(q.afaFavor===undefined)q.afaFavor=0;
+  if(q.secatoallas===undefined)q.secatoallas=false;
+  if(q.idoloTemp===undefined)q.idoloTemp=-99;
+  if(q.mote===undefined)q.mote="";
   if(q.tier===undefined)q.tier=0;
   if(!q.arq)q.arq={lirico:0,rustico:0,egoista:0,creador:0};
   if(q.arquetipo===undefined)q.arquetipo="";
@@ -7222,48 +7440,96 @@ function cerrarInferiores(){
 }
 
 /* ── 4 · VITRINA · las copas con su logo, como la tarjeta final ────── */
+/* ══════ v10 · VITRINA · rediseñada de cero ═══════════════════════════
+   Oscura, con dorado sólo donde importa, y con el NOMBRE OFICIAL EXACTO
+   de cada torneo: "Brasileirão Série A", no "la liga"; "Copa do Brasil",
+   no "la copa nacional".                                              */
+const VIT_ORDEN=["SELECCIÓN","INTERCONTINENTAL","CONTINENTAL","LIGA","COPA NACIONAL",
+  "SUPERCOPA","INDIVIDUAL","DIRECCIÓN TÉCNICA","OTROS"];
+const VIT_ICO={"SELECCIÓN":"🌍","INTERCONTINENTAL":"🌐","CONTINENTAL":"⭐","LIGA":"🥇",
+  "COPA NACIONAL":"🏆","SUPERCOPA":"🎖️","INDIVIDUAL":"🏅","DIRECCIÓN TÉCNICA":"📋","OTROS":"🏆"};
+/* Los nombres oficiales que el motor puede llegar a guardar */
+function categoriaTitulo(n){
+  if(n==="Copa del Mundo"||n==="Mundial")return"SELECCIÓN";
+  if(n==="Mundial de Clubes")return"INTERCONTINENTAL";
+  if(n==="Balón de Oro")return"INDIVIDUAL";
+  if(n.indexOf("(DT)")>=0||n==="Título DT")return"DIRECCIÓN TÉCNICA";
+  const cont=["Copa Libertadores","Copa Sudamericana","Recopa Sudamericana",
+    "Champions League","Europa League","Champions de Asia","Copa AFC"];
+  if(cont.indexOf(n)>=0)return"CONTINENTAL";
+  let cat="OTROS";
+  Object.keys(LIGA_NOM).forEach(k=>{if(LIGA_NOM[k]===n)cat="LIGA";});
+  if(cat!=="OTROS")return cat;
+  Object.keys(COPA_NOM).forEach(k=>{if(COPA_NOM[k]===n)cat="COPA NACIONAL";});
+  if(cat!=="OTROS")return cat;
+  Object.keys(SUPERCOPA_NOM).forEach(k=>{if(SUPERCOPA_NOM[k]===n)cat="SUPERCOPA";});
+  return cat;
+}
 function renderVitrina(){
   const box=document.getElementById("vitrina");if(!box)return;
   const T=p.vitrina||[];
+  const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
-  /* PALMARÉS · grilla de copas agrupadas por nombre */
-  let h='<div class="vitbox"><div class="vithead"><span>Palmarés</span><em>'
-    +T.length+(T.length===1?" título":" títulos")+'</em></div>';
+  /* ── HERO: el número grande y de quién es la vitrina ── */
+  const grandes=T.filter(t=>t.oro).length;
+  let h='<div class="vt-hero"><div class="vt-eye">Palmarés oficial</div>'
+    +'<div class="vt-count"><b>'+T.length+'</b><span>'
+    +(T.length===1?"título":"títulos")+(grandes?' · '+grandes+' de peso':'')+'</span></div>'
+    +'<div class="vt-who">'+escudo(club(p.club),34)
+    +'<div style="flex:1;min-width:0"><div class="vt-nom">'+esc(p.nombre||"Sin nombre")+'</div>'
+    +'<div class="vt-sub">'+esc(p.club==="Libre"?"Sin club":p.club)
+    +' · '+p.edad+' años · media '+(p.ovrMax||p.ovr)+'</div></div></div></div>';
+
+  /* ── PALMARÉS: agrupado por nombre EXACTO del torneo ── */
   if(!T.length){
-    h+='<div class="vitempty">La vitrina está vacía.<br>Todavía hay tiempo.</div>';
+    h+='<div class="vt-vacia"><b>La vitrina está vacía</b>'
+      +'<small>Ni una vuelta olímpica todavía.<br>Todo pasa. Esto también.</small></div>';
   }else{
-    const cuentas={},anios={},icos={},oros={};
-    T.forEach(t=>{cuentas[t.n]=(cuentas[t.n]||0)+1;
-      (anios[t.n]=anios[t.n]||[]).push(t.y);
-      icos[t.n]=t.ico||"🏆"; if(t.oro)oros[t.n]=1;});
-    const keys=Object.keys(cuentas).sort((a,b)=>(cuentas[b]-cuentas[a])||(oros[b]||0)-(oros[a]||0));
-    h+='<div class="tray grid">'+keys.map(k=>{
-      const ys=anios[k].slice().sort();
-      const txt=ys.length>3?ys[0]+"–"+ys[ys.length-1]:ys.join(" · ");
-      return '<span class="cup">'
-        +(cuentas[k]>1?'<span class="mult">×'+cuentas[k]+'</span>':'')
-        +'<i>'+icos[k]+'</i><b>'+k+'</b><small>'+txt+'</small></span>';
-    }).join("")+'</div>';
+    const g={};
+    T.forEach(t=>{
+      const n=t.n||"Título";
+      if(!g[n])g[n]={n:n,c:0,anios:[],ico:t.ico||"🏆",oro:false,cat:categoriaTitulo(n)};
+      g[n].c++;g[n].anios.push(t.y);if(t.oro)g[n].oro=true;
+    });
+    const porCat={};
+    Object.keys(g).forEach(k=>{(porCat[g[k].cat]=porCat[g[k].cat]||[]).push(g[k]);});
+    VIT_ORDEN.forEach(cat=>{
+      const l=porCat[cat];if(!l||!l.length)return;
+      l.sort((a,b)=>(b.c-a.c)||a.n.localeCompare(b.n));
+      h+='<div class="vt-sec"><i>'+VIT_ICO[cat]+'</i><b>'+cat+'</b><s></s></div><div class="vt-list">';
+      l.forEach(t=>{
+        const ys=t.anios.slice().sort();
+        const txt=ys.length>4?ys[0]+" – "+ys[ys.length-1]:ys.join(" · ");
+        h+='<div class="vt-row'+(t.oro?" oro":"")+'"><i>'+t.ico+'</i>'
+          +'<div class="vt-txt"><div class="vt-nm">'+esc(t.n)+'</div>'
+          +'<div class="vt-yr">'+txt+'</div></div>'
+          +'<span class="vt-x'+(t.c>1?"":" uno")+'">'+(t.c>1?"×"+t.c:"1")+'</span></div>';
+      });
+      h+='</div>';
+    });
   }
-  h+='</div>';
 
-  /* NÚMEROS · las cifras de la carrera, en cajas doradas */
-  const cel=(l,v,oro)=>'<div><small>'+l+'</small><b'+(oro?' class="oro"':'')+'>'+v+'</b></div>';
-  h+='<div class="vitbox"><div class="vithead"><span>Números</span><em>'
-    +(p.ovrMax||p.ovr)+' de máxima</em></div><div class="vitnums">'
+  /* ── NÚMEROS ── */
+  const cel=(l,v,oro)=>'<div class="vt-cel'+(oro?" dorada":"")+'"><small>'+l+'</small><b>'+v+'</b></div>';
+  h+='<div class="vt-sec"><i>📊</i><b>Números de la carrera</b><s></s></div><div class="vt-nums">'
     +cel("Partidos",p.tot.pj)
     +cel("Goles",p.tot.g)
     +cel("Asistencias",p.tot.a)
-    +cel("Mundiales",p.mundiales)
+    +cel("Mundiales",p.mundiales,p.mundiales>0)
     +cel("Balón de Oro",p.balones,p.balones>0)
     +cel("Media máx",p.ovrMax||p.ovr,true)
     +(p.dt?cel("Títulos DT",p.dt.titulos,p.dt.titulos>0):"")
-    +'</div></div>';
+    +(p.descensos?cel("Descensos",p.descensos):"")
+    +((p.afaFavor||0)!==0?cel("Favor AFA",(p.afaFavor>0?"+":"")+p.afaFavor):"")
+    +'</div>';
 
-  /* EXPEDIENTE · las notas al pie de la carrera */
+  /* ── EXPEDIENTE ── */
   const hitos=[];
   if(p.tier)hitos.push("Salió de la prueba en Tier "+p.tier+".");
   if(p.arquetipo)hitos.push("La prensa lo etiquetó como "+ARQ_NOM[p.arquetipo]+".");
+  if(p.mote)hitos.push('La tribuna lo bautizó "'+p.mote+'" y no se lo sacó más nadie.');
+  if((p.afaFavor||0)>=40)hitos.push("En Viamonte lo atienden antes que a nadie.");
+  else if((p.afaFavor||0)<=-40)hitos.push("En Viamonte le tienen jurada la vida.");
   if(p.escandalos)hitos.push(p.escandalos+" escándalo"+(p.escandalos>1?"s":"")+" fuera de la cancha.");
   if(p.karma&&p.karmaUsado)hitos.push("Lo de "+p.karma.anio+" volvió y se saldó.");
   else if(p.karma)hitos.push("Hay una deuda de "+p.karma.anio+" sin saldar.");
@@ -7273,8 +7539,10 @@ function renderVitrina(){
   if(R&&R.clasicos)hitos.push("Te siguió a "+R.clasicos+" club"+(R.clasicos>1?"es":"")+" rival"
     +(R.clasicos>1?"es":"")+" para jugarte el clásico.");
   if(p.favorito)hitos.push("Hincha de "+p.favorito+" desde siempre.");
-  h+='<div class="vitbox"><div class="vithead"><span>Expediente</span><em>'+p.anio+'</em></div>'
-    +hitos.map(t=>'<div class="vitnote">'+t+'</div>').join("")+'</div>';
+  if(hitos.length){
+    h+='<div class="vt-sec"><i>📁</i><b>Expediente</b><s></s></div><div class="vt-exp">'
+      +hitos.map(t=>'<div class="vt-nota">'+esc(t)+'</div>').join("")+'</div>';
+  }
   box.innerHTML=h;
 
   /* el bloque de abajo del panel: resumen de la carrera */
@@ -7399,9 +7667,16 @@ function carta(o){
   let h='<div class="card"><div class="eyebrow"><span>'+o.eye+'</span><em>'+(p.anio||"")+'</em></div>';
   if(o.prog){let pr='<div class="prog">';for(let k=0;k<o.prog[1];k++)pr+='<i class="'+(k<=o.prog[0]?"on":"")+'"></i>';h+=pr+'</div>';}
   if(o.comp){
+    /* v10 · cada competencia con su cartel y el nombre real del torneo
+       del país donde estás jugando, nunca uno genérico ni prestado.   */
     const IC={liga:"⚽",copa:"🏆",clasico:"⚔️",inter:"🌎",final:"🔥"};
-    const SUB={liga:"torneo local",copa:"copa argentina",clasico:"clásico",
-      inter:"noche continental",final:"partido único"};
+    const L=(club(p.club).liga)||ligaCasa()||"ARG";
+    const CU=copasDe(L);
+    const SUB={liga:(LIGA_NOM[L]||"torneo local").toLowerCase(),
+      copa:copaNom(L).toLowerCase(),
+      clasico:"clásico · "+(LIGA_NOM[L]||"torneo local").toLowerCase(),
+      inter:((CU&&CU.a)||"copa continental").toLowerCase()+" · conmebol/uefa",
+      final:"partido único · se define hoy"};
     h+='<div class="comp '+o.comp+'"><i>'+(IC[o.comp]||"⚽")+'</i><div>'
       +'<div class="cn">'+(o.compTxt||SUB[o.comp]||"partido")+'</div>'
       +'<div class="cs">'+(o.compSub||SUB[o.comp]||"")+'</div></div></div>';
