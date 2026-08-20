@@ -3523,7 +3523,7 @@ function cartaRecopa(){
   const riv=rivalContinental(2), nom="Recopa Sudamericana";
   const cierre=(gano,pen)=>{
     if(gano){
-      p.vitrina.push({ico:"🥈",n:nom,y:p.anio,oro:true});
+      p.vitrina.push({ico:"🥈",n:nom,y:p.anio,oro:true,cl:p.club});
       mod(p.rep,"local",14);mod(p.rep,"mundo",8);mod(p.stats,"mor",10,5,100);
       p.plata+=120; if(p.club!=="Libre")hist(p.club).tit++;
       placa({clase:"oro",eye:"RECOPA SUDAMERICANA · "+p.anio,titulo:"¡CAMPEONES DE LA RECOPA!",
@@ -3566,7 +3566,7 @@ function cartaMundialClubes(){
     const eur=campeonEuropeo();
     const cierre=(gano)=>{
       if(gano){
-        p.vitrina.push({ico:"🌐",n:nom,y:p.anio,oro:true});
+        p.vitrina.push({ico:"🌐",n:nom,y:p.anio,oro:true,cl:p.club});
         mod(p.rep,"mundo",30);mod(p.rep,"local",22);mod(p.rep,"nac",12);
         mod(p.stats,"mor",18,5,100);subir("car",5);p.plata+=400;
         if(p.club!=="Libre")hist(p.club).tit++;
@@ -4093,7 +4093,7 @@ function cartaSinClub(){
         if(dado(.75)){const c=rnd(CLUBES.filter(x=>x.lv<=Math.max(48,p.ovr-6)));p.club=c.n;p.aniosEnClub=0;
           placa({eye:"MERCADO",titulo:"LO AGARRÓ "+c.n.toUpperCase(),crest:c,
             sub:"Contrato corto, sueldo de hambre, pero es fútbol otra vez.",
-            stats:[["NIVEL",c.lv,""]],onClose:cierreTemporada});
+            stats:[["CATEGORÍA",nombreDiv(divDe(c)).toUpperCase(),""]],onClose:cierreTemporada});
         }else{mod(p.stats,"mor",-10,5,100);
           placa({clase:"malo",eye:"MERCADO",titulo:"NO QUEDASTE",
             sub:"Te miraron veinte minutos y te agradecieron. Otro año perdido.",
@@ -4103,7 +4103,7 @@ function cartaSinClub(){
       {b:"Irte a jugar al ascenso del interior",s:"Nivel bajo, minutos altos",dot:"g",cb:()=>{
         const c=rnd(CLUBES.filter(x=>x.lv<=46));p.club=c.n;p.aniosEnClub=0;mod(p.rep,"mundo",-8);
         placa({eye:"MERCADO",titulo:"SE FUE AL INTERIOR",crest:c,
-          sub:"Micro de doce horas y cancha de tierra, pero vuelve a jugar.",stats:[["NIVEL",c.lv,""]],onClose:cierreTemporada});}}
+          sub:"Micro de doce horas y cancha de tierra, pero vuelve a jugar.",stats:[["CATEGORÍA",nombreDiv(divDe(c)).toUpperCase(),""]],onClose:cierreTemporada});}}
     ]});
 }
 
@@ -4434,13 +4434,13 @@ function cierreTemporada(){
     descendio=pos>0&&pos>total-cupos.desc;
   }
   const ganoLiga=pos===1;
-  if(ganoLiga)p.vitrina.push({ico:"🥇",n:nomLiga,y:p.anio});
+  if(ganoLiga)p.vitrina.push({ico:"🥇",n:nomLiga,y:p.anio,cl:p.club});
   const ganoCopa=!!(copa&&copa.gano);
   const nomCopa=copa?copa.nom:CUP.a;
-  if(ganoCopa)p.vitrina.push({ico:copa.ico,n:copa.nom,y:p.anio,oro:copa.lib});
+  if(ganoCopa)p.vitrina.push({ico:copa.ico,n:copa.nom,y:p.anio,oro:copa.lib,cl:p.club});
   /* v10 · la copa nacional de tu país (Copa Argentina, Copa do Brasil…) */
   const ganoCopaNac=!!(cnac&&cnac.campeon);
-  if(ganoCopaNac)p.vitrina.push({ico:"🏆",n:cnac.nom,y:p.anio,oro:true});
+  if(ganoCopaNac)p.vitrina.push({ico:"🏆",n:cnac.nom,y:p.anio,oro:true,cl:p.club});
   /* Campeón de liga, de la copa nacional o de la copa chica: Libertadores */
   if(ganoLiga||ganoCopa||ganoCopaNac||(copa&&!copa.lib&&copa.ronda==="la Final"))claseNueva="lib";
   /* v10 · ganar la Libertadores desbloquea Recopa y Mundial de Clubes */
@@ -4495,12 +4495,12 @@ function cierreTemporada(){
       C0.lv=Math.min(C0.lv+ri(4,8),d0===2?66:58);
       cola.push({clase:"oro",eye:"ASCENSO",titulo:"SUBIÓ DE CATEGORÍA",crest:C0,
         sub:C0.n+" asciende a "+nombreDiv(divDe(C0))+". El barrio no durmió en toda la noche.",
-        stats:[["NIVEL",C0.lv,"up"],["CATEGORÍA",divDe(C0)===1?"1ª":"NAC",""]]});
+        stats:[["CATEGORÍA",divDe(C0)===1?"1ª DIVISIÓN":"NACIONAL","up"],["HINCHADA",Math.round(p.rep.local),"up"]]});
     }else if(T.rend<=-3&&dado(.3)){
       C0.lv=Math.max(C0.lv-ri(3,7),36);
       cola.push({clase:"malo",eye:"DESCENSO",titulo:"SE FUE AL BARRO",crest:C0,
         sub:C0.n+" perdió la categoría. Vos fuiste parte de ese equipo y no te lo van a perdonar.",
-        stats:[["NIVEL",C0.lv,"dn"],["HINCHADA",Math.round(p.rep.local),"dn"]]});
+        stats:[["CATEGORÍA",nombreDiv(divDe(C0)).toUpperCase(),"dn"],["HINCHADA",Math.round(p.rep.local),"dn"]]});
       mod(p.rep,"local",-18); hist(p.club).mal+=10;
     }
   }
@@ -4544,7 +4544,7 @@ function cierreTemporada(){
 
   const R=M().balonReq;
   if(p.ovr>=R.ovr&&lv>=R.lv&&p.rep.mundo>=70&&dado(R.p)){
-    p.balones++;p.vitrina.push({ico:"🏅",n:"Balón de Oro",y:p.anio,oro:true});
+    p.balones++;p.vitrina.push({ico:"🏅",n:"Balón de Oro",y:p.anio,oro:true,cl:p.club});
     if(!libre)hist(p.club).bal++;
     cola.push({clase:"oro",eye:"PARÍS",titulo:"BALÓN DE ORO",
       sub:p.nombre+" rompió la matrix. Es el mejor del mundo y no lo discute nadie.",
@@ -4693,7 +4693,7 @@ function cartaOferta(list){
     const clasico=!!(c.liga==="ARG"&&clasicoDe(p.club)===c.n);
     const QP=quienPide(c);
     return{b:"Firmar con "+c.n,ico:escudo(c,26),
-      s:QP.q+" · nivel "+c.lv+" · +"+prima+"k"+(clasico?" · CLÁSICO RIVAL":c.petro?" · liga inexistente":""),
+      s:QP.q+" · "+nombreDiv(divDe(c))+" · +"+prima+"k"+(clasico?" · CLÁSICO RIVAL":c.petro?" · liga inexistente":""),
       cb:()=>{
         p.plata+=prima;p.capitan=false;
         if(clasico){p.rep.local=0;hist(p.club).mal+=40;
@@ -4704,7 +4704,7 @@ function cartaOferta(list){
         const colaM=[{eye:"MERCADO DE PASES",clase:clasico?"malo":"",crest:c,
           titulo:clasico?"TRAICIÓN AL BARRIO":"BOMBA EN EL MERCADO",
           sub:p.nombre+" firmó con "+c.n+". "+(clasico?"En su viejo barrio ya le pintaron la casa.":"La valija llena de plata."),
-          stats:[["NIVEL",c.lv,""],["PLATA","+"+prima+"k","up"]]}];
+          stats:[["CATEGORÍA",nombreDiv(divDe(c)).toUpperCase(),""],["PLATA","+"+prima+"k","up"]]}];
         const persec=perseguirClasico();      /* v8 · el rival se muda enfrente */
         if(persec)colaM.push(persec);
         render();ledDin();
@@ -5412,7 +5412,7 @@ function cierreDT(){
   const campeon=dado(clamp(0.12+rend*0.05+(D.prestigio-C.lv)/120+(MODO==="fantasia"?.25:0),0,.8));
   const cola=[];
   if(D.club===p.favorito){const H=hist(D.club);H.temp++;if(rend<0)H.mal+=8;}
-  if(campeon){D.titulos++;p.vitrina.push({ico:"📋",n:nombreLiga(C)+" (DT)",y:p.anio,oro:true});
+  if(campeon){D.titulos++;p.vitrina.push({ico:"📋",n:nombreLiga(C)+" (DT)",y:p.anio,oro:true,cl:C.n});
     if(D.club===p.favorito)hist(D.club).tit++;
     D.paciencia=clamp(D.paciencia+25,0,100);D.prestigio=clamp(D.prestigio+8,10,99);
     cola.push({clase:"oro",eye:"TAPA OLÉ",titulo:"CAMPEÓN COMO DT",crest:C,
@@ -6661,7 +6661,7 @@ function gpFichaje(){
     :"Ningún club de Primera preguntó por vos. Los que llamaron son del ascenso y pagan en cuotas.";
   carta({eye:"TIER "+tier+" · "+TIER_TXT[tier].toUpperCase(),titulo:"ELEGÍ DÓNDE ARRANCÁS",ciego:1,
     texto:enc+" Tres carpetas sobre la mesa de la cocina y tu vieja mirándote desde la puerta.",
-    opts:ops.map(c=>({b:"Firmar con "+c.n,s:"Nivel "+c.lv+" · "+nombreDiv(divDe(c)),cb:()=>{
+    opts:ops.map(c=>({b:"Firmar con "+c.n,s:nombreDiv(divDe(c))+" · "+nombreLiga(c),cb:()=>{
       p.club=c.n;p.aniosEnClub=0;p.edad=16;
       perseguirClasico();          /* v8 · le deja marcado a dónde tiene que ir */
       calcOVR();render();ledDin();
@@ -6771,6 +6771,48 @@ function mundialSim(mult){
    tres decisiones de CUATRO SEGUNDOS clavados: con dos que te salgan,
    pasás de ronda. Si dudás, la jugada se muere sola.                  */
 const MUNDIAL_KO=["Octavos de final","Cuartos de final","Semifinal","Final"];
+/* ══════ v11 · REALISMO DEL MUNDIAL ════════════════════════════════
+   La copa la levanta un campeón histórico. Siempre. La única excepción
+   es que llegues vos: ahí tu selección puede jugarle la final a uno.  */
+const CAMPEONES_MUNDO=["Argentina","Brasil","Alemania","Italia","Francia","Uruguay","Inglaterra","España"];
+const RANKING_FIFA=[
+ {pos:1,n:"Argentina",campeon:true},   {pos:2,n:"Francia",campeon:true},
+ {pos:3,n:"España",campeon:true},      {pos:4,n:"Inglaterra",campeon:true},
+ {pos:5,n:"Brasil",campeon:true},      {pos:6,n:"Bélgica",campeon:false},
+ {pos:7,n:"Países Bajos",campeon:false},{pos:8,n:"Portugal",campeon:false},
+ {pos:9,n:"Colombia",campeon:false},   {pos:10,n:"Italia",campeon:true},
+ {pos:11,n:"Alemania",campeon:true},   {pos:12,n:"Uruguay",campeon:true},
+ {pos:13,n:"Croacia",campeon:false},   {pos:14,n:"Marruecos",campeon:false}
+];
+/* Los que de verdad llegan lejos en los últimos Mundiales */
+const SEMIS_REALISTAS=["Argentina","Francia","Croacia","Marruecos","Inglaterra","Brasil",
+  "Bélgica","Países Bajos","Alemania","España","Portugal","Uruguay"];
+function miSeleccion(){
+  const P=PAISES.filter(x=>x.id===(p.pais||"ARG"))[0];
+  return P?P.n:"Argentina";
+}
+function fueraDe(lista,excl){
+  const l=lista.filter(n=>n!==excl&&n!==miSeleccion());
+  return l.length?l:lista.filter(n=>n!==excl);
+}
+/* El rival de cada ronda sube de categoría igual que en la vida real */
+function rivalMundial(ronda,ultimo){
+  if(ronda==="Final")           return rnd(fueraDe(CAMPEONES_MUNDO,ultimo));
+  if(ronda==="Semifinal")       return rnd(fueraDe(SEMIS_REALISTAS,ultimo));
+  if(ronda==="Cuartos de final")return rnd(fueraDe(RANKING_FIFA.slice(0,12).map(x=>x.n),ultimo));
+  return rnd(fueraDe(RANKING_FIFA.map(x=>x.n),ultimo));
+}
+/* Si vos quedaste afuera, la levanta un campeón histórico y no otro */
+function campeonIA(excl){
+  const l=CAMPEONES_MUNDO.filter(n=>n!==excl);
+  return rnd(l.length?l:CAMPEONES_MUNDO);
+}
+/* Y la final que se jugó sin vos es entre dos campeones históricos */
+function finalIA(){
+  const a=rnd(CAMPEONES_MUNDO);
+  const b=rnd(CAMPEONES_MUNDO.filter(n=>n!==a));
+  return {campeon:a,sub:b};
+}
 const MUN_QTE=[
 {id:"mq_contra",t:"CONTRA A LOS 88 Y ESTÁS SOLO",
  x:"Robaste en la mitad, quedaste mano a mano con el lateral y atrás vienen tres. El estadio hace un ruido que no escuchaste nunca.",
@@ -6871,10 +6913,10 @@ function cartaMundial(ofertas){
 }
 /* ── FASE DE GRUPOS DEL MUNDIAL ── */
 function munGrupos(){
-  const rivs=baraja(SELECS.slice()).slice(0,3);
+  const rivs=baraja(RANKING_FIFA.map(x=>x.n).filter(n=>n!==miSeleccion())).slice(0,3);
   const fuerza=clamp(52+(p.ovr-62)*1.05+p.rep.nac*0.10+(_mun.mult-1)*26
     +(MODO==="fantasia"?12:0),30,94);
-  const G=[{n:"Tu selección",lv:fuerza,pts:0,gf:0,gc:0,pj:0,yo:true}];
+  const G=[{n:miSeleccion(),lv:fuerza,pts:0,gf:0,gc:0,pj:0,yo:true}];
   rivs.forEach(n=>G.push({n:n,lv:ri(58,86),pts:0,gf:0,gc:0,pj:0}));
   const lineas=[];
   for(let i=1;i<=3;i++){
@@ -6905,8 +6947,7 @@ function munGrupos(){
 /* ── ELIMINACIÓN DIRECTA · TRES DECISIONES DE CUATRO SEGUNDOS ── */
 function munKO(){
   const R=MUNDIAL_KO[_mun.ko];
-  const pool=SELECS.filter(n=>n!==_mun.ultRival);
-  _mun.riv=pool.length?rnd(pool):"Brasil";
+  _mun.riv=rivalMundial(R,_mun.ultRival);
   _mun.ultRival=_mun.riv;
   _mun.qte=0;_mun.ok=0;
   _mun.cartas=baraja(MUN_QTE.slice()).slice(0,3);
@@ -6971,7 +7012,7 @@ function munFin(campeon,ronda,verdugo){
   if(campeon){
     mod(p.rep,"nac",40);mod(p.rep,"mundo",30);mod(p.rep,"local",20);
     mod(p.stats,"mor",22,5,100);subir("car",8);
-    p.vitrina.push({ico:"🌍",n:"Copa del Mundo",y:p.anio,oro:true});
+    p.vitrina.push({ico:"🌍",n:"Copa del Mundo",y:p.anio,oro:true,cl:miSeleccion()});
     feedDe("mundial",{campeon:true});
     return placa({clase:"oro",eye:"🏆 COPA DEL MUNDO "+p.anio,titulo:"CAMPEÓN DEL MUNDO",
       sub:p.nombre+" dio la vuelta con la Selección. Le ganaron la final a "+verdugo
@@ -6995,9 +7036,20 @@ function munFin(campeon,ronda,verdugo){
     :"El país está partido: la mitad lo banca, la otra mitad pide sangre.";
   feedDe("mundial",{ronda:ronda,verdugo:verdugo,veredicto:ver});
   const tit=ronda==="la final"?"PERDIMOS LA FINAL":"AFUERA EN "+ronda.toUpperCase();
+  /* v11 · La copa la termina levantando un campeón histórico, nunca un
+     debutante. Si perdiste la final, la levantó el que te ganó.        */
+  let cierre;
+  if(ronda==="la final"){
+    cierre="La levantó "+verdugo+".";
+  }else{
+    const F=finalIA();
+    const camp=(CAMPEONES_MUNDO.indexOf(verdugo)>=0&&dado(.45))?verdugo:campeonIA(miSeleccion());
+    const rival=rnd(CAMPEONES_MUNDO.filter(n=>n!==camp));
+    cierre="La final la jugaron "+camp+" y "+rival+". Campeón: "+camp+".";
+  }
   placa({clase:"malo",eye:"🏆 COPA DEL MUNDO "+p.anio,titulo:tit,
     sub:(ronda==="la final"?"Perdimos la final con ":"Nos eliminó ")+verdugo
-      +(ronda==="la final"?". ":" en "+ronda+". ")+pers+" "+ver,
+      +(ronda==="la final"?". ":" en "+ronda+". ")+pers+" "+ver+" "+cierre,
     stats:[["NACIONAL",(dur?"−8":"+10"),dur?"dn":"up"],["MORAL",dur?"−14":"−6","dn"]],
     btn:"Volver al club",onClose:sigue});
 }
@@ -7878,8 +7930,8 @@ function renderVitrina(){
     const g={};
     T.forEach(t=>{
       const n=t.n||"Título";
-      if(!g[n])g[n]={n:n,c:0,anios:[],ico:t.ico||"🏆",oro:false,cat:categoriaTitulo(n)};
-      g[n].c++;g[n].anios.push(t.y);if(t.oro)g[n].oro=true;
+      if(!g[n])g[n]={n:n,c:0,datos:[],ico:t.ico||"🏆",oro:false,cat:categoriaTitulo(n)};
+      g[n].c++;g[n].datos.push({y:t.y,cl:t.cl||""});if(t.oro)g[n].oro=true;
     });
     const porCat={};
     Object.keys(g).forEach(k=>{(porCat[g[k].cat]=porCat[g[k].cat]||[]).push(g[k]);});
@@ -7888,8 +7940,16 @@ function renderVitrina(){
       l.sort((a,b)=>(b.c-a.c)||a.n.localeCompare(b.n));
       h+='<div class="vt-sec"><i>'+VIT_ICO[cat]+'</i><b>'+cat+'</b><s></s></div><div class="vt-list">';
       l.forEach(t=>{
-        const ys=t.anios.slice().sort();
-        const txt=ys.length>4?ys[0]+" – "+ys[ys.length-1]:ys.join(" · ");
+        const ys=t.datos.slice().sort((a,b)=>a.y-b.y);
+        const clubes=[];ys.forEach(x=>{if(x.cl&&clubes.indexOf(x.cl)<0)clubes.push(x.cl);});
+        let txt;
+        if(clubes.length===1)
+          txt=(ys.length>4?ys[0].y+" – "+ys[ys.length-1].y:ys.map(x=>x.y).join(" · "))
+              +" ("+clubes[0]+")";
+        else if(ys.length<=4)
+          txt=ys.map(x=>x.y+(x.cl?" ("+x.cl+")":"")).join(" · ");
+        else
+          txt=ys[0].y+" – "+ys[ys.length-1].y+" · "+clubes.join(", ");
         h+='<div class="vt-row'+(t.oro?" oro":"")+'"><i>'+t.ico+'</i>'
           +'<div class="vt-txt"><div class="vt-nm">'+esc(t.n)+'</div>'
           +'<div class="vt-yr">'+txt+'</div></div>'
@@ -8028,7 +8088,7 @@ function llenarFavoritos(){
   const P=PAISES.find(x=>x.id===pid)||PAISES[0];
   const L=CLUBES.filter(c=>c.liga===P.liga).slice().sort((a,b)=>a.n.localeCompare(b.n));
   sel.innerHTML='<option value="">Ninguno — soy del fútbol nomás</option>'
-    +L.map(c=>'<option value="'+c.n+'">'+c.n+' — nivel '+c.lv+'</option>').join("");
+    +L.map(c=>'<option value="'+c.n+'">'+c.n+'</option>').join("");
   const nota=document.getElementById("f-paisnota");
   if(nota)nota.textContent=P.liga===P.id
     ?"Tu país tiene liga grande: arrancás jugando el torneo de "+P.n+"."
