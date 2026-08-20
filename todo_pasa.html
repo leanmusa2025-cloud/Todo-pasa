@@ -4885,6 +4885,18 @@ function fichaCabecera(q,esRival){
     +'<div class="num" style="font-size:30px;color:'+(q.ovr>p.ovr?"var(--bad)":"var(--ok)")+'">'
     +q.ovr+'</div></div>';
 }
+/* v10 · La ficha se abre encima de lo que estabas viendo y después
+   devuelve exactamente esos nodos, con sus handlers intactos.         */
+let _fichaPrev=null;
+function vaciarNodos(el){while(el.firstChild)el.removeChild(el.firstChild);}
+function cerrarFicha(){
+  const c=document.getElementById("cartas"); if(!c)return;
+  c.dataset.ficha="0";
+  vaciarNodos(c);
+  if(_fichaPrev&&_fichaPrev.length)_fichaPrev.forEach(n=>c.appendChild(n));
+  _fichaPrev=null;
+  c.scrollIntoView({behavior:"smooth",block:"end"});
+}
 function verFicha(ap){
   const q=porAp(ap); if(!q)return;
   const esRival=(p.rival&&p.rival.ap===ap);
@@ -4951,15 +4963,22 @@ function verFicha(ap){
   h+='<button class="cta ghost" id="btn-cerrarficha" style="margin-top:11px">Volver</button></div>';
 
   const c=document.getElementById("cartas");
-  if(c.dataset.ficha!=="1")c.dataset.prev=c.innerHTML;
+  /* v10 · BUG: antes se guardaba y restauraba innerHTML como texto, lo que
+     recreaba el DOM y borraba todos los onclick. Al volver de la ficha el
+     botón Seguir quedaba muerto y la partida se trababa. Ahora se guardan
+     los NODOS y se vuelven a colgar, así conservan sus handlers.        */
+  if(c.dataset.ficha!=="1")_fichaPrev=Array.prototype.slice.call(c.childNodes);
   c.dataset.ficha="1";
-  c.innerHTML=h;
+  /* si había una jugada con reloj, se corta: mirar una ficha no te la hace perder */
+  clearTimeout(tJug);
+  vaciarNodos(c);
+  c.insertAdjacentHTML("beforeend",h);
   const bp=document.getElementById("btn-fprensa");
   if(bp&&!yaD)bp.onclick=()=>{buzz(12);fichaPrensa(ap);};
   const bc=document.getElementById("btn-fcharla");
   if(bc&&!yaC)bc.onclick=()=>{buzz(12);fichaCharla(ap);};
   const b=document.getElementById("btn-cerrarficha");
-  if(b)b.onclick=()=>{c.dataset.ficha="0";c.innerHTML=c.dataset.prev||"";};
+  if(b)b.onclick=()=>cerrarFicha();
   c.scrollIntoView({behavior:"smooth",block:"start"});
 }
 /* ── Conferencia de prensa: bancarlo o clavarle el dardo ──────────── */
@@ -5077,7 +5096,7 @@ function fichaDecir(ap,i){
 /* ══════════════ FIN DE TURNO / RETIRO ══════════════ */
 function finTurno(){
   clearTimeout(tJug);clearInterval(_tribT);
-  const cz=document.getElementById("cartas");cz.dataset.ficha="0";cz.innerHTML="";
+  const cz=document.getElementById("cartas");cz.dataset.ficha="0";cz.innerHTML="";_fichaPrev=null;
   render();ledDin();guardar();pintarFeed();
   const bs=document.getElementById("btn-sobre");
   if(bs){bs.style.display=puedeSobre()?"block":"none";
