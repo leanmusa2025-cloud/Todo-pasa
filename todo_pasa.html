@@ -3558,6 +3558,20 @@ function tablaGrupoHTML(t,nom){
   });
   return h+'</div>';
 }
+/* v10 · Una fecha de grupo resuelta sola: el partido tuyo y el de los
+   otros dos. Se usa en carrera exprés para las fechas que no clickeás;
+   la campaña se juega igual y la tabla queda completa.                */
+function simFechaGrupo(C,k){
+  const riv=C.grupo[k%3];
+  const mio=nivelClub()+(p.ovr-nivelClub())*0.5+((p.temp&&p.temp.rend)||0)*0.8;
+  const g=golesRapido(mio,riv.lv);
+  anotarGrupo(C.grupo,p.club,riv.n,g[0],g[1]);
+  const otros=C.grupo.filter(x=>!x.yo&&x.n!==riv.n);
+  if(otros.length===2){const h=golesRapido(otros[0].lv,otros[1].lv);
+    anotarGrupo(C.grupo,otros[0].n,otros[1].n,h[0],h[1]);}
+  (C.simuladas=C.simuladas||[]).push("Fecha "+(k+1)+" · vs "+riv.n+": "+g[0]+"-"+g[1]);
+  C.fecha=k+1;
+}
 function agregarKOCont(){
   const T=p.temp,C=T.copa,fin=C.ko>=KO_CONT.length-1;
   T.mom.push({comp:fin?"final":"inter",
@@ -3580,14 +3594,23 @@ function pasaPenales(m){
 function copaContProgreso(m,res){
   const T=p.temp,C=T.copa; if(!C||!C.vivo)return;
   if(C.fase==="grupos"){
+    const k=(m.gfecha!==undefined)?m.gfecha:C.fecha;
+    /* las fechas anteriores que no se jugaron a mano se resuelven ahora */
+    while(C.fecha<k)simFechaGrupo(C,C.fecha);
     anotarGrupo(C.grupo,p.club,m.rival.n,m.mk[0],m.mk[1]);
     const otros=C.grupo.filter(x=>!x.yo&&x.n!==m.rival.n);
     if(otros.length===2){const g=golesRapido(otros[0].lv,otros[1].lv);
       anotarGrupo(C.grupo,otros[0].n,otros[1].n,g[0],g[1]);}
-    C.fecha++;
+    C.fecha=k+1;
+    /* si ya no quedan fechas para clickear, se completa el grupo solo */
+    const quedan=(C.interactivas||[]).filter(z=>z>k);
+    if(!quedan.length)while(C.fecha<6)simFechaGrupo(C,C.fecha);
     if(C.fecha>=6){
       const tabla=ordenarGrupo(C.grupo);
-      C.tabla=tabla;C.msgTabla=tablaGrupoHTML(tabla,C.nom);
+      C.tabla=tabla;
+      const sim=(C.simuladas&&C.simuladas.length)
+        ? '<p class="cnota">Las que no jugaste vos: '+C.simuladas.join(" · ")+'.</p>' : "";
+      C.msgTabla=sim+tablaGrupoHTML(tabla,C.nom);
       let mi=1;tabla.forEach((x,i)=>{if(x.yo)mi=i+1;});
       C.pos=mi;
       if(mi<=2){C.fase="ko";C.ko=0;C.ronda=KO_CONT[0];agregarKOCont();}
@@ -3657,8 +3680,14 @@ function armarMomentos(n){
       grupo:armarGrupo(p.copaHab),fecha:0,fase:"grupos",vivo:true,campeon:false,
       ronda:"la fase de grupos",ko:0};
     const cn=T.copa.nom.toUpperCase();
-    for(let k=0;k<6;k++)
+    /* v10 · carrera completa: se juegan las seis fechas a mano.
+       Carrera exprés: se clickean el debut y la definitoria, y las otras
+       cuatro se resuelven solas. La campaña se disputa entera igual.   */
+    const inter=p.express?[0,5]:[0,1,2,3,4,5];
+    T.copa.interactivas=inter;
+    inter.forEach(k=>{
       slot("inter",cn+" · FECHA "+(k+1),2,club(T.copa.grupo[k%3].n),{cup:"cont",gfecha:k});
+    });
   }
 
   /* 5 · Recta final del torneo local, según cuánto jugues */
