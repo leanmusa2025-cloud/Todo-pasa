@@ -56,7 +56,7 @@
   box-shadow:0 0 18px rgba(249,212,35,.5)}
 .pz-info{text-align:center;margin-top:10px;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
-/* ── TALLER estilo terminal ────────────────────────────────── */
+/* ── ESTADO FÍSICO estilo terminal ─────────────────────────── */
 .term{background:#04120a;border:1px solid #1a5c33;border-radius:10px;padding:12px;
   font-family:var(--mono);position:relative;overflow:hidden}
 .term{border-color:#1a5c33;box-shadow:inset 0 0 40px rgba(0,255,120,.05)}
@@ -78,11 +78,11 @@
 .who .meta{color:#9d8a5e}
 .pill .lab{color:#B4923A}
 /* ── Cartel de competencia · v7 ────────────────────────────── */
-.comp{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:9px 11px;
+.comp{display:flex;align-items:flex-start;gap:10px;margin:0 0 12px;padding:9px 11px;
   border:1px solid var(--line);border-left:3px solid var(--a1);border-radius:8px;
   background:linear-gradient(90deg,rgba(255,255,255,.045),transparent)}
 .comp i{font-style:normal;font-size:20px;line-height:1}
-.comp .cn{font-family:var(--mono);font-weight:700;font-size:15px;letter-spacing:.16em;
+.comp .cn{font-family:var(--mono);font-weight:700;font-size:13.5px;letter-spacing:.10em;
   text-transform:uppercase;line-height:1.15;color:var(--ink)}
 .comp .cs{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--dim);
   text-transform:uppercase;margin-top:3px}
@@ -97,7 +97,7 @@
 .comp.inter{background:linear-gradient(90deg,rgba(61,220,151,.10),transparent 62%)}
 .comp.final{background:linear-gradient(90deg,rgba(245,197,66,.14),transparent 66%);
   box-shadow:inset 0 0 24px rgba(245,197,66,.07)}
-.comp .cn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp .cn{white-space:normal;overflow-wrap:anywhere;line-height:1.2}
 
 /* rostros de la generación con el mismo arte que el tuyo */
 .mini-cara{width:34px;height:39px;border-radius:5px;overflow:hidden;flex-shrink:0;
@@ -689,7 +689,7 @@ button{font-family:inherit; color:inherit; border:0; background:none; cursor:poi
   <div class="modo-grid">
     <button class="modo sel" data-modo="realista" onclick="pickModo('realista')">
       <div class="sub">Modo 01</div><h3>Realista / Termo</h3>
-      <p>El fútbol como es. Crecés despacio, las gambas de chatarra se rompen y la barra brava aprieta si no ganás. Se puede.</p>
+      <p>El fútbol como es. Crecés despacio, el cuerpo se rompe y la barra brava aprieta si no ganás. Se puede.</p>
       <div class="facts"><div class="fact">TECHO<b>62–88</b></div><div class="fact">BARDO<b>Frecuente</b></div><div class="fact">BALÓN DE ORO<b>Casi nunca</b></div></div>
     </button>
     <button class="modo" data-modo="fantasia" onclick="pickModo('fantasia')">
@@ -817,6 +817,7 @@ button{font-family:inherit; color:inherit; border:0; background:none; cursor:poi
   <div class="savebar">
     <button class="sv" id="btn-guardar" onclick="guardarManual()">GUARDAR PARTIDA</button>
     <button class="sv ghost" id="btn-cargar" onclick="cargarManual()">CARGAR</button>
+    <button class="sv ghost" id="btn-mute" onclick="toggleMute()" style="min-width:56px">🔊</button>
     <div class="svinfo" id="sv-info">Se guarda solo al terminar cada temporada</div>
   </div>
 
@@ -976,16 +977,17 @@ const APELLIDOS=["Sosa","Ferreyra","Quiroga","Almirón","Vera","Ibarra","Colombo
 const NOMBRES=["Nahuel","Brian","Thiago","Lautaro","Ezequiel","Maxi","Elías","Iván","Franco","Ramiro","Tobías","Kevin","Alan","Milton","Joaquín","Gastón","Rodrigo","Facundo"];
 const APODOS=["El Turro","El Picante","El Tanque","El Facha","El Rústico","El Mágico","El Perro","El Wachín","El Carnicero","La Joya","El Loco","El Sicario","El Chino","El Ruso","El Colo","El Tuerto"];
 
+/* v13 · El cuerpo es el cuerpo: nada de chasis ni pistones */
 const ZONAS={
-  pubis:{id:"m-pubis",n:"Chasis Central"},
-  isqL:{id:"m-isqL",n:"Pistón Izq"},
-  isqR:{id:"m-isqR",n:"Pistón Der"},
-  rodL:{id:"m-rodL",n:"Engranaje Rodilla Izq"},
-  rodR:{id:"m-rodR",n:"Engranaje Rodilla Der"},
-  gemL:{id:"m-gemL",n:"Amortiguador Izq"},
-  gemR:{id:"m-gemR",n:"Amortiguador Der"},
-  tobL:{id:"m-tobL",n:"Resorte Tobillo Izq"},
-  tobR:{id:"m-tobR",n:"Resorte Tobillo Der"}
+  pubis:{id:"m-pubis",n:"Pubis"},
+  isqL:{id:"m-isqL",n:"Isquiotibial Izq"},
+  isqR:{id:"m-isqR",n:"Isquiotibial Der"},
+  rodL:{id:"m-rodL",n:"Rodilla Izq"},
+  rodR:{id:"m-rodR",n:"Rodilla Der"},
+  gemL:{id:"m-gemL",n:"Gemelo Izq"},
+  gemR:{id:"m-gemR",n:"Gemelo Der"},
+  tobL:{id:"m-tobL",n:"Tobillo Izq"},
+  tobR:{id:"m-tobR",n:"Tobillo Der"}
 };
 
 /* ══════════════ CARA 16-BIT ══════════════
@@ -1828,7 +1830,7 @@ const JUGADAS=[
 {id:"apagon",pos:["DEL","MED","DEF","ARQ"],seg:2.6,max:2,t:"SE CORTÓ LA LUZ",
  x:"Media cancha a oscuras, 40 minutos de espera y el equipo se enfría en el vestuario.",
  o:[{b:"Arengar al vestuario",s:"Liderazgo",st:"car",base:58,ok:{forma:14,mor:10,local:8,rend:2,msg:"Volvieron enchufados"},mal:{mor:-6,rend:-1,msg:"Nadie te dio bola"}},
-    {b:"Quedarte estirando solo",s:"Cuidar el chasis",st:"car",base:90,fijo:1,ok:{salud:["isqL",6],rend:0,msg:"Volviste entero"}},
+    {b:"Quedarte estirando solo",s:"Cuidar el cuerpo",st:"car",base:90,fijo:1,ok:{salud:["isqL",6],rend:0,msg:"Volviste entero"}},
     {b:"Salir a hablar con la prensa",s:"Polémica gratis",st:"car",base:50,ok:{mundo:10,local:8,rend:1,msg:"Titular en todos lados"},mal:{plata:-40,mor:-6,msg:"Multa del club por hablar de más"}},
     {b:"Comerte tres alfajores",s:"Nadie te ve",st:"fis",base:70,ok:{mor:8,rend:0,msg:"Volviste feliz"},mal:{forma:-10,fis:-1,msg:"Volviste pesado"}}]},
 {id:"bengala",pos:["DEL","MED","DEF","ARQ"],seg:2.4,max:2,t:"HUMO EN LA CANCHA",
@@ -1849,7 +1851,7 @@ const JUGADAS=[
     {b:"Tirarlo afuera y seguir",s:"Aguante",st:"car",base:70,ok:{local:10,car:1,rend:1,msg:"Aguantó igual"},mal:{salud:["tobL",-12],rend:-1,msg:"Terminaste rengo"}},
     {b:"Pedir el cambio de botín",s:"Lo que corresponde",st:"car",base:92,fijo:1,ok:{rend:0,msg:"Dos minutos afuera"}},
     {b:"Pedirle uno al suplente",s:"Improvisación",st:"tec",base:54,ok:{forma:6,mor:6,rend:1,msg:"Te quedó bárbaro"},mal:{forma:-10,salud:["gemR",-10],msg:"Dos números más grande"}}]},
-{id:"barro",pos:["DEL","MED","DEF","ARQ"],seg:2.5,max:2,t:"LA CANCHA ES UN BARRIAL",
+{id:"barro",pos:["DEL","MED","DEF","ARQ"],seg:2.5,max:2,t:"LA CANCHA ES UN POTRERO",
  x:"Llovió dos días. La pelota no rueda, se clava. El partido es una lotería.",
  o:[{b:"Meter pelotazos y correr",s:"Fútbol de invierno",st:"fis",base:66,ok:{gol:1,forma:10,local:8,rend:2,msg:"Gol embarrado"},mal:{forma:-6,rend:-1,msg:"Se murió en el barro"}},
     {b:"Intentar jugar igual",s:"Terquedad técnica",st:"tec",base:34,ok:{forma:16,local:14,tec:1,rend:2,msg:"Jugó como si fuera parquet"},mal:{forma:-12,rend:-2,msg:"Perdió todas"}},
@@ -1944,8 +1946,8 @@ JUGADAS.push(
     {b:"Pactar con el capitán rival",s:"No jugar ninguno",st:"car",base:58,
      ok:{mundo:10,mor:8,msg:"Los dos equipos se plantaron juntos"},mal:{local:-20,mor:-6,msg:"Tu hinchada lo tomó como entrega"}}]},
 
-{id:"w1_barrial",pos:["DEL","MED","DEF","ARQ"],comp:["liga","copa"],seg:3.4,cd:6,
- t:"LA CANCHA ES UN BARRIAL Y NO SUSPENDEN",
+{id:"w1_potrero",pos:["DEL","MED","DEF","ARQ"],comp:["liga","copa"],seg:3.4,cd:6,
+ t:"LA CANCHA ES UN POTRERO Y NO SUSPENDEN",
  x:"La pelota no pica, se clava. El árbitro la tiró tres veces al piso, se quedó quieta, y dijo que se juega igual.",
  o:[{b:"Jugar todo por arriba",s:"Pelotazo y a correr",st:"fis",base:72,
      ok:{rend:2,car:3,msg:"Te adaptaste antes que nadie"},mal:{forma:-8,rend:-1,msg:"Partido horrible para todos, vos incluido"}},
@@ -2026,12 +2028,12 @@ const PRETEMP=[
 {id:"pre_gira",max:2,t:"GIRA DE PRETEMPORADA POR ASIA",
  x:"Cuatro amistosos en diez días, jet lag y una montaña de dólares para el club.",
  o:[{b:"Jugar todos los amistosos",s:"Plata y vidriera",st:"fis",base:66,ok:{plata:90,mundo:8,msg:"Cobraste y te vieron"},mal:{plata:60,salud:["gemL",-16],msg:"Volviste roto"}},
-    {b:"Pedir descanso",s:"Cuidar el chasis",st:"car",base:88,fijo:1,ok:{salud:["pubis",10],local:-4,msg:"Descansaste"}},
+    {b:"Pedir descanso",s:"Cuidar el cuerpo",st:"car",base:88,fijo:1,ok:{salud:["pubis",10],local:-4,msg:"Descansaste"}},
     {b:"Ir solo a lo comercial",s:"Firmas y fotos",st:"car",base:80,ok:{plata:60,mundo:10,msg:"Sos marca"},mal:{mor:-6,local:-6,msg:"El vestuario te miró feo"}},
     {b:"Fingir una molestia",s:"Quedarte en casa",st:"car",base:52,ok:{mor:8,salud:["isqR",8],msg:"Vacaciones extra"},mal:{mor:-12,local:-10,plata:-30,msg:"El médico te mandó al frente"}}]},
-{id:"pre_taller",max:3,t:"REVISIÓN GENERAL DE GAMBAS",
- x:"Los mecánicos abrieron el chasis en enero y no les gustó nada de lo que vieron.",
- o:[{b:"Reparación completa",s:"U$D −90k",st:"car",base:99,fijo:1,ok:{plata:-90,reparar:45,msg:"Gambas como nuevas"}},
+{id:"pre_taller",max:3,t:"REVISIÓN MÉDICA COMPLETA",
+ x:"Los médicos te revisaron de arriba abajo en enero y no les gustó nada de lo que vieron.",
+ o:[{b:"Reparación completa",s:"U$D −90k",st:"car",base:99,fijo:1,ok:{plata:-90,reparar:45,msg:"Cuerpo como nuevo"}},
     {b:"Un par de arreglos",s:"U$D −30k",st:"car",base:99,fijo:1,ok:{plata:-30,reparar:18,msg:"Parche y a jugar"}},
     {b:"Taller clandestino barato",s:"U$D −10k · riesgo",st:"car",base:55,ok:{plata:-10,reparar:35,msg:"Salió bien y barato"},mal:{plata:-10,salud:["rodL",-20],msg:"Te dejaron peor"}},
     {b:"Aguantar con cinta",s:"Gratis",st:"car",base:99,fijo:1,ok:{mor:-6,msg:"Seguís roto pero seguís"}}]},
@@ -2078,107 +2080,188 @@ const PRETEMP=[
    Situaciones escritas en crudo. El motor les arma los efectos según
    si la salida es buena, intermedia o mala, así el pack pesa poco.   */
 const SITU_C1=[
-{id:"C1S1",titulo:"El Bardo del Soplete",
- relato:"Perdimos el clásico. El vestuario es un velorio. De repente, el 9, el que se cree el dueño del circo, saca un soplete. Te mira a vos con cara de parca. \"Pibe, vos no viste nada\", dice. El aire arde.",
- opciones:[{texto:"Saltá con los tapones de punta",tipo:"malo"},{texto:"Hacé la vista gorda",tipo:"intermedio"},
-  {texto:"Mirá cómo se pudre todo",tipo:"malo"},{texto:"Calmá las aguas con maña",tipo:"bueno"},
-  {texto:"Plantate de guapo y hablá",tipo:"bueno"},{texto:"Hacé la tuya en silencio",tipo:"intermedio"}]},
-{id:"C1S2",titulo:"El Entretiempo del Capitán",
- relato:"Vamos 0-3. Es un quilombo. {DT} no sabe qué hacer y se queda mudo. Vos sos de los más grandes. Toda la crema te mira. El vestuario está en llamas y la bestia ruge afuera.",
- opciones:[{texto:"Gritá que se pudra",tipo:"malo"},{texto:"Afanale confianza al wachín",tipo:"bueno"},
-  {texto:"Andá por el veneno",tipo:"malo"},{texto:"Hacé una bandera de aguante",tipo:"intermedio"},
-  {texto:"Poné orden con un lujo",tipo:"bueno"},{texto:"Hacé el feca en silencio",tipo:"intermedio"}]},
-{id:"C1S3",titulo:"La Salsa de la Cana",
- relato:"Se armó el quilombo en la manga. Los rivales arden por la salsa que les tiraron. Toda la gorra se mete. No se ve nada, solo humo y bardo en el paraíso.",
- opciones:[{texto:"Pedí tarjeta al árbitro",tipo:"malo"},{texto:"Hacé tiempo con los de experiencia",tipo:"intermedio"},
-  {texto:"Plantate en la manga a cubrir",tipo:"bueno"},{texto:"Pedí que se corte el partido",tipo:"intermedio"},
-  {texto:"Gritarle de todo a la gorra",tipo:"malo"},{texto:"Sacar ventaja en la confusión",tipo:"bueno"}]},
-{id:"C1S4",titulo:"La Noche Mame",
- relato:"Estamos 0-0. Minuto 90. Penal a favor en el clásico. Cuando ibas a patear se hizo la noche: se cortó la luz. El gordo dejó de tocar el bombo. No se ve ni la parca.",
- opciones:[{texto:"Pateá a ciegas y gritá el gol",tipo:"malo"},{texto:"Asegurá el punto sin arriesgar",tipo:"intermedio"},
-  {texto:"Quedate pillo esperando la luz",tipo:"bueno"},{texto:"Gritarle al árbitro que lo suspenda",tipo:"intermedio"},
-  {texto:"Buscar rosca con el arquero",tipo:"malo"},{texto:"Pateá al bulto rompiendo el arco",tipo:"bueno"}]},
-{id:"C1S5",titulo:"La Transa en el Vestuario",
- relato:"Ganamos. Entrás al baño y encontrás a dos compañeros. No están rezando. Están transando algo pesado. Te miran pálidos. Es un bardo ético.",
- opciones:[{texto:"Agarrá una parte de la torta",tipo:"malo"},{texto:"Hacé de campana sin meterte",tipo:"intermedio"},
-  {texto:"Contáselo de una al capitán",tipo:"bueno"},{texto:"Hacé de cuenta que no viste nada",tipo:"intermedio"},
-  {texto:"Armá un bardo a los gritos",tipo:"malo"},{texto:"Salí del baño y borrate",tipo:"bueno"}]},
-{id:"C1S6",titulo:"El Barrial de la Cuarta",
- relato:"Jugamos en un barrial de cuarta. La tribuna a dos metros. Ellos vinieron a meter guadaña y pierna fuerte. Vos venís de jugar en sintético. Van 0-0 y quedan diez minutos.",
- opciones:[{texto:"Jugar por arriba sin picar",tipo:"bueno"},{texto:"Tirar caños en el barro",tipo:"malo"},
-  {texto:"Meter un patadón disimulado",tipo:"intermedio"},{texto:"Comprá el tiro libre mañoso",tipo:"bueno"},
-  {texto:"Putear al 2 de ellos para sacarlo",tipo:"malo"},{texto:"Ver cómo se calientan solos",tipo:"intermedio"}]},
-{id:"C1S7",titulo:"El Firulete del Esclavo",
- relato:"Te presionan tres arriba. {DT} pidió salir jugando, pero te quieren afanar la pelota a puro hachazo. Todo el estadio quiere lujos.",
- opciones:[{texto:"Reventala a la tribuna",tipo:"bueno"},{texto:"Tocá corta con el 5",tipo:"intermedio"},
-  {texto:"Gambetear para adentro en el área",tipo:"malo"},{texto:"Tirarte de cabeza a buscar el foul",tipo:"bueno"},
-  {texto:"Aguantar la pelota de espaldas",tipo:"malo"},{texto:"Mandarla a volar bien lejos",tipo:"intermedio"}]},
-{id:"C1S8",titulo:"El Show del Veneno",
- relato:"Perdimos de local. Flavio Azzaro te encara con cara de fiscal. \"Pibe, esto se pudre. ¿Es el fin de todo?\". Te mira con veneno y la cámara no corta.",
- opciones:[{texto:"Poner cara de perro y no hablar",tipo:"intermedio"},{texto:"Gambetear la pregunta con elegancia",tipo:"intermedio"},
-  {texto:"Saltarle a la yugular al periodista",tipo:"malo"},{texto:"Echarle la culpa al árbitro",tipo:"malo"},
-  {texto:"Poner el pecho y bancar el trapo",tipo:"bueno"},{texto:"Decirle que venden humo",tipo:"bueno"}]},
-{id:"C1S9",titulo:"La Transa del Guante Blanco",
- relato:"Un tipo desconocido se te acerca en el feca. Te ofrece un negocio. \"Pibe, si hoy perdemos, guante blanco para todos\". Te mira con veneno. Es una transa total.",
- opciones:[{texto:"Agarrar los verdes y callarse",tipo:"malo"},{texto:"Escuchar el número por curiosidad",tipo:"intermedio"},
-  {texto:"Sacarlo cagando de un empujón",tipo:"bueno"},{texto:"Llamar a los gritos al utilero",tipo:"malo"},
-  {texto:"Pedir que sea solo por empatar",tipo:"intermedio"},{texto:"Ir a contarle al presidente",tipo:"bueno"}]},
-{id:"C1S10",titulo:"La Bestia Ruge en el Rebote",
- relato:"Minuto 93. Clásico. La bestia ruge. Rebote en el área chica. Ocho piernas a tu alrededor. Solo queda meter huevo o tirar una magia.",
- opciones:[{texto:"Trabar con la cabeza si hace falta",tipo:"bueno"},{texto:"Meter un guadañazo a ciegas",tipo:"malo"},
-  {texto:"Pisar la pelota entre cuatro",tipo:"intermedio"},{texto:"Dudar y dejar que despejen",tipo:"malo"},
-  {texto:"Romperle el arco de volea",tipo:"bueno"},{texto:"Picarla con una frialdad bárbara",tipo:"intermedio"}]},
-{id:"C1S11",titulo:"El Bidón del Profe",
- relato:"En un parate por calor, el PF rival te alcanza una caramañola. El agua tiene un gusto raro, tirando a medicinal. \"Tomá pibe, refrescá que te falta nafta\", te dice con una sonrisa pillandanga.",
- opciones:[{texto:"Tomar un buche sin asco",tipo:"malo"},{texto:"Tirarla al pasto disimulado",tipo:"bueno"},
-  {texto:"Pasarle el agua a otro compañero",tipo:"intermedio"},{texto:"Tirársela en la cara al PF",tipo:"malo"},
-  {texto:"Avisarle al línea al toque",tipo:"bueno"},{texto:"Hacerte el dolobu y correrte",tipo:"intermedio"}]},
-{id:"C1S12",titulo:"El Hachazo de Tiza",
- relato:"El 11 de ellos te metió un caño humillante y se va solo contra el arquero. Llegás cruzando como último recurso. Si le tirás la guadaña abajo, lo limpiás pero te comés la roja.",
- opciones:[{texto:"Bajarlo de un hachazo al bulto",tipo:"bueno"},{texto:"Trotar al lado sin tocarlo",tipo:"malo"},
-  {texto:"Agarrarle la remera despacito",tipo:"intermedio"},{texto:"Meterle un planchazo arriba",tipo:"malo"},
-  {texto:"Tirarte a cortar limpia la pelota",tipo:"bueno"},{texto:"Gritarle de atrás para asustarlo",tipo:"intermedio"}]},
-{id:"C1S13",titulo:"El Perro del Potrero",
- relato:"Van 70 minutos, perdés 1-0. De la nada entra un perro a la cancha, se roba la pelota y se pone a jugar. La tribuna delira. El árbitro no sabe dónde meterse.",
- opciones:[{texto:"Correr al bicho para ganar tiempo",tipo:"bueno"},{texto:"Pegarle una patada al perro",tipo:"malo"},
-  {texto:"Sacarlo a upa con buena onda",tipo:"bueno"},{texto:"Bardearse mal con el referí",tipo:"malo"},
-  {texto:"Sentarte a descansar en el pasto",tipo:"intermedio"},{texto:"Mirar a la tribuna y pedir aliento",tipo:"intermedio"}]},
-{id:"C1S14",titulo:"El Apriete en el Portón",
- relato:"Terminó la práctica. En el portón te espera {BARRA_LIDER} con tres pibes más, la gorra calada y la mano en el bolsillo. \"Hoy hay que ganar o se pudre la casa\", te tiran al oído.",
- opciones:[{texto:"Plantarte de manos ahí mismo",tipo:"malo"},{texto:"Agachar la cabeza y meter la pata",tipo:"bueno"},
-  {texto:"Pedirles unos mangos prestados",tipo:"malo"},{texto:"Prometer dejar la vida en la cancha",tipo:"bueno"},
-  {texto:"Hacerte el gil y seguir caminando",tipo:"intermedio"},{texto:"Decirles que hablen con el capitán",tipo:"intermedio"}]},
-{id:"C1S15",titulo:"La Mano de Dios Criolla",
- relato:"Centro al área, el arquero sale mal y no llega. Vos tampoco por altura. Es la pelota del partido y el referí quedó tapado por tres defensores.",
- opciones:[{texto:"Meter el puño como el Diego",tipo:"bueno"},{texto:"Cabecear el aire sin llegar",tipo:"malo"},
-  {texto:"Empujar al rival por la espalda",tipo:"malo"},{texto:"Dejarla pasar para el que viene",tipo:"bueno"},
-  {texto:"Tirarte a buscar el penal arriba",tipo:"intermedio"},{texto:"Gritar mano antes de tiempo",tipo:"intermedio"}]},
-{id:"C1S16",titulo:"El Alcanzapelotas Pillo",
- relato:"Ganás con lo justo y se viene la contra rival. La pelota sale al lateral y el pibito del club se la guarda abajo de la remera para demorar el saque.",
- opciones:[{texto:"Guiñarle el ojo y acomodar la zaga",tipo:"bueno"},{texto:"Sacársela de un tirón para jugar",tipo:"malo"},
-  {texto:"Aplaudir al pibe a los gritos",tipo:"malo"},{texto:"Caminar hacia tu área sin apuro",tipo:"bueno"},
-  {texto:"Protestarle al línea para distraer",tipo:"intermedio"},{texto:"Atarte los cordones bien despacio",tipo:"intermedio"}]},
-{id:"C1S17",titulo:"Puntos en el Escritorio",
- relato:"El rival puso en cancha a un chabón que tenía cinco amarillas. En el vestuario, el delegado te dice: \"Si firmamos la nota en la AFA, ganamos los tres puntos en el escritorio\".",
- opciones:[{texto:"Exigir los puntos en la mesa",tipo:"bueno"},{texto:"Decir que se gana en la cancha",tipo:"malo"},
-  {texto:"Armar bardo mediático en la radio",tipo:"malo"},{texto:"Firmar calladito y no declarar",tipo:"bueno"},
-  {texto:"Dejar la decisión a la comisión",tipo:"intermedio"},{texto:"Filtrarle el dato al periodismo",tipo:"intermedio"}]},
-{id:"C1S18",titulo:"El Invasor del Trapo",
- relato:"Un hincha re loco saltó el alambrado, eludió a la policía y viene corriendo directo hacia vos a pedirte la camiseta en pleno contraataque.",
- opciones:[{texto:"Darle un abrazo rápido y seguir",tipo:"bueno"},{texto:"Empujarlo para que no corte la jugada",tipo:"malo"},
-  {texto:"Meterle una trompada de la bronca",tipo:"malo"},{texto:"Usarlo de cortina contra el defensor",tipo:"bueno"},
-  {texto:"Frenar el partido y pedir auxilio",tipo:"intermedio"},{texto:"Mirar para otro lado y seguir",tipo:"intermedio"}]},
-{id:"C1S19",titulo:"La Picada de la Gloria",
- relato:"Penal decisivo en el minuto 94. El arquero te prepotea, te escupe la pelota y te grita que sos un cagón. Tenés el destino del campeonato en la zurda.",
- opciones:[{texto:"Picársela suave al medio con clase",tipo:"bueno"},{texto:"Fusilarlo al pecho con toda la bronca",tipo:"malo"},
-  {texto:"Tirarla a la tribuna de los nervios",tipo:"malo"},{texto:"Abrir el pie suave al palo derecho",tipo:"bueno"},
-  {texto:"Pedir que patee otro",tipo:"intermedio"},{texto:"Tomar muchísima distancia",tipo:"intermedio"}]},
-{id:"C1S20",titulo:"El Pantano del Conurbano",
- relato:"Diluvia fuerte. El área chica es una pileta de barro donde la pelota se frena. Te cae un centro flotado y el arquero se resbala feo al salir a buscarla.",
- opciones:[{texto:"Puntearla antes que reaccione",tipo:"bueno"},{texto:"Tirarte de palomita a comer barro",tipo:"bueno"},
-  {texto:"Esperar que pique para definir",tipo:"malo"},{texto:"Pedir penal sin que te toquen",tipo:"malo"},
-  {texto:"Trabar con las dos piernas",tipo:"intermedio"},{texto:"Pararla de pecho a ver qué pasa",tipo:"intermedio"}]}
+ {id:"C1S1",titulo:"El Bardo del Soplete",
+  relato:"Perdimos el clásico. El vestuario es un velorio. De repente, el 9, el que se cree el dueño del circo, saca un soplete. Te mira a vos con cara de parca. \"Pibe, vos no viste nada\", dice. El aire arde.",
+  opciones:[{t:"Pegá el grito por las violencias",k:"malo"},{t:"Hacé la parca",k:"intermedio"},{t:"Mirá cómo arden",k:"malo"},{t:"Transá un poco de paz",k:"bueno"},{t:"Defendé con firmeza",k:"bueno"},{t:"Hacé firuletes mudos",k:"intermedio"}]},
+ {id:"C1S2",titulo:"El Entretiempo del Capitán",
+  relato:"Vamos 0-3. Es un quilombo. {DT} no sabe qué hacer y se queda mudo. Vos sos de los más grandes. Toda la crema te mira. El vestuario está en llamas y la bestia ruge afuera.",
+  opciones:[{t:"Gritá que se pudra",k:"malo"},{t:"Afanale confianza al wachín",k:"bueno"},{t:"Andá por el veneno",k:"malo"},{t:"Hacé una bandera de aguante",k:"intermedio"},{t:"Poné orden con un lujo",k:"bueno"},{t:"Hacé el feca en silencio",k:"intermedio"}]},
+ {id:"C1S3",titulo:"La Salsa de la Cana",
+  relato:"Se armó el quilombo en la manga. Los rivales arden por la salsa que les tiraron. Toda la gorra se mete. No se ve nada, solo dolor y violencias en el paraíso.",
+  opciones:[{t:"Pedí lujos al árbitro",k:"malo"},{t:"Hacé el morfo con la crema",k:"intermedio"},{t:"Defendé con firmeza",k:"bueno"},{t:"Transá un descanso eterno",k:"intermedio"},{t:"Gritá una violencia",k:"malo"},{t:"Afanale aire al rival caído",k:"bueno"}]},
+ {id:"C1S4",titulo:"La Noche Mame",
+  relato:"Estamos 0-0. Minuto 90. Penal a favor en el clásico. Cuando ibas a patear se hizo la noche: se cortó la luz. El gordo dejó de tocar el bombo. No se ve ni la parca.",
+  opciones:[{t:"Gritá un gol por las violencias",k:"malo"},{t:"Transá un empate elegante",k:"intermedio"},{t:"Quedate pillo",k:"bueno"},{t:"Buscá al árbitro para morfar",k:"intermedio"},{t:"Andá a buscar el veneno",k:"malo"},{t:"Pateá a la noche con firmeza",k:"bueno"}]},
+ {id:"C1S5",titulo:"La Transa en el Vestuario",
+  relato:"Ganamos. Entrás al baño y encontrás a dos compañeros. No están rezando. Están transando algo pesado. Un guante blanco sobre el piso. Te miran pálidos. Es un bardo ético.",
+  opciones:[{t:"Afaná los lujos",k:"malo"},{t:"Mirá cómo transan",k:"intermedio"},{t:"Contáselo al capitán",k:"bueno"},{t:"Hacé la parca",k:"intermedio"},{t:"Pedí una violencia",k:"malo"},{t:"Asegurá un futuro limpio",k:"bueno"}]},
+ {id:"C1S6",titulo:"El Potrero de la Cuarta",
+  relato:"Jugamos en un potrero de cuarta. La tribuna a dos metros. Ellos vinieron a darte violencias. Vos venís de jugar en césped sintético. Van 0-0 y quedan diez minutos.",
+  opciones:[{t:"Jugar por arriba con firmeza",k:"bueno"},{t:"Encararlos uno por uno con firuletes",k:"malo"},{t:"Pegá violencias mudas",k:"intermedio"},{t:"Caé y transá falta",k:"bueno"},{t:"Gritá una violencia",k:"malo"},{t:"Mirá cómo arden en el barro",k:"intermedio"}]},
+ {id:"C1S7",titulo:"El Firulete del Esclavo",
+  relato:"Te presionan tres arriba. Esclavo de la bestia. {DT} pidió salir jugando, pero te quieren afanar la pelota con violencias. Todo el estadio quiere lujos.",
+  opciones:[{t:"Hacé el firme y pasala",k:"bueno"},{t:"Transá con la crema",k:"intermedio"},{t:"Hacé firuletes suicidas",k:"malo"},{t:"Caé y transá falta",k:"bueno"},{t:"Hacé el morfo",k:"malo"},{t:"Tirala a la noche",k:"intermedio"}]},
+ {id:"C1S8",titulo:"El Show del Veneno",
+  relato:"Perdimos de local. Flavio Azzaro te encara con cara de fiscal. \"Pibe, esto se pudre. ¿Es el fin de todo?\". Te mira con veneno y la cámara no corta.",
+  opciones:[{t:"Hacé la parca",k:"intermedio"},{t:"Transá una respuesta",k:"intermedio"},{t:"Gritá una violencia",k:"malo"},{t:"Hacé el morfo",k:"malo"},{t:"Poné la cara con firmeza",k:"bueno"},{t:"Mirá cómo transan la mentira",k:"bueno"}]},
+ {id:"C1S9",titulo:"La Transa del Guante Blanco",
+  relato:"Un tipo desconocido se te acerca en el feca. Te ofrece un negocio. \"Pibe, si hoy perdemos, guante blanco para todos\". Te mira con veneno. Es una transa total.",
+  opciones:[{t:"Aceptá los lujos",k:"malo"},{t:"Mirá cómo transan",k:"intermedio"},{t:"Rechazá con firmeza",k:"bueno"},{t:"Gritá una violencia",k:"malo"},{t:"Transá un empate",k:"intermedio"},{t:"Afaná un futuro limpio",k:"bueno"}]},
+ {id:"C1S10",titulo:"La Bestia Ruge en el Rebote",
+  relato:"Minuto 93. Clásico. La bestia ruge. Rebote en el área chica. Ocho piernas a tu alrededor. Solo quedan violencias y lujos.",
+  opciones:[{t:"Afaná la pelota con firmeza",k:"bueno"},{t:"Pegá violencias sin mirar",k:"malo"},{t:"Hacé el morfo con firuletes",k:"intermedio"},{t:"Hacé la parca",k:"malo"},{t:"Pegá con firmeza",k:"bueno"},{t:"Transá con la noche",k:"intermedio"}]},
+ {id:"C1S11",titulo:"El Bidón del Profe",
+  relato:"En un parate por calor, el PF rival te alcanza una caramañola. El agua tiene un gusto raro, tirando a medicinal. \"Tomá pibe, refrescá que te falta nafta\", te dice con una sonrisa pillandanga.",
+  opciones:[{t:"Tomar un buche sin asco",k:"malo"},{t:"Tirarla al pasto disimulado",k:"bueno"},{t:"Pasarle el agua a otro compañero",k:"intermedio"},{t:"Tirársela en la cara al PF",k:"malo"},{t:"Avisarle al línea al toque",k:"bueno"},{t:"Hacerte el dolobu y correrte",k:"intermedio"}]},
+ {id:"C1S12",titulo:"El Hachazo de Tiza",
+  relato:"El 11 de ellos te metió un caño humillante y se va solo contra el arquero. Llegás cruzando como último recurso. Si le tirás la guadaña abajo, lo limpiás pero te comés la roja.",
+  opciones:[{t:"Bajarlo de un hachazo al bulto",k:"bueno"},{t:"Trotar al lado sin tocarlo",k:"malo"},{t:"Agarrarle la remera despacito",k:"intermedio"},{t:"Meterle un planchazo arriba",k:"malo"},{t:"Tirarte a cortar limpia la pelota",k:"bueno"},{t:"Gritarle de atrás para asustarlo",k:"intermedio"}]},
+ {id:"C1S13",titulo:"El Perro del Potrero",
+  relato:"Van 70 minutos, perdés 1-0. De la nada entra un perro a la cancha, se roba la pelota y se pone a jugar. La tribuna delira. El árbitro no sabe dónde meterse.",
+  opciones:[{t:"Correr al bicho para ganar tiempo",k:"bueno"},{t:"Pegarle una patada al perro",k:"malo"},{t:"Sacarlo a upa con buena onda",k:"bueno"},{t:"Bardearse mal con el referí",k:"malo"},{t:"Sentarte a descansar en el pasto",k:"intermedio"},{t:"Mirar a la tribuna y pedir aliento",k:"intermedio"}]},
+ {id:"C1S14",titulo:"El Apriete en el Portón",
+  relato:"Terminó la práctica. En el portón te espera {BARRA_LIDER} con tres pibes más, la gorra calada y la mano en el bolsillo. \"Hoy hay que ganar o se pudre la casa\", te tiran al oído.",
+  opciones:[{t:"Plantarte de manos ahí mismo",k:"malo"},{t:"Agachar la cabeza y meter la pata",k:"bueno"},{t:"Pedirles unos mangos prestados",k:"malo"},{t:"Prometer dejar la vida en la cancha",k:"bueno"},{t:"Hacerte el gil y seguir caminando",k:"intermedio"},{t:"Decirles que hablen con el capitán",k:"intermedio"}]},
+ {id:"C1S15",titulo:"La Mano de Dios Criolla",
+  relato:"Centro al área, el arquero sale mal y no llega. Vos tampoco por altura. Es la pelota del partido y el referí quedó tapado por tres defensores.",
+  opciones:[{t:"Meter el puño como el Diego",k:"bueno"},{t:"Cabecear el aire sin llegar",k:"malo"},{t:"Empujar al rival por la espalda",k:"malo"},{t:"Dejarla pasar para el que viene",k:"bueno"},{t:"Tirarte a buscar el penal arriba",k:"intermedio"},{t:"Gritar mano antes de tiempo",k:"intermedio"}]},
+ {id:"C1S16",titulo:"El Alcanzapelotas Pillo",
+  relato:"Ganás con lo justo y se viene la contra rival. La pelota sale al lateral y el pibito del club se la guarda abajo de la remera para demorar el saque.",
+  opciones:[{t:"Guiñarle el ojo y acomodar la zaga",k:"bueno"},{t:"Sacársela de un tirón para jugar",k:"malo"},{t:"Aplaudir al pibe a los gritos",k:"malo"},{t:"Caminar hacia tu área sin apuro",k:"bueno"},{t:"Protestarle al línea para distraer",k:"intermedio"},{t:"Atarte los cordones bien despacio",k:"intermedio"}]},
+ {id:"C1S17",titulo:"Puntos en el Escritorio",
+  relato:"El rival puso en cancha a un chabón que tenía cinco amarillas. En el vestuario, el delegado te dice: \"Si firmamos la nota en la AFA, ganamos los tres puntos en el escritorio\".",
+  opciones:[{t:"Exigir los puntos en la mesa",k:"bueno"},{t:"Decir que se gana en la cancha",k:"malo"},{t:"Armar bardo mediático en la radio",k:"malo"},{t:"Firmar calladito y no declarar",k:"bueno"},{t:"Dejar la decisión a la comisión",k:"intermedio"},{t:"Filtrarle el dato al periodismo",k:"intermedio"}]},
+ {id:"C1S18",titulo:"El Invasor del Trapo",
+  relato:"Un hincha re loco saltó el alambrado, eludió a la policía y viene corriendo directo hacia vos a pedirte la camiseta en pleno contraataque.",
+  opciones:[{t:"Darle un abrazo rápido y seguir",k:"bueno"},{t:"Empujarlo para que no corte la jugada",k:"malo"},{t:"Meterle una trompada de la bronca",k:"malo"},{t:"Usarlo de cortina contra el defensor",k:"bueno"},{t:"Frenar el partido y pedir auxilio",k:"intermedio"},{t:"Mirar para otro lado y seguir",k:"intermedio"}]},
+ {id:"C1S19",titulo:"La Picada de la Gloria",
+  relato:"Penal decisivo en el minuto 94. El arquero te prepotea, te escupe la pelota y te grita que sos un cagón. Tenés el destino del campeonato en la zurda.",
+  opciones:[{t:"Picársela suave al medio con clase",k:"bueno"},{t:"Fusilarlo al pecho con toda la bronca",k:"malo"},{t:"Tirarla a la tribuna de los nervios",k:"malo"},{t:"Abrir el pie suave al palo derecho",k:"bueno"},{t:"Pedir que patee otro",k:"intermedio"},{t:"Tomar muchísima distancia",k:"intermedio"}]},
+ {id:"C1S20",titulo:"El Pantano del Conurbano",
+  relato:"Diluvia fuerte. El área chica es una pileta de barro donde la pelota se frena. Te cae un centro flotado y el arquero se resbala feo al salir a buscarla.",
+  opciones:[{t:"Puntearla antes que reaccione",k:"bueno"},{t:"Tirarte de palomita a comer barro",k:"bueno"},{t:"Esperar que pique para definir",k:"malo"},{t:"Pedir penal sin que te toquen",k:"malo"},{t:"Trabar con las dos piernas",k:"intermedio"},{t:"Pararla de pecho a ver qué pasa",k:"intermedio"}]},
+ {id:"C1S21",titulo:"Demoliendo Rótulas",
+  relato:"Te trabaron abajo y sentiste un crack seco. Rotura de ligamentos instantánea. Pero la jugada sigue, el arquero dio rebote y la pelota te quedó boyando a medio metro para tu gol 100.",
+  opciones:[{t:"Puntearla con la pierna sana y bancar",k:"bueno"},{t:"Tirarte al piso a gritar desconsolado",k:"malo"},{t:"Dejarla pasar para no empeorar",k:"malo"},{t:"Empujarla y salir rengueando",k:"bueno"},{t:"Pedir penal aguantándote el llanto",k:"intermedio"},{t:"Mirar al banco para que te cambien",k:"intermedio"}]},
+ {id:"C1S22",titulo:"Los Viejos Vinagres del Punto Penal",
+  relato:"Ya erraste dos penales en el mismo partido: uno al travesaño y otro afuera. Minuto 89, mano en el área rival. Hay un tercer penal. {DT} se agarra la cabeza y la gente murmura.",
+  opciones:[{t:"Agarrar la guinda y patear sin dudar",k:"bueno"},{t:"Esconderte detrás del zaguero central",k:"malo"},{t:"Cederle el tiro al pateador designado",k:"bueno"},{t:"Patear con bronca al medio del arco",k:"malo"},{t:"Discutir con un rival para ganar tiempo",k:"intermedio"},{t:"Hacerte el acalambrado",k:"intermedio"}]},
+ {id:"C1S23",titulo:"Cerca de la Revolución",
+  relato:"Le metiste un pase de gol servido a tu 9. El tema es que no se hablan en el vestuario y se odian a muerte. Él mete el gol y corre al córner a festejar solo.",
+  opciones:[{t:"Correr a abrazarlo igual por el equipo",k:"bueno"},{t:"Ir a encararlo y pudrirla en el festejo",k:"malo"},{t:"Caminar al centro del campo en silencio",k:"intermedio"},{t:"Festejar solo de cara a la platea",k:"bueno"},{t:"Bardearlo al oído mientras vuelven",k:"malo"},{t:"Felicitar solo al del pase previo",k:"intermedio"}]},
+ {id:"C1S24",titulo:"El Hachazo de Dock Sud",
+  relato:"El 10 rival metió un contraataque letal, superó al arquero y va a definir solo con el arco vacío. Si convierten perdés la final. Llegás desde atrás cerrando a toda máquina.",
+  opciones:[{t:"Meterle una voladora y comerte la roja",k:"bueno"},{t:"Trotar al lado mirando cómo define",k:"malo"},{t:"Empujarlo despacito para disimular",k:"intermedio"},{t:"Gritarle para intentar distraerlo",k:"malo"},{t:"Tirarte abajo a ras de piso a la pelota",k:"bueno"},{t:"Tirarte pidiendo foul previo",k:"intermedio"}]},
+ {id:"C1S25",titulo:"La Rubia Tarada",
+  relato:"Te tiraste en el área buscando el penal y el juez no compró. El arquero rival, un gigante de dos metros, viene a encararte en el piso, te pecha y te escupe la frente.",
+  opciones:[{t:"Meterle un cabezazo en el mentón",k:"malo"},{t:"Pararte de guapo a hablarle al oído",k:"bueno"},{t:"Quedarte tirado haciendo el muerto",k:"intermedio"},{t:"Llorarle al árbitro pidiendo expulsión",k:"intermedio"},{t:"Tirarle un cortito en las costillas",k:"malo"},{t:"Levantarte rápido para seguir la jugada",k:"bueno"}]},
+ {id:"C1S26",titulo:"Los Pollos y la Revancha",
+  relato:"El arquero rival te viene boqueando desde hace meses y recién te clavó un gol de tiro libre. Ahora va a sacar de meta y te queda la espalda regalada a un metro tuyo.",
+  opciones:[{t:"Meterle un planchazo por atrás sin pelota",k:"malo"},{t:"Apretarlo arriba con firmeza en la próxima",k:"bueno"},{t:"Bardearlo en la cara cuando pase",k:"intermedio"},{t:"Desentenderte y jugar al fútbol",k:"bueno"},{t:"Señas a la tribuna para que lo puteen",k:"intermedio"},{t:"Pegarle un pechazo cuando el juez mire",k:"malo"}]},
+ {id:"C1S27",titulo:"El Masajista y el Doctor",
+  relato:"Entran a atender a un delantero rival que sangra en el piso. {DT}, desencajado, te grita desde el banco: \"¡No lo mires, pisalo, pisalo!\".",
+  opciones:[{t:"Exigirle al árbitro que apure la atención",k:"bueno"},{t:"Meterle un pisotón disimulado al caído",k:"malo"},{t:"Alcanzarle una botella de agua al rival",k:"bueno"},{t:"Insultar al rival por hacer tiempo",k:"malo"},{t:"Hacerte el desentendido mirando la platea",k:"intermedio"},{t:"Pedirle a {DT_C} que afloje",k:"intermedio"}]},
+ {id:"C1S28",titulo:"Rezo por Vos",
+  relato:"Saliste de caravana el jueves, chocaste el auto en el conurbano y el domingo caen los de la AFA con un control antidoping sorpresa antes del partido.",
+  opciones:[{t:"Cambiar la muestra con un utilero",k:"malo"},{t:"Confesar la macana al médico del plantel",k:"bueno"},{t:"Esconderte en el baño para no firmar",k:"malo"},{t:"Poner la cara y bancar la sanción",k:"bueno"},{t:"Tomarte tres litros de agua seguidos",k:"intermedio"},{t:"Inventar que tomaste algo para la gripe",k:"intermedio"}]},
+ {id:"C1S29",titulo:"El Mascapito del Tiro Libre",
+  relato:"Hay tiro libre en tu propio campo, a 60 metros del arco rival. Ves que el arquero contrario está adelantado charlando y regalado en el primer palo.",
+  opciones:[{t:"Sacarle un zapatazo teledirigido al arco",k:"bueno"},{t:"Toque corto a un lado para asegurar",k:"intermedio"},{t:"Reventarla a la tribuna para no arriesgar",k:"malo"},{t:"Apurar el saque para sorprender",k:"bueno"},{t:"Protestar porque la pelota se movía",k:"malo"},{t:"Esperar a que el juez arme la barrera",k:"intermedio"}]},
+ {id:"C1S30",titulo:"Siga, Siga",
+  relato:"Te acomodaron dos codazos seguidos en el área y un pisotón en la tibia. El juez pasa al lado y te dice con voz de mando: \"¡Siga, siga, no sea maricón!\".",
+  opciones:[{t:"Levantarte rápido y seguir la jugada",k:"bueno"},{t:"Morderte la lengua y no protestar",k:"bueno"},{t:"Quedarte haciendo berrinche en el suelo",k:"malo"},{t:"Insultarlo y comerte la roja",k:"malo"},{t:"Buscar una falta táctica para acomodarte",k:"intermedio"},{t:"Pedirle explicaciones al asistente",k:"intermedio"}]},
+ {id:"C1S31",titulo:"El Show de las Voces",
+  relato:"Termina el partido y Flavio Azzaro te frena con el micrófono. \"Pibe, ¿el vestuario está roto o {DT} es un títere? Se pudre todo en la semana\".",
+  opciones:[{t:"Decir que el grupo está unido",k:"bueno"},{t:"Fusilar a {DT_C} en vivo",k:"malo"},{t:"Sacarle el micrófono de un manotazo",k:"malo"},{t:"Responder que hablás en la cancha e irte",k:"bueno"},{t:"Encogerte de hombros y sonreír tenso",k:"intermedio"},{t:"Decir que el arbitraje los perjudicó",k:"intermedio"}]},
+ {id:"C1S32",titulo:"Sombra del Descenso",
+  relato:"Última fecha del torneo. Si no ganamos hoy nos vamos a la B. El aire se corta con cuchillo. La gente en la popular llora y alienta desde la previa.",
+  opciones:[{t:"Trabar con el alma en cada pelota",k:"bueno"},{t:"Jugar asustado y esconderte del pase",k:"malo"},{t:"Pedir el cambio a los 20 minutos",k:"malo"},{t:"Arengar al grupo a dejar la piel",k:"bueno"},{t:"Hacer pases cortos sin arriesgar nada",k:"intermedio"},{t:"Protestarle cada lateral al juez",k:"intermedio"}]},
+ {id:"C1S33",titulo:"El Piedrazo al Micro",
+  relato:"Llegando a la cancha del rival de toda la vida, revientan el vidrio del colectivo con una piedra. Astillas por todos lados y el capitán sangrando en la ceja.",
+  opciones:[{t:"Bajar a la cancha a jugar con más bronca",k:"bueno"},{t:"Negarte a jugar por falta de garantías",k:"bueno"},{t:"Bajar a bardearte con los hinchas",k:"malo"},{t:"Encerrarte en el baño del vestuario",k:"malo"},{t:"Pedir que se juegue a puertas cerradas",k:"intermedio"},{t:"Sacarle fotos al micro para las redes",k:"intermedio"}]},
+ {id:"C1S34",titulo:"El Boqueo del Túnel",
+  relato:"En la boca del túnel, el 10 rival te mira de arriba a abajo y te tira: \"¿Quién sos vos, pibe? A vos no te conoce nadie\". Se ríe en tu cara.",
+  opciones:[{t:"Ignorarlo y hablarle adentro de la cancha",k:"bueno"},{t:"Meterle un pechazo ahí mismo",k:"malo"},{t:"Contestarle que hoy se va callado",k:"bueno"},{t:"Tragarte la bronca y bajar la mirada",k:"malo"},{t:"Guiñarle el ojo al juez para que lo marque",k:"intermedio"},{t:"Reírte de compromiso para aflojar",k:"intermedio"}]},
+ {id:"C1S35",titulo:"La Camiseta de la Discordia",
+  relato:"Perdimos 2-0. Le pedís la remera a la estrella rival y te la da. Cuando entrás al vestuario, el capitán te ve con la remera del rival y se le salta la térmica.",
+  opciones:[{t:"Guardarla en el bolso y pedir disculpas",k:"bueno"},{t:"Revoleársela en la cara y pudrirla",k:"malo"},{t:"Explicar que es para un familiar",k:"intermedio"},{t:"Tirarla a la basura para mostrar lealtad",k:"malo"},{t:"Darle la razón al capitán y asumirlo",k:"bueno"},{t:"Decir que se la cambiaste para cargarlo",k:"intermedio"}]},
+ {id:"C1S36",titulo:"Los Gatos de la Posesión",
+  relato:"Vas a sacar un córner y ves al lado del banderín una botella con sal, huesos y un trapo negro. La hinchada local te grita que no toques nada.",
+  opciones:[{t:"Patear el frasco lejos y tirar el centro",k:"bueno"},{t:"Asustarte y patear el córner horrible",k:"malo"},{t:"Pedirle al línea que limpie la zona",k:"bueno"},{t:"Agarrar el trapo y burlarte de la tribuna",k:"malo"},{t:"Patear despacito sin mirar al suelo",k:"intermedio"},{t:"Persignarte tres veces antes de patear",k:"intermedio"}]},
+ {id:"C1S37",titulo:"Lluvia de Monedas",
+  relato:"Vas a hacer un saque de banda cerca de la popular rival. Caen cien monedas, encendedores y dos celulares rotos a tus pies. El línea se tapa la cabeza.",
+  opciones:[{t:"Hacer el saque rápido y volver al centro",k:"bueno"},{t:"Juntar dos monedas y guardártelas",k:"malo"},{t:"Devolverle un encendedor a la hinchada",k:"malo"},{t:"Alcanzarle los objetos al árbitro sin show",k:"bueno"},{t:"Quedarte parado esperando que pare",k:"intermedio"},{t:"Mirar a la popular y pedirles billetes",k:"intermedio"}]},
+ {id:"C1S38",titulo:"Infiltración al Límite",
+  relato:"Tenés el tobillo como una toronja a dos horas de la final. El médico saca una jeringa enorme: \"Con esto no sentís nada por tres horas, pero después podés empeorar mal\".",
+  opciones:[{t:"Poner el tobillo y jugar a todo o nada",k:"bueno"},{t:"Infiltrarte y pedir el cambio a los 5",k:"malo"},{t:"Decirle la verdad y no jugar",k:"bueno"},{t:"Jugar sin infiltrarte disimulando",k:"malo"},{t:"Probar en la entrada en calor y decidir",k:"intermedio"},{t:"Pedir doble dosis para no sentir nada",k:"intermedio"}]},
+ {id:"C1S39",titulo:"El Alfiler del Córner",
+  relato:"Tiro de esquina en contra. El marcador central te agarra de la camiseta por atrás y sentís un pinchazo agudo en la cintura. Te está hincando con un alfiler.",
+  opciones:[{t:"Zafarte con fuerza y buscar el frentazo",k:"bueno"},{t:"Meterle un codazo al mentón",k:"malo"},{t:"Gritarle al juez que te está pinchando",k:"intermedio"},{t:"Pisarle el empeine con todo el peso",k:"malo"},{t:"Avisarle al línea en la próxima jugada",k:"bueno"},{t:"Agarrarle la mano para sacarle el alfiler",k:"intermedio"}]},
+ {id:"C1S40",titulo:"El Cabezazo Provocador",
+  relato:"Tras un cruce fuerte, el delantero rival te apoya la frente contra la tuya, te habla de tu vieja y amaga el cabezazo para que reacciones y te expulsen.",
+  opciones:[{t:"Dar un paso atrás, mirarlo y sonreírle",k:"bueno"},{t:"Pegarle el cabezazo de lleno",k:"malo"},{t:"Tirarte como si te hubiera noqueado",k:"intermedio"},{t:"Empujarlo del pecho para sacártelo",k:"malo"},{t:"Llamar al capitán para que te rescate",k:"bueno"},{t:"Decirle algo picante al oído sin tocarlo",k:"intermedio"}]},
+ {id:"C1S41",titulo:"Batalla Campal de Verano",
+  relato:"Amistoso de enero en Mar del Plata. Patada criminal del 5 rival. Se arman tres focos de piñas en el campo. Tu compañero de zaga está acorralado por dos.",
+  opciones:[{t:"Meter el cuerpo y separarlos",k:"bueno"},{t:"Tirar una trompada de atrás a traición",k:"malo"},{t:"Correr al banco a buscar refugio",k:"malo"},{t:"Agarrar al rival más picado para calmarlo",k:"bueno"},{t:"Gritar insultos desde diez metros",k:"intermedio"},{t:"Buscar al árbitro para que lo termine",k:"intermedio"}]},
+ {id:"C1S42",titulo:"El Festejo en Cancha Ajena",
+  relato:"Hacés un gol agónico en cancha del clásico rival sin público visitante. Te sale el festejo del alma, pero la platea rival quiere saltar el alambrado.",
+  opciones:[{t:"Festejar con tu equipo mirando al suelo",k:"bueno"},{t:"Hacerle gestos obscenos a la platea rival",k:"malo"},{t:"Abrazar a {DT_C} y volver al centro",k:"bueno"},{t:"Tirar la camiseta a la tribuna rival",k:"malo"},{t:"Mirar al cielo y dedicárselo a tu familia",k:"intermedio"},{t:"Tirarte de rodillas de cara al córner",k:"intermedio"}]},
+ {id:"C1S43",titulo:"El VAR Traicionero",
+  relato:"Metiste un golazo de volea al ángulo. Festejaste tres minutos. El juez se toca el oído, camina a la pantalla y anula el gol por una uña en offside diez pases atrás.",
+  opciones:[{t:"Aceptar el fallo y acomodarte para seguir",k:"bueno"},{t:"Insultar a la pantalla y comerte la roja",k:"malo"},{t:"Ir a prepotear al cuarto árbitro",k:"malo"},{t:"Aplaudir con ironía hacia la cabina",k:"intermedio"},{t:"Juntar al equipo para no perder la cabeza",k:"bueno"},{t:"Preguntarle al línea qué vio él",k:"intermedio"}]},
+ {id:"C1S44",titulo:"El Asado de la Tensión",
+  relato:"El presidente invita al plantel a un asado. Entre la tira y las achuras desliza: \"Si no ganan el domingo, se suspenden los premios hasta fin de año\".",
+  opciones:[{t:"Contestarle el domingo en la cancha",k:"bueno"},{t:"Patear la mesa y dejarlo hablando solo",k:"malo"},{t:"Exigir los premios firmados ahí mismo",k:"intermedio"},{t:"Tomarte tres copas y cantarle las cuarenta",k:"malo"},{t:"Dejar que hablen los más experimentados",k:"bueno"},{t:"Hacer chistes para aflojar la tensión",k:"intermedio"}]},
+ {id:"C1S45",titulo:"El Manotazo en la Línea",
+  relato:"Minuto 92. Tu arquero vencido. La pelota entra para el gol de la eliminación. Sos el último bajo el travesaño. Tenés la mano a cinco centímetros de la guinda.",
+  opciones:[{t:"Manotearla, penal y roja heroica",k:"bueno"},{t:"Mirar cómo entra sin intentar nada",k:"malo"},{t:"Cabecear al córner aunque quedes corto",k:"bueno"},{t:"Manotearla y fingir que te pegó en la cara",k:"intermedio"},{t:"Tirarle una patada a la pelota y errarle",k:"malo"},{t:"Empujar al delantero para que la yerre",k:"intermedio"}]},
+ {id:"C1S46",titulo:"El Temporal del Sur",
+  relato:"Cancha de tierra del interior. Viento de 80 km/h. Sacás de meta y la pelota vuelve para atrás volando directo hacia tu propio arco.",
+  opciones:[{t:"Poner la pelota al piso y jugar rasante",k:"bueno"},{t:"Seguir tirando pelotazos largos al aire",k:"malo"},{t:"Darle la pelota a tu arquero con el pie",k:"intermedio"},{t:"Pedir suspensión por tormenta",k:"malo"},{t:"Asegurar los pases a dos metros",k:"bueno"},{t:"Probar tiros al arco de mitad de cancha",k:"intermedio"}]},
+ {id:"C1S47",titulo:"El Botín Desatado",
+  relato:"Te pisan en el área rival y se te sale el botín derecho. La jugada sigue y la pelota viene boyando hacia tu pie descalzo adentro del área chica.",
+  opciones:[{t:"Patear en medias de una al arco",k:"bueno"},{t:"Pararte a atarte el botín en plena jugada",k:"malo"},{t:"Reclamar penal alzando el botín",k:"intermedio"},{t:"Definir con la pierna inhábil calzada",k:"bueno"},{t:"Tirarte al suelo pidiendo asistencia",k:"malo"},{t:"Tocar suave hacia atrás para el volante",k:"intermedio"}]},
+ {id:"C1S48",titulo:"El Compañero Alegre",
+  relato:"Sábado a la mañana, concentración. Tu compañero de habitación llega a las seis oliendo a boliche y puchos. A las tres de la tarde hay partido decisivo.",
+  opciones:[{t:"Café cargado y derecho a la ducha",k:"bueno"},{t:"Mandarlo al frente con {DT_C}",k:"malo"},{t:"Hacerte el dormido y no meterte",k:"intermedio"},{t:"Sacarle fotos dormido para tener chantaje",k:"malo"},{t:"Cubrirlo en la charla técnica",k:"bueno"},{t:"Decirle que pida no jugar por indigestión",k:"intermedio"}]},
+ {id:"C1S49",titulo:"La Valija Mágica",
+  relato:"Última fecha. Un club rival te manda un intermediario al hotel: \"Hay cincuenta mil verdes para el plantel si le sacan puntos al puntero\".",
+  opciones:[{t:"Rechazar la plata y jugar por orgullo",k:"bueno"},{t:"Aceptar la valija y repartirla",k:"intermedio"},{t:"Agarrar la plata y jugar para atrás",k:"malo"},{t:"Avisar a la dirigencia de tu club",k:"bueno"},{t:"Filtrar el rumor antes de jugar",k:"malo"},{t:"Decirle que hable con el capitán",k:"intermedio"}]},
+ {id:"C1S50",titulo:"El Pelotazo al Juez",
+  relato:"El árbitro te viene cobrando todo en contra. En un despeje rápido desde la zaga, lo ves parado justo en tu línea de visión a tres metros.",
+  opciones:[{t:"Despejar hacia el lateral esquivándolo",k:"bueno"},{t:"Pelotazo sin querer en la espalda",k:"malo"},{t:"Gritarle que se corra antes de patear",k:"bueno"},{t:"Amagar a patearle para que se asuste",k:"malo"},{t:"Toque corto al compañero de al lado",k:"intermedio"},{t:"Patear alto para que lo supere",k:"intermedio"}]},
+ {id:"C1S51",titulo:"El Grito Ensordecedor",
+  relato:"Estadio repleto con sesenta mil gritando. Tu arquero sale a buscar un centro flotado y te grita mía, pero con el quilombo no se escucha nada.",
+  opciones:[{t:"Reventarla de cabeza al córner",k:"bueno"},{t:"Dejarla pasar y que llegue él",k:"malo"},{t:"Mirar atrás un segundo antes de tocarla",k:"bueno"},{t:"Meter la mano por miedo a errarle",k:"malo"},{t:"Trabarle el salto con el cuerpo",k:"intermedio"},{t:"Cubrir la pelota aguantando el impacto",k:"intermedio"}]},
+ {id:"C1S52",titulo:"El Olvido de la Utilería",
+  relato:"Jugamos de visitante y la utilería se olvidó las camisetas. Toca jugar con remeras genéricas compradas de apuro y números pegados con cinta.",
+  opciones:[{t:"Tomarlo con humor, motivar y salir a ganar",k:"bueno"},{t:"Quejarte todo el partido de la cinta",k:"malo"},{t:"Negarte a salir por vergüenza",k:"malo"},{t:"Enfocarte en el partido y no en la ropa",k:"bueno"},{t:"Postear el papelón en las redes",k:"intermedio"},{t:"Pedir camisetas a la reserva local",k:"intermedio"}]},
+ {id:"C1S53",titulo:"El Rebote del Penal",
+  relato:"Tu arquero ataja un penal agónico en el minuto 90. La pelota sale rebotada mansita al borde del área chica. Un delantero rival llega solo a empujarla.",
+  opciones:[{t:"Tirarte de palomita a interceptar",k:"bueno"},{t:"Quedarte esperando al arquero",k:"malo"},{t:"Trabar abajo fuerte con los dos pies",k:"intermedio"},{t:"Empujar al delantero antes del remate",k:"malo"},{t:"Puntearla al córner justo a tiempo",k:"bueno"},{t:"Gritar offside con los brazos arriba",k:"intermedio"}]},
+ {id:"C1S54",titulo:"El Marcador Mañero",
+  relato:"El central rival te pellizca las costillas en cada córner, te pisa los cordones y te escupe la nuca cuando el árbitro mira para otro lado.",
+  opciones:[{t:"Sacártelo de encima con desmarques",k:"bueno"},{t:"Tirarle un codazo al rostro de calentón",k:"malo"},{t:"Devolverle un pisotón disimulado",k:"intermedio"},{t:"Ir a llorarle al juez en cada jugada",k:"malo"},{t:"Decirle que juegue al fútbol y sonreír",k:"bueno"},{t:"Pedirle al 9 que se cambie de marca",k:"intermedio"}]},
+ {id:"C1S55",titulo:"El Verdugo del Sueldo",
+  relato:"Un rival millonario te refriega las llaves de su auto importado en un tiro libre: \"Vos jugás por dos mangos, pibe, vas a comer arroz toda la semana\".",
+  opciones:[{t:"Clavarla al ángulo y mirarlo callado",k:"bueno"},{t:"Comerte la provocación y meterle una roja",k:"malo"},{t:"Quedarte callado y jugar con ganas",k:"bueno"},{t:"Decirle que su auto es feo",k:"malo"},{t:"Mostrarle el escudo de tu camiseta",k:"intermedio"},{t:"Pedirle plata prestada después del partido",k:"intermedio"}]},
+ {id:"C1S56",titulo:"El Experimento del DT",
+  relato:"A los diez minutos {DT} cambia el esquema: te saca de tu puesto y te pone de lateral izquierdo marcando a la figura rival.",
+  opciones:[{t:"Aceptar el rol y meter la pierna",k:"bueno"},{t:"Hacer trompa y jugar sin ganas",k:"malo"},{t:"Pedir el cambio manifestando desacuerdo",k:"malo"},{t:"Marcar y subir cuando se pueda",k:"bueno"},{t:"Preguntarle todo a {DT_C}",k:"intermedio"},{t:"Pedirle ayuda al volante central",k:"intermedio"}]},
+ {id:"C1S57",titulo:"La Bengala Inoportuna",
+  relato:"Vas ganando 1-0 jugando bárbaro. Tu propia hinchada tira bengalas de humo al campo y el árbitro detiene el partido diez minutos. El rival enfría todo.",
+  opciones:[{t:"Juntar al equipo y mantener la cabeza fría",k:"bueno"},{t:"Ir a insultar a tu hinchada al alambrado",k:"malo"},{t:"Sentarte en el césped a enfriarte",k:"malo"},{t:"Elongar y hablar con {DT_C}",k:"bueno"},{t:"Protestarle al árbitro para que reanude ya",k:"intermedio"},{t:"Pedir agua a los asistentes",k:"intermedio"}]},
+ {id:"C1S58",titulo:"El Pase Quirúrgico",
+  relato:"Minuto 88, 0-0. Tenés la pelota en tres cuartos. Tres defensores te cierran el paso, pero ves un hueco diminuto para filtrar un pase de tres dedos.",
+  opciones:[{t:"Meter el pase filtrado con precisión",k:"bueno"},{t:"Enganchar para atrás y enfriar la jugada",k:"intermedio"},{t:"Patear al bulto desde cuarenta metros",k:"malo"},{t:"Asegurar el pase corto al lateral",k:"bueno"},{t:"Tirarte a buscar la falta imaginaria",k:"malo"},{t:"Gambeta imposible entre los tres",k:"intermedio"}]},
+ {id:"C1S59",titulo:"La Muela Picada",
+  relato:"Tenés un dolor de muelas insoportable que no te dejó dormir. Estás en el vestuario a diez minutos de salir al campo.",
+  opciones:[{t:"Pedir un analgésico y salir a dejar todo",k:"bueno"},{t:"Salir fastidioso y hacerte expulsar rápido",k:"malo"},{t:"Avisarle a {DT_C} y esperar el banco",k:"bueno"},{t:"Estar molesto y no correr las divididas",k:"malo"},{t:"Morder un trapo en la entrada en calor",k:"intermedio"},{t:"Tomar té caliente antes de salir",k:"intermedio"}]},
+ {id:"C1S60",titulo:"La Vuelta Olímpica",
+  relato:"Pitazo final, somos campeones. Pero estás en la cancha del acérrimo rival. La policía arma el cordón con escudos mientras traen la copa.",
+  opciones:[{t:"Levantar la copa en el círculo central",k:"bueno"},{t:"Cantarle el campeonato a la popular rival",k:"malo"},{t:"Correr al vestuario sin festejar por miedo",k:"malo"},{t:"Abrazar a todos tus compañeros en grupo",k:"bueno"},{t:"Dar la vuelta rápido y al vestuario",k:"intermedio"},{t:"Darle tu camiseta al primer alcanzapelotas",k:"intermedio"}]}
 ];
+
 /* Convierte una situación cruda en carta jugable. Los efectos salen del
    tipo de salida, así el pack ocupa una fracción de lo que ocuparía. */
 const EF_SITU={
@@ -2193,11 +2276,11 @@ const EF_SITU={
     mal:()=>({local:-ri(10,20),mor:-ri(7,15),escandalo:1,msg:rnd(["Se pudrió todo","Fue un desastre","Quedaste pegado"])})}
 };
 function situacionACarta(S){
-  return {id:S.id,max:1,cd:9,t:S.titulo.toUpperCase(),x:S.relato,
+  return {id:S.id,max:1,cd:14,t:S.titulo.toUpperCase(),x:S.relato,
     o:S.opciones.map(op=>{
-      const E=EF_SITU[op.tipo]||EF_SITU.intermedio;
-      return {b:op.texto,s:op.tipo==="bueno"?"Salida piola":op.tipo==="malo"?"Alto riesgo":"Perfil bajo",
-        st:op.tipo==="malo"?"car":op.tipo==="bueno"?"car":"tec",
+      const E=EF_SITU[op.k]||EF_SITU.intermedio;
+      return {b:op.t,s:op.k==="bueno"?"Salida piola":op.k==="malo"?"Alto riesgo":"Perfil bajo",
+        st:op.k==="malo"?"car":op.k==="bueno"?"car":"tec",
         base:E.base,ok:E.ok(),mal:E.mal()};
     })};
 }
@@ -2752,7 +2835,7 @@ const EXTRA=[
  o:[{b:"Ir a jugar como cuando eras pibe",s:"El aguante del barrio",st:"car",base:52,
      ok:{local:24,mor:14,car:3,msg:"Metiste cuatro y te llevaron en andas"},
      mal:{salud:["tobR",-26],escandalo:1,msg:"Te rompieron el tobillo en la primera pelota"}},
-    {b:"Ir a mirar y bancarlos desde afuera",s:"Sin arriesgar el chasis",st:"car",base:90,fijo:1,
+    {b:"Ir a mirar y bancarlos desde afuera",s:"Sin arriesgar el cuerpo",st:"car",base:90,fijo:1,
      ok:{local:14,mor:6,msg:"Fuiste, tomaste una birra y volviste entero"}},
     {b:"Bancar el torneo con guita",s:"U$D −50k",st:"car",base:99,fijo:1,
      ok:{plata:-50,local:20,msg:"Pusiste las camisetas y el trofeo"}},
@@ -3454,7 +3537,7 @@ function nuevoJugador(){return{
   vestuario:0,karma:null,karmaUsado:false,sobreTemp:-99,camaTemp:-99,cama:false,feed:[],
   pais:"ARG",ligaCasa:"ARG",tabla:null,posLiga:0,ligaFechas:0,copaHab:"",descensos:0,tribTemp:-99,
   recopa:false,mundialClubes:false,campeonContAnio:0,zonaNom:"",compaNom:"",compaClub:"",repre:"",
-  cabala:"",cabalaPart:0,enemigo:"",
+  cabala:"",cabalaPart:0,enemigo:"",situVistas:[],mute:false,
 
   afaFavor:0,idoloTemp:-99,mote:"",calor:false,
 
@@ -3868,8 +3951,17 @@ function cartaPretemporada(){
 function cartaExtra(){
   /* v10 · una de cada nueve veces sale algo que no se explica */
   const bizarro=dado(.11);
-  const cap1=!bizarro&&dado(.26);   /* v12 · las situaciones del Capítulo 1 */
-  const c=rnd(disponibles(bizarro?BIZARROS:cap1?CAP1:EXTRA));marcar(c.id);nuevosTokens();
+  const cap1=!bizarro&&dado(.30);   /* v12 · las situaciones del Capítulo 1 */
+  let mazo=bizarro?BIZARROS:cap1?CAP1:EXTRA;
+  /* v13 · ninguna situación se repite hasta que pasaron todas */
+  if(cap1){
+    p.situVistas=p.situVistas||[];
+    let libres=CAP1.filter(x=>p.situVistas.indexOf(x.id)<0&&cumpleReq(x));
+    if(!libres.length){p.situVistas=[];libres=CAP1.slice();}
+    mazo=libres;
+  }
+  const c=rnd(disponibles(mazo));marcar(c.id);nuevosTokens();
+  if(cap1)(p.situVistas=p.situVistas||[]).push(c.id);
   c.__o=seis(c.o,"extra");
   carta({eye:bizarro?"ESTO NO PASA NUNCA":"FUERA DE LA CANCHA",titulo:tokens(c.t),texto:tokens(c.x),ciego:1,
     opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"POLÉMICA",cierreTemporada)}))});
@@ -4151,6 +4243,7 @@ function tokens(txt){
           q:eleg,
           /* v11 · quién te dirige, quién te aprieta y quién te representa */
           dt:dtDe(p.club),
+          dtC:(function(x){const w=String(x).split(" ");return w.length>1?w[w.length-1]:x;})(dtDe(p.club)),
           barra:barraDe(p.club),
           repre:(p.repre||(p.repre=rnd(REPRESENTANTES))),
           idolo:idoloDe(p.club)};
@@ -4158,6 +4251,7 @@ function tokens(txt){
   return txt.replace(/\{COMPA\}/g,_tok.c).replace(/\{ELLOS\}/g,_tok.e)
     .replace(/\{PIBE\}/g,_tok.q?_tok.q.nombre:"el pibe de la camada")
     .replace(/\{PIB\}/g,_tok.q?_tok.q.nombre.split(" ")[0]:"el pibe")
+    .replace(/\{DT_C\}/g,_tok.dtC)
     .replace(/\{DT\}/g,_tok.dt)
     .replace(/\{BARRA_LIDER\}/g,_tok.barra)
     .replace(/\{REPRE\}/g,_tok.repre)
@@ -4221,7 +4315,7 @@ function aplicar(ef){
   if(ef.plata){p.plata=Math.max(0,p.plata+ef.plata);put("U$D "+(ef.plata>0?"+":"")+ef.plata+"k",ef.plata>0?"up":"dn");}
   if(ef.salud){const z=ef.salud[0];p.salud[z]=clamp(p.salud[z]+ef.salud[1],0,100);
     put(ZONAS[z].n.toUpperCase()+" "+(ef.salud[1]>0?"+":"")+ef.salud[1],ef.salud[1]>0?"up":"dn");}
-  if(ef.reparar){Object.keys(p.salud).forEach(k=>p.salud[k]=clamp(p.salud[k]+ef.reparar,0,100));put("GAMBAS +"+ef.reparar,"up");}
+  if(ef.reparar){Object.keys(p.salud).forEach(k=>p.salud[k]=clamp(p.salud[k]+ef.reparar,0,100));put("FÍSICO +"+ef.reparar,"up");}
   if(ef.capitan){p.capitan=true;put("CAPITÁN","up");}
   if(ef.vinculoFav)vinculo(persona(),ef.vinculoFav,"fav","Te quedó debiendo una");
   if(ef.vinculoOdio)vinculo(persona(),ef.vinculoOdio,"odio","Se la tenés jurada");
@@ -4292,9 +4386,14 @@ function resolverJugada(o,dormido){
      declaraste la guerra, te la cobran: salvo que tengas el audio.   */
   const venganza=banderaViva("afa_venganza")?(banderaViva("tengo_audio")?0.04:0.11):0;
   const fav=clamp((p.afaFavor||0)/340-venganza,-.34,.28);
-  if(dado(rest/260+(nivelClub()-m.rival.lv)/400+fav))m.mk[0]++;
-  if(dado(rest/240+(m.rival.lv-nivelClub())/400+(T.rojas?0.18:0)-fav))m.mk[1]++;
-  const res=m.mk[0]>m.mk[1]?"gano":m.mk[0]<m.mk[1]?"perdio":"empate";
+  /* v13 · el resultado lo deciden tus dos jugadas del partido */
+  let res;
+  if(m.aciertos>=2)res="gano";
+  else if(m.aciertos<=0)res="perdio";
+  else res=dado(0.5+fav*0.5)?"gano":"perdio";     /* la moneda invisible */
+  m.moneda=(m.aciertos===1);
+  if(res==="gano")m.mk[0]=Math.max(m.mk[0],m.mk[1]+1);
+  else m.mk[1]=Math.max(m.mk[1],m.mk[0]+1);
   if(m.comp==="clasico"&&res==="gano"&&p.club!=="Libre")hist(p.club).cla++;
   if(res==="gano"){T.ganados++;T.rend+=m.peso;}
   else if(res==="perdio"){T.perdidos++;T.rend-=Math.round(m.peso*0.7);}
@@ -4305,6 +4404,9 @@ function resolverJugada(o,dormido){
   const tit=dormido?"TE DORMISTE":tokens(ef.msg||(ok?"SALIÓ":"NO SALIÓ"));
   const cls=dormido?"no":(ok?"ok":"no");
   const resTxt=(res==="gano"?"GANARON ":res==="perdio"?"PERDIERON ":"EMPATE ")+m.mk[0]+"-"+m.mk[1];
+  const notaJug=m.aciertos>=2?"Las dos jugadas te salieron. Así se gana."
+    :m.aciertos<=0?"No te salió ninguna de las dos. Así se pierde."
+    :"Una sí y una no. Se definió por moneda y "+(res==="gano"?"salió cara.":"salió ceca.");
 
   let h='<div class="card"><div class="eyebrow"><span>'+m.fecha+'</span><em>MIN '+m.min+'</em></div>';
   h+='<div class="res"><h4 class="'+cls+'">'+tit.toUpperCase()+'</h4><p>'
@@ -4312,7 +4414,8 @@ function resolverJugada(o,dormido){
       :(ok?"Te salió. La gente se acuerda de estas.":"No salió. Mañana lo pasan en loop en la tele."))+'</p>';
   if(chips)h+='<div class="chips2">'+chips+'</div>';
   h+='</div><div class="res"><h4 class="'+(res==="gano"?"ok":res==="perdio"?"no":"")+'">'+resTxt+'</h4>'
-    +'<p>vs '+m.rival.n+' · '+m.fecha.toLowerCase()+'</p>'+notaCopa(m,res)+'</div>';
+    +'<p>vs '+m.rival.n+' · '+m.fecha.toLowerCase()+'</p>'
+    +'<p class="cnota">'+notaJug+'</p>'+notaCopa(m,res)+'</div>';
   if(m.cup==="cont"&&T.copa&&T.copa.msgTabla){h+=T.copa.msgTabla;T.copa.msgTabla=null;}
   h+='<button class="cta" id="btn-seguir">Seguir</button></div>';
   const pintar=()=>{
@@ -4786,9 +4889,10 @@ function cierreTemporada(){
   if(dado(rl)){
     const z=rnd(Object.keys(ZONAS));
     p.salud[z]=clamp(p.salud[z]-(16+Math.round(Math.random()*40)),0,100);
-    const N={pubis:"fuga de aceite en el chasis",isqL:"pistón izquierdo oxidado",isqR:"pistón derecho oxidado",
-      rodL:"engranaje de rodilla trabado",rodR:"engranaje de rodilla trabado",gemL:"falla en el amortiguador izquierdo",
-      gemR:"falla en el amortiguador derecho",tobL:"resorte de tobillo suelto",tobR:"resorte de tobillo suelto"};
+    const N={pubis:"pubalgia que no afloja",isqL:"desgarro en el isquiotibial izquierdo",isqR:"desgarro en el isquiotibial derecho",
+      rodL:"ligamento de la rodilla izquierda tocado",rodR:"ligamento de la rodilla derecha tocado",
+      gemL:"gemelo izquierdo desgarrado",gemR:"gemelo derecho desgarrado",
+      tobL:"esguince de tobillo izquierdo",tobR:"esguince de tobillo derecho"};
     les={zona:z,nombre:N[z]};
   }
   Object.keys(p.salud).forEach(k=>p.salud[k]=clamp(p.salud[k]+(p.edad>30?3:7),0,100));
@@ -4863,7 +4967,7 @@ function cierreTemporada(){
       sub:r.nombre+" va "+r.ovr+" de media en "+r.club+", con "+r.titulos+" títulos y "+r.goles+" goles. Vos vas "+p.ovr+" y "+p.vitrina.length+" títulos.",
       stats:[["ÉL",r.ovr,arriba?"up":"dn"],["VOS",p.ovr,arriba?"dn":"up"]]});
   }
-  if(les)cola.push({clase:"malo",eye:"TALLER MECÁNICO",titulo:"MÁQUINA ROTA",
+  if(les)cola.push({clase:"malo",eye:"PARTE MÉDICO",titulo:"TE ROMPISTE",
     sub:les.nombre.charAt(0).toUpperCase()+les.nombre.slice(1)+". Reposo absoluto. Las gambas no aguantan el bardo.",
     stats:[[ZONAS[les.zona].n.toUpperCase(),Math.round(p.salud[les.zona])+"%","dn"]]});
   /* Ascenso y descenso: el club se mueve de categoría */
@@ -4995,9 +5099,9 @@ function buscarOfertas(){
      Se inyecta a la fuerza: si sólo multiplicáramos la chance, el
      filtro de nivel de arriba ya lo habría dejado afuera.              */
   const F=p.favorito;
-  if(F&&F!==p.club){
+  if(F&&F!==p.club&&p.temporadas>=4){
     const fc=CLUBES.find(c=>c.n===F);
-    if(fc&&Math.abs(fc.lv-p.ovr)<=5&&!pool.some(c=>c.n===F)){pool=pool.concat([fc,fc,fc]);}
+    if(fc&&Math.abs(fc.lv-p.ovr)<=5&&!pool.some(c=>c.n===F))pool=pool.concat([fc]);
   }
   if(!pool.length)return[];
   if(!obligado&&!dado(libre?.9:M().probOferta+(p.racha>0?.15:0)))return[];
@@ -5014,8 +5118,17 @@ function buscarOfertas(){
   }
   const peso=c=>c.lv+(c.liga===casa?7:0)+(c.liga===orig?(joven?24:4):0);
   pool.sort((a,b)=>peso(b)-peso(a));
-  const top=pool.slice(0,4);top.sort(()=>Math.random()-.5);
-  return top.slice(0,3);
+  /* v13 · sin repetidos, con azar de verdad, y el club del que sos hincha
+     no te viene a buscar en los primeros años: eso se gana.           */
+  const vistos={},limpio=[];
+  pool.forEach(c=>{if(!vistos[c.n]){vistos[c.n]=1;limpio.push(c);}});
+  const temprano=(p.temporadas<4);
+  let cand=limpio.filter(c=>!(temprano&&F&&c.n===F));
+  if(cand.length<2)cand=limpio;
+  const top=baraja(cand.slice(0,6)).slice(0,3);
+  const fin=[],dup={};
+  top.forEach(c=>{if(!dup[c.n]){dup[c.n]=1;fin.push(c);}});
+  return fin;
 }
 function clasicoDe(n){
   const pares={"Boca Juniors":"River Plate","River Plate":"Boca Juniors","Racing Club":"Independiente",
@@ -6245,7 +6358,20 @@ function cargarManual(){
   buzz(12); toastTxt("Partida cargada");
   svInfo("CARGADA del "+sello(d.t)+" · "+resumenSave(p),true);
 }
+function toggleMute(){
+  p.mute=!p.mute;
+  const b=document.getElementById("btn-mute");
+  if(b)b.textContent=p.mute?"🔇":"🔊";
+  lsSet("oaky_mute",p.mute?"1":"0");
+  if(!p.mute)sonTic();
+  toastTxt(p.mute?"Sonido apagado":"Sonido encendido");
+}
+function pintarMute(){
+  const b=document.getElementById("btn-mute");
+  if(b)b.textContent=(p&&p.mute)?"🔇":"🔊";
+}
 function refrescarSaveInfo(){
+  pintarMute();
   const d=haySaveManual();
   if(d&&d.p)svInfo("Guardado "+sello(d.t)+" · "+resumenSave(d.p));
   else svInfo("Tocá GUARDAR para dejar un punto al que puedas volver");
@@ -6322,6 +6448,7 @@ function medirToken(t){
     .replace(/\{COMPA\}/g,"Nicolás Marcoff").replace(/\{ELLOS\}/g,"Tadeo Giordano")
     .replace(/\{PIBE\}/g,"Nicolás Marcoff").replace(/\{PIB\}/g,"Nicolás")
     .replace(/\{DT\}/g,masLargo(dts))
+    .replace(/\{DT_C\}/g,masLargo(dts.map(x=>String(x).split(" ").pop())))
     .replace(/\{BARRA_LIDER\}/g,masLargo(barras))
     .replace(/\{REPRE\}/g,masLargo(REPRESENTANTES))
     .replace(/\{IDOLO\}/g,masLargo(idolos));
@@ -7302,7 +7429,7 @@ const MUN_QTE=[
     {b:"Buscar el segundo y liquidarlo",s:"Codicia",st:"tec",base:40,m:"Contra, gol y a dormir tranquilo",mm:"Te quedaste largo y te empataron"}]},
 {id:"mq_lesion",t:"SENTISTE UN TIRÓN EN EL ISQUIO",
  x:"Semifinal del Mundial, minuto 60, y la gamba te avisó. El médico te mira desde afuera esperando la seña.",
- o:[{b:"Pedir el cambio",s:"Cuidar el chasis",fijo:1,m:"Saliste sano. El equipo siguió sin vos"},
+ o:[{b:"Pedir el cambio",s:"Cuidar el cuerpo",fijo:1,m:"Saliste sano. El equipo siguió sin vos"},
     {b:"Aguantar hasta que se corte",s:"La pelota no se mancha",st:"car",base:46,m:"Aguantaste y hasta metiste una asistencia",mm:"Se te cortó del todo. Salís en camilla"},
     {b:"Infiltrarte en el entretiempo",s:"A lo bruto",st:"fis",base:52,m:"Volviste enchufado y no lo sentiste más",mm:"Se te durmió la pierna y fuiste un fantasma"},
     {b:"Bajar el ritmo y jugar de memoria",s:"Cabeza",st:"tec",base:58,m:"Jugaste al trote y la seguiste tocando bien",mm:"Te comieron por tu lado toda la noche"}]},
@@ -7610,6 +7737,8 @@ function migrarV6(q){
   if(q.cabala===undefined)q.cabala="";
   if(q.cabalaPart===undefined)q.cabalaPart=0;
   if(q.enemigo===undefined)q.enemigo="";
+  if(!q.situVistas)q.situVistas=[];
+  if(q.mute===undefined)q.mute=(lsGet("oaky_mute")==="1");
   if(q.afaFavor===undefined)q.afaFavor=0;
   if(q.idoloTemp===undefined)q.idoloTemp=-99;
   if(q.calor===undefined)q.calor=false;
@@ -7742,7 +7871,7 @@ const PARES={
  o:[
   {b:"Infiltrarte y jugar",s:"Aguantar noventa minutos",st:"car",base:56,
    ok:{rend:3,local:18,salud:["pubis",-25],msg:"Jugaste la final entera con la pierna dormida"},mal:{salud:["pubis",-45],forma:-18,finPor:"salud",msg:"Se te rompió algo adentro"}},
-  {b:"Decir que no llegás y bancar del banco",s:"Cuidar el chasis",fijo:1,
+  {b:"Decir que no llegás y bancar del banco",s:"Cuidar el cuerpo",fijo:1,
    ok:{salud:["pubis",12],local:-10,mor:-8,msg:"Lo miraste desde el banco de suplentes"}},
   {b:"Infiltrarte y pedir salir al entretiempo",s:"Media final",st:"car",base:68,
    ok:{rend:1,salud:["pubis",-14],msg:"Diste lo que tenías y te fuiste aplaudido"},mal:{salud:["pubis",-30],local:-8,msg:"Saliste a los veinte y te silbaron"}},
@@ -8026,7 +8155,7 @@ const LOCURA=[
   {b:"Llamarlo y salir a comer los dos",s:"Como cuando tenían quince",st:"car",base:66,
    ok:{relSube:26,mor:14,msg:"Volvieron a ser los pibes del potrero"},mal:{relBaja:6,mor:-4,msg:"Fue todo muy incómodo"}}]},
 
-{id:"loc_barro",req:{edadMin:17,conClub:1},t:"COPA ARGENTINA EN UN BARRIAL",
+{id:"loc_barro",req:{edadMin:17,conClub:1},t:"COPA ARGENTINA EN UN POTRERO",
  x:"Cancha de un club de cuarta división, tribuna a tres metros del lateral, y una pileta de barro en el medio del campo. Ellos vinieron a jugar el partido de su vida. Vos venís de jugar en un césped sintético impecable. Van 0 a 0 y quedan diez minutos.",
  o:[
   {b:"Meter la pierna como ellos",s:"Igualar de abajo",st:"fis",base:52,
@@ -8308,7 +8437,7 @@ const INF_FECHAS=[
  {eye:"FECHA 1 · TORNEO DE INFERIORES",comp:"liga",sub:"séptima división",
   t:"PRIMERA PELOTA DEL AÑO",
   x:"Cancha auxiliar, quince pibes en cada banco y tres padres gritando. {Q} arranca la diagonal y te la pide con la mano. Vos tenés el arco de frente y el central se te viene encima."},
- {eye:"FECHA 2 · CLÁSICO DE INFERIORES",comp:"clasico",sub:"clásico de la categoría",
+ {eye:"FECHA 2 · CLÁSICO DE INFERIORES",comp:"clasico",sub:"clásico de la categoría",riv:1,
   t:"CONTRA EL EQUIPO DE {Q}",
   x:"Te tocó enfrente. {Q} juega en el otro equipo y ya te dijo dos cosas al oído. Va 1 a 1, quedan diez minutos, y la pelota queda muerta entre los dos."},
  {eye:"FECHA 3 · AMISTOSO DE VERANO",comp:"copa",sub:"no hay nadie mirando",
@@ -8320,13 +8449,28 @@ const INF_FECHAS=[
  {eye:"FECHA 5 · SEMIFINAL",comp:"liga",sub:"semifinal del torneo",
   t:"SE JUEGA EL AÑO EN UNA PELOTA",
   x:"Semifinal, 0 a 0, minuto 88. Te la dan de espaldas al arco con {Q} corriendo por afuera y el 5 rival respirándote en la nuca."},
- {eye:"FECHA 6 · LA FINAL",comp:"final",sub:"final del torneo",
+ {eye:"FECHA 6 · LA FINAL",comp:"final",sub:"final del torneo",riv:1,
   t:"LA FINAL CONTRA {Q}",
   x:"La final del torneo de inferiores, con tribuna llena de familias y dos veedores de primera parados en el córner. En el otro equipo está {Q}, que ya se sabe que firma contrato el lunes."}
 ];
 /* pase: lo que le hacés a la carrera del otro. rel: lo que le hacés al vínculo */
-function infOpciones(q){
+function infOpciones(q,esRival){
   const N=q.nombre.split(" ")[0];
+  /* v13 · Si juega en el otro equipo, no existe la opción de pasársela */
+  if(esRival)return baraja([
+   {b:"Anticiparle a "+N+" y salir jugando",st:"tec",base:56,arq:"creador",
+    pase:-2,rel:-6,ok:{msg:"Se la robaste limpita a "+N},yo:{tec:2}},
+   {b:"Ganarle el duelo de arriba",st:"fis",base:52,arq:"rustico",
+    pase:-3,rel:-10,ok:{msg:"Le ganaste la posición"},yo:{fis:2}},
+   {b:"Provocar a "+N+" para que reaccione",st:"car",base:46,arq:"egoista",
+    pase:-1,rel:-18,ok:{msg:"Se calentó y lo amonestaron"},yo:{car:2}},
+   {b:"Definirla vos y callarlo",st:"tec",base:44,arq:"egoista",
+    pase:-2,rel:-12,ok:{msg:"La metiste en su cara"},yo:{tec:2,car:1}},
+   {b:"Encarar a todos vos solo",st:"tec",base:36,arq:"lirico",
+    pase:-1,rel:-4,ok:{msg:"Jugada de otro planeta"},yo:{tec:3}},
+   {b:"Aguantarla hasta que llegue alguien",st:"fis",base:60,arq:"rustico",
+    pase:0,rel:2,ok:{msg:"Aguantaste como un grande"},yo:{fis:2}}
+  ]);
   return baraja([
    {b:"Dársela a "+N+" en el mejor momento",st:"tec",base:58,arq:"creador",
     pase:3,rel:16,ok:{msg:"Gol de "+N+" y abrazo"},yo:{tec:2}},
@@ -8357,7 +8501,7 @@ function infFecha(){
     titulo:F.t.replace(/\{Q\}/g,N.toUpperCase()),
     texto:F.x.replace(/\{Q\}/g,N),
     prog:[I.i,6],ciego:1,seg:SEG(5.5),
-    opts:infOpciones(q).map(o=>({b:o.b,s:"",cb:()=>infResolver(o,q)})),
+    opts:infOpciones(q,!!F.riv).map(o=>({b:o.b,s:"",cb:()=>infResolver(o,q)})),
     onTimeout:()=>infResolver(null,q)});
 }
 function infResolver(o,q){
@@ -8630,6 +8774,7 @@ let _actx=null;
 function _ac(){try{if(!_actx)_actx=new (window.AudioContext||window.webkitAudioContext)();
   return _actx;}catch(e){return null;}}
 function bip(f0,f1,dur,tipo,vol){
+  if(p&&p.mute)return;                 /* v13 · botón de silencio */
   const A=_ac(); if(!A)return;
   try{
     const o=A.createOscillator(), g=A.createGain();
@@ -8734,7 +8879,7 @@ function esTarget(o){
   return !!(p.enemigo&&o&&o.b&&String(o.b).indexOf(p.enemigo)>=0);
 }
 /* 10 · Clima del partido */
-const CLIMAS=[{k:"",n:"",p:56},{k:"lluvia",n:"🌧 LLUVIA",p:20},{k:"barro",n:"🟤 BARRIAL",p:14},
+const CLIMAS=[{k:"",n:"",p:56},{k:"lluvia",n:"🌧 LLUVIA",p:20},{k:"barro",n:"🟤 POTRERO",p:14},
   {k:"",n:"🔥 40 GRADOS",p:10}];
 function climaDelPartido(){
   let t=0;CLIMAS.forEach(c=>t+=c.p);let r=azar()*t;
@@ -8821,9 +8966,16 @@ function carta(o){
   if(o.crest)h+='<div style="display:flex;justify-content:center;margin-bottom:10px">'+escudo(o.crest,52)+'</div>';
   h+='<h3>'+o.titulo+'</h3><p>'+o.texto+'</p>';
   if(o.seg)h+='<div class="qte-bar" style="animation-duration:'+(o.seg*1000)+'ms"></div>';
-  if(enLlamas())h='<div class="fuego-chip">🔥 EN LLAMAS · RACHA DE '+(p.temp.racha)+'</div>'+h;
-  if(o.mision)h='<div class="mision"><div class="mt">Pedido de la tribuna</div>'
-    +'<div class="mx">'+o.mision.t+'</div></div>'+h;
+  /* v13 · el chip y la misión van ADENTRO de la carta, no encima del header */
+  let extra="";
+  if(enLlamas())extra+='<div class="fuego-chip">🔥 EN LLAMAS · RACHA DE '+(p.temp.racha)+'</div>';
+  if(o.mision)extra+='<div class="mision"><div class="mt">Pedido de la tribuna</div>'
+    +'<div class="mx">'+o.mision.t+'</div></div>';
+  if(extra){
+    const corte=h.indexOf("</div>",h.indexOf('class="eyebrow"'));
+    if(corte>0)h=h.slice(0,corte+6)+extra+h.slice(corte+6);
+    else h=h.replace('<div class="card">','<div class="card">'+extra);
+  }
   o.opts.forEach((x,i)=>{
     h+='<button class="opt" id="o'+i+'"><span class="n">0'+(i+1)+'</span>'
       +(x.ico?'<span class="oico">'+x.ico+'</span>':'')
@@ -8949,7 +9101,7 @@ function render(){
   renderGeneracion();
   const tge=document.getElementById("term-gambas");
   if(tge)tge.innerHTML=tg+'<div class="zrow" style="border-top:1px solid #1a5c33;margin-top:6px;'
-    +'padding-top:6px;opacity:.8"><span>promedio del chasis</span><b>'
+    +'padding-top:6px;opacity:.8"><span>estado físico general</span><b>'
     +Math.round(saludProm())+'</b></div>';
 
   /* v6 · arquetipo, vestuario y la cuenta pendiente */
