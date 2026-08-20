@@ -1246,6 +1246,142 @@ function clubVirtual(n,lv,liga){
   });
 })();
 
+/* ══════ v11 · EQUIPOS REALES DE CADA COPA INTERNACIONAL ═══════════
+   Los cruces de copa salen de estas listas y de ningún otro lado.    */
+const EQUIPOS_LIBERTADORES=[
+ {n:"River Plate",lv:76,liga:"ARG",c:["#FFFFFF","#D8232A"],f:"redondo",pa:"banda",i:"CARP"},
+ {n:"Boca Juniors",lv:76,liga:"ARG",c:["#0B2C6B","#F2C500"],f:"escudo",pa:"aros",i:"CABJ"},
+ {n:"Racing Club",lv:66,liga:"ARG",c:["#6CACE4","#FFFFFF"],f:"redondo",pa:"franjas",i:"RC"},
+ {n:"Estudiantes",lv:62,liga:"ARG",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"franjas",i:"EDLP"},
+ {n:"Vélez Sarsfield",lv:60,liga:"ARG",c:["#FFFFFF","#12439E"],f:"escudo",pa:"banda",i:"CAV"},
+ {n:"Talleres",lv:56,liga:"ARG",c:["#003DA5","#FFFFFF"],f:"escudo",pa:"franjas",i:"CAT"},
+ {n:"Flamengo",lv:75,liga:"BRA",c:["#C8102E","#000000"],f:"escudo",pa:"franjas",i:"FLA"},
+ {n:"Palmeiras",lv:74,liga:"BRA",c:["#046A38","#FFFFFF"],f:"escudo",pa:"solido",i:"SEP"},
+ {n:"Botafogo",lv:71,liga:"BRA",c:["#000000","#FFFFFF"],f:"escudo",pa:"franjas",i:"BOT"},
+ {n:"São Paulo",lv:70,liga:"BRA",c:["#FFFFFF","#C8102E"],f:"escudo",pa:"banda",i:"SPF"},
+ {n:"Atlético Mineiro",lv:72,liga:"BRA",c:["#000000","#FFFFFF"],f:"escudo",pa:"franjas",i:"CAM"},
+ {n:"Fluminense",lv:68,liga:"BRA",c:["#9F0028","#046A38"],f:"escudo",pa:"franjas",i:"FLU"},
+ {n:"Grêmio",lv:69,liga:"BRA",c:["#0D80BF","#000000"],f:"escudo",pa:"franjas",i:"GRE"},
+ {n:"Internacional",lv:69,liga:"BRA",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"solido",i:"INT"},
+ {n:"Peñarol",lv:69,liga:"URU",c:["#F2C500","#000000"],f:"escudo",pa:"franjas",i:"CAP"},
+ {n:"Nacional",lv:68,liga:"URU",c:["#FFFFFF","#12439E"],f:"escudo",pa:"solido",i:"NAC"},
+ {n:"LDU Quito",lv:68,liga:"ECU",c:["#FFFFFF","#C8102E"],f:"escudo",pa:"solido",i:"LDU"},
+ {n:"Independiente del Valle",lv:67,liga:"ECU",c:["#000000","#12439E"],f:"escudo",pa:"franjas",i:"IDV"},
+ {n:"Junior",lv:65,liga:"COL",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"franjas",i:"JUN"},
+ {n:"Millonarios",lv:64,liga:"COL",c:["#12439E","#FFFFFF"],f:"escudo",pa:"solido",i:"MFC"},
+ {n:"Olimpia",lv:66,liga:"PAR",c:["#FFFFFF","#000000"],f:"escudo",pa:"aros",i:"OLI"},
+ {n:"Libertad",lv:65,liga:"PAR",c:["#000000","#FFFFFF"],f:"escudo",pa:"franjas",i:"LIB"},
+ {n:"Colo-Colo",lv:66,liga:"CHI",c:["#FFFFFF","#000000"],f:"escudo",pa:"solido",i:"CC"},
+ {n:"Bolívar",lv:66,liga:"BOL",c:["#12439E","#FFFFFF"],f:"escudo",pa:"solido",i:"BOL",altura:true},
+ {n:"The Strongest",lv:63,liga:"BOL",c:["#F2C500","#000000"],f:"escudo",pa:"franjas",i:"STR",altura:true},
+ {n:"Universitario",lv:63,liga:"PER",c:["#FFF8DC","#8B0000"],f:"escudo",pa:"solido",i:"U"}
+];
+const EQUIPOS_SUDAMERICANA=[
+ {n:"Independiente",lv:65,liga:"ARG",c:["#D8232A","#FFFFFF"],f:"rombo",pa:"solido",i:"CAI"},
+ {n:"San Lorenzo",lv:64,liga:"ARG",c:["#0B2C6B","#C8102E"],f:"escudo",pa:"franjas",i:"CASLA"},
+ {n:"Huracán",lv:53,liga:"ARG",c:["#FFFFFF","#C8102E"],f:"escudo",pa:"solido",i:"CAH"},
+ {n:"Defensa y Justicia",lv:52,liga:"ARG",c:["#F2C500","#0F7A3D"],f:"escudo",pa:"franjas",i:"DYJ"},
+ {n:"Lanús",lv:58,liga:"ARG",c:["#7B1E2B","#FFFFFF"],f:"escudo",pa:"solido",i:"CAL"},
+ {n:"Argentinos Jrs",lv:56,liga:"ARG",c:["#D8232A","#FFFFFF"],f:"redondo",pa:"mitades",i:"AAAJ"},
+ {n:"Belgrano",lv:47,liga:"ARG",c:["#5EC5EC","#FFFFFF"],f:"escudo",pa:"franjas",i:"CAB"},
+ {n:"Corinthians",lv:70,liga:"BRA",c:["#FFFFFF","#000000"],f:"escudo",pa:"solido",i:"COR"},
+ {n:"Cruzeiro",lv:67,liga:"BRA",c:["#1C3F94","#FFFFFF"],f:"escudo",pa:"solido",i:"CRU"},
+ {n:"Athletico PR",lv:64,liga:"BRA",c:["#C8102E","#000000"],f:"escudo",pa:"franjas",i:"CAP"},
+ {n:"Vasco da Gama",lv:64,liga:"BRA",c:["#000000","#FFFFFF"],f:"escudo",pa:"banda",i:"VAS"},
+ {n:"Bahia",lv:63,liga:"BRA",c:["#1C5BA8","#C8102E"],f:"escudo",pa:"franjas",i:"BAH"},
+ {n:"Fortaleza",lv:62,liga:"BRA",c:["#1C3F94","#C8102E"],f:"escudo",pa:"franjas",i:"FOR"},
+ {n:"RB Bragantino",lv:61,liga:"BRA",c:["#FFFFFF","#C8102E"],f:"escudo",pa:"banda",i:"RBB"},
+ {n:"Danubio",lv:53,liga:"URU",c:["#FFFFFF","#000000"],f:"escudo",pa:"banda",i:"DFC"},
+ {n:"Defensor Sporting",lv:58,liga:"URU",c:["#4B0082","#FFFFFF"],f:"escudo",pa:"solido",i:"DEF"},
+ {n:"Universidad de Chile",lv:63,liga:"CHI",c:["#12439E","#C8102E"],f:"escudo",pa:"solido",i:"UCH"},
+ {n:"Coquimbo Unido",lv:58,liga:"CHI",c:["#F2C500","#000000"],f:"escudo",pa:"mitades",i:"COQ"},
+ {n:"América de Cali",lv:62,liga:"COL",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"solido",i:"AME"},
+ {n:"Independiente Medellín",lv:61,liga:"COL",c:["#C8102E","#12439E"],f:"escudo",pa:"mitades",i:"DIM"},
+ {n:"Barcelona SC",lv:64,liga:"ECU",c:["#F2C500","#000000"],f:"escudo",pa:"solido",i:"BSC"},
+ {n:"Cerro Porteño",lv:64,liga:"PAR",c:["#12439E","#C8102E"],f:"escudo",pa:"franjas",i:"CCP"},
+ {n:"Sporting Cristal",lv:61,liga:"PER",c:["#6CACE4","#FFFFFF"],f:"escudo",pa:"solido",i:"SC"}
+];
+const EQUIPOS_CHAMPIONS=[
+ {n:"Real Madrid",lv:92,liga:"ESP",c:["#FFFFFF","#F2C500"],f:"redondo",pa:"solido",i:"RM"},
+ {n:"Barcelona",lv:90,liga:"ESP",c:["#004D98","#A50044"],f:"escudo",pa:"franjas",i:"BAR"},
+ {n:"Atlético Madrid",lv:85,liga:"ESP",c:["#CE1126","#FFFFFF"],f:"escudo",pa:"franjas",i:"ATM"},
+ {n:"Girona",lv:77,liga:"ESP",c:["#CD2027","#FFFFFF"],f:"escudo",pa:"franjas",i:"GIR"},
+ {n:"Manchester City",lv:91,liga:"ENG",c:["#6CABDD","#FFFFFF"],f:"redondo",pa:"solido",i:"MCFC"},
+ {n:"Liverpool",lv:90,liga:"ENG",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"solido",i:"LFC"},
+ {n:"Arsenal",lv:88,liga:"ENG",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"solido",i:"ARS"},
+ {n:"Aston Villa",lv:82,liga:"ENG",c:["#95BFE5","#670E36"],f:"escudo",pa:"solido",i:"AVFC"},
+ {n:"Bayern Munich",lv:89,liga:"GER",c:["#DC052D","#FFFFFF"],f:"redondo",pa:"solido",i:"FCB"},
+ {n:"Bayer Leverkusen",lv:87,liga:"GER",c:["#E32219","#000000"],f:"escudo",pa:"franjas",i:"B04"},
+ {n:"Borussia Dortmund",lv:83,liga:"GER",c:["#FDE100","#000000"],f:"redondo",pa:"solido",i:"BVB"},
+ {n:"RB Leipzig",lv:82,liga:"GER",c:["#DD013F","#FFFFFF"],f:"escudo",pa:"solido",i:"RBL"},
+ {n:"Stuttgart",lv:78,liga:"GER",c:["#E32219","#FFFFFF"],f:"escudo",pa:"aros",i:"VFB"},
+ {n:"Inter",lv:86,liga:"ITA",c:["#0B2C6B","#111111"],f:"redondo",pa:"franjas",i:"FCIM"},
+ {n:"Juventus",lv:84,liga:"ITA",c:["#000000","#FFFFFF"],f:"escudo",pa:"franjas",i:"JUV"},
+ {n:"Milan",lv:84,liga:"ITA",c:["#AC121B","#000000"],f:"escudo",pa:"franjas",i:"ACM"},
+ {n:"Atalanta",lv:83,liga:"ITA",c:["#1E71B8","#000000"],f:"escudo",pa:"franjas",i:"ATA"},
+ {n:"Bologna",lv:77,liga:"ITA",c:["#1A2C42","#A31B2A"],f:"escudo",pa:"franjas",i:"BFC"},
+ {n:"PSG",lv:90,liga:"FRA",c:["#002B49","#E30613"],f:"redondo",pa:"banda",i:"PSG"},
+ {n:"Mónaco",lv:81,liga:"FRA",c:["#E30613","#FFFFFF"],f:"escudo",pa:"mitades",i:"ASM"},
+ {n:"Lille",lv:78,liga:"FRA",c:["#E30613","#122241"],f:"escudo",pa:"solido",i:"LOSC"},
+ {n:"Brest",lv:75,liga:"FRA",c:["#E30613","#FFFFFF"],f:"escudo",pa:"solido",i:"SB29"},
+ {n:"Sporting CP",lv:80,liga:"POR",c:["#008040","#FFFFFF"],f:"escudo",pa:"aros",i:"SCP"},
+ {n:"Benfica",lv:78,liga:"POR",c:["#C8102E","#FFFFFF"],f:"redondo",pa:"solido",i:"SLB"},
+ {n:"PSV",lv:81,liga:"NED",c:["#FF0000","#FFFFFF"],f:"redondo",pa:"franjas",i:"PSV"},
+ {n:"Feyenoord",lv:79,liga:"NED",c:["#FF0000","#FFFFFF"],f:"redondo",pa:"mitades",i:"FEY"},
+ {n:"Celtic",lv:76,liga:"SCO",c:["#008040","#FFFFFF"],f:"redondo",pa:"aros",i:"CEL"},
+ {n:"Club Brugge",lv:76,liga:"BEL",c:["#000000","#005CA9"],f:"escudo",pa:"franjas",i:"CLU"},
+ {n:"Shakhtar Donetsk",lv:75,liga:"UKR",c:["#F36C21","#000000"],f:"escudo",pa:"franjas",i:"FCSD"},
+ {n:"Estrella Roja",lv:74,liga:"SRB",c:["#E20613","#FFFFFF"],f:"escudo",pa:"franjas",i:"CZV"},
+ {n:"Sparta Praga",lv:74,liga:"CZE",c:["#800020","#FFFFFF"],f:"escudo",pa:"solido",i:"ACS"},
+ {n:"Sturm Graz",lv:73,liga:"AUT",c:["#000000","#FFFFFF"],f:"escudo",pa:"mitades",i:"STU"}
+];
+const EQUIPOS_EUROPA_LEAGUE=[
+ {n:"Manchester United",lv:81,liga:"ENG",c:["#DA291C","#FFFFFF"],f:"escudo",pa:"solido",i:"MUFC"},
+ {n:"Tottenham",lv:81,liga:"ENG",c:["#FFFFFF","#132257"],f:"escudo",pa:"solido",i:"THFC"},
+ {n:"Roma",lv:80,liga:"ITA",c:["#8E1F2F","#F0BC42"],f:"escudo",pa:"solido",i:"ASR"},
+ {n:"Lazio",lv:79,liga:"ITA",c:["#87D8F7","#FFFFFF"],f:"escudo",pa:"solido",i:"SSL"},
+ {n:"Athletic Club",lv:79,liga:"ESP",c:["#EE2523","#FFFFFF"],f:"escudo",pa:"franjas",i:"ATH"},
+ {n:"Real Sociedad",lv:77,liga:"ESP",c:["#0067B1","#FFFFFF"],f:"escudo",pa:"franjas",i:"RSO"},
+ {n:"Eintracht Frankfurt",lv:79,liga:"GER",c:["#E1000F","#000000"],f:"redondo",pa:"solido",i:"SGE"},
+ {n:"Hoffenheim",lv:75,liga:"GER",c:["#005CA9","#FFFFFF"],f:"escudo",pa:"solido",i:"TSG"},
+ {n:"Lyon",lv:77,liga:"FRA",c:["#12439E","#C8102E"],f:"escudo",pa:"banda",i:"OL"},
+ {n:"Niza",lv:77,liga:"FRA",c:["#000000","#C8102E"],f:"escudo",pa:"franjas",i:"OGCN"},
+ {n:"Porto",lv:79,liga:"POR",c:["#004B87","#FFFFFF"],f:"escudo",pa:"franjas",i:"FCP"},
+ {n:"Braga",lv:76,liga:"POR",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"solido",i:"SCB"},
+ {n:"Ajax",lv:78,liga:"NED",c:["#FFFFFF","#C8102E"],f:"escudo",pa:"banda",i:"AFC"},
+ {n:"AZ Alkmaar",lv:75,liga:"NED",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"solido",i:"AZ"},
+ {n:"Twente",lv:74,liga:"NED",c:["#C8102E","#FFFFFF"],f:"escudo",pa:"solido",i:"FCT"},
+ {n:"Galatasaray",lv:78,liga:"TUR",c:["#A90429","#FDB913"],f:"escudo",pa:"mitades",i:"GS"},
+ {n:"Fenerbahçe",lv:77,liga:"TUR",c:["#002D62","#FFF200"],f:"escudo",pa:"franjas",i:"FB"},
+ {n:"Beşiktaş",lv:76,liga:"TUR",c:["#000000","#FFFFFF"],f:"escudo",pa:"franjas",i:"BJK"},
+ {n:"Olympiacos",lv:76,liga:"GRE",c:["#D81E05","#FFFFFF"],f:"escudo",pa:"franjas",i:"OLY"},
+ {n:"Rangers",lv:76,liga:"SCO",c:["#1B408B","#FFFFFF"],f:"escudo",pa:"solido",i:"RFC"},
+ {n:"Slavia Praga",lv:75,liga:"CZE",c:["#D81E05","#FFFFFF"],f:"escudo",pa:"mitades",i:"SLA"},
+ {n:"Anderlecht",lv:74,liga:"BEL",c:["#4B0082","#FFFFFF"],f:"escudo",pa:"solido",i:"RSCA"},
+ {n:"Bodø/Glimt",lv:73,liga:"NOR",c:["#FDE100","#000000"],f:"escudo",pa:"solido",i:"BOD"},
+ {n:"Malmö FF",lv:73,liga:"SWE",c:["#75B2DD","#FFFFFF"],f:"escudo",pa:"solido",i:"MFF"},
+ {n:"Maccabi Tel Aviv",lv:72,liga:"ISR",c:["#FDE100","#002D62"],f:"escudo",pa:"solido",i:"MTA"}
+];
+/* Los equipos de copa que no estaban en CLUBES entran al registro con sus
+   colores y escudo de verdad, para que se vean bien en la cancha.     */
+(function registrarEquiposDeCopa(){
+  [EQUIPOS_LIBERTADORES,EQUIPOS_SUDAMERICANA,EQUIPOS_CHAMPIONS,EQUIPOS_EUROPA_LEAGUE]
+    .forEach(arr=>arr.forEach(t=>{
+      if(!CLUBES.some(c=>c.n===t.n))CLUB_VIRT[t.n]=t;
+    }));
+})();
+/* Países que sólo aparecen en las copas también tienen confederación */
+["ECU","COL","PAR","CHI","PER"].forEach(k=>{if(!CONF[k])CONF[k]="sud";});
+["SCO","BEL","UKR","SRB","CZE","AUT","TUR","GRE","NOR","SWE","ISR"]
+  .forEach(k=>{if(!CONF[k])CONF[k]="eur";});
+
+/* Qué torneo te toca según tu confederación y qué clasificaste */
+function poolCopa(hab,conf){
+  const grande=hab!=="sud";
+  if(conf==="eur")return grande?EQUIPOS_CHAMPIONS:EQUIPOS_EUROPA_LEAGUE;
+  return grande?EQUIPOS_LIBERTADORES:EQUIPOS_SUDAMERICANA;
+}
+
 /* ── v10 · DE DÓNDE SALE EL RIVAL ─────────────────────────────────────
    Regla de oro: en torneo local se juega contra el país propio; en copa
    continental, contra otros países de la misma confederación.          */
@@ -1260,18 +1396,27 @@ function rivalDeLiga(liga,excl){
 function ligasDeConf(conf,excluir){
   return Object.keys(CONF).filter(L=>CONF[L]===conf&&L!==excluir);
 }
-/* tier 1 = los pesos pesados (copa grande) · tier 2 = clase media (copa chica) */
-function rivalContinental(tier,excl){
+/* v11 · El rival de copa sale de la lista oficial del torneo y de ningún
+   otro lado. hab = "lib" (Libertadores/Champions) o "sud" (Sudamericana/
+   Europa League). En fase de grupos no se cruzan equipos del mismo país;
+   en eliminación directa sí puede pasar, como en la vida real.        */
+function rivalDeCopa(hab,opts){
+  opts=opts||{};
   const miLiga=club(p.club).liga||ligaCasa();
   const conf=CONF[miLiga]||"sud";
-  const pool=[];
-  ligasDeConf(conf,miLiga).forEach(L=>{
-    equiposDe(L).forEach(t=>{if(t.n!==(excl||p.club))pool.push(t);});
-  });
-  if(!pool.length)return otroRival();
-  let f=pool.filter(t=>tierCont(t.n)===tier);
-  if(!f.length)f=pool;
-  return club(rnd(f).n);
+  const base=poolCopa(hab,conf);
+  const excl=opts.excluir||[];
+  let pool=base.filter(t=>t.n!==p.club&&excl.indexOf(t.n)<0);
+  if(opts.otroPais!==false)  /* en grupos, nunca del mismo país */
+    { const f=pool.filter(t=>t.liga!==miLiga); if(f.length>=1)pool=f; }
+  if(!pool.length)pool=base.filter(t=>t.n!==p.club);
+  if(!pool.length)pool=base;
+  const t=rnd(pool);
+  return club(t.n).n!=="Libre"?club(t.n):t;
+}
+/* tier 1 = los pesos pesados (copa grande) · tier 2 = clase media (copa chica) */
+function rivalContinental(tier,excl){
+  return rivalDeCopa(tier===1?"lib":"sud",{excluir:excl?[excl]:[]});
 }
 const copasDe=liga=>COPAS[CONF[liga]||"sud"];
 const pais=()=>PAISES.find(x=>x.id===(p.pais||"ARG"))||PAISES[0];
@@ -3097,7 +3242,7 @@ function nuevoJugador(){return{
   tier:0,gp:{pts:0,tono:"envidia"},arq:{lirico:0,rustico:0,egoista:0,creador:0},arquetipo:"",
   vestuario:0,karma:null,karmaUsado:false,sobreTemp:-99,camaTemp:-99,cama:false,feed:[],
   pais:"ARG",ligaCasa:"ARG",tabla:null,pos:0,copaHab:"",descensos:0,tribTemp:-99,
-  recopa:false,mundialClubes:false,campeonContAnio:0,zonaNom:"",compaNom:"",compaClub:"",
+  recopa:false,mundialClubes:false,campeonContAnio:0,zonaNom:"",compaNom:"",compaClub:"",repre:"",
   afaFavor:0,idoloTemp:-99,mote:"",calor:false,
 
   edadEvento:-1,evTemp:-99,locuraVistas:[],
@@ -3543,12 +3688,9 @@ const KO_CONT=["Octavos de final","Cuartos de final","Semifinal","Final"];
 const KO_NAC=["Cuartos de final","Semifinal","Final"];
 
 function armarGrupo(hab){
-  const tier=hab==="lib"?1:2, usados=[p.club], g=[];
+  const usados=[p.club], g=[];
   for(let i=0;i<3;i++){
-    let r=null;
-    for(let k=0;k<60;k++){r=rivalContinental(tier);if(usados.indexOf(r.n)<0)break;}
-    if(!r||usados.indexOf(r.n)>=0)r=rivalContinental(tier===1?2:1);
-    if(!r||usados.indexOf(r.n)>=0)r=otroRival();
+    const r=rivalDeCopa(hab,{excluir:usados.slice()});
     usados.push(r.n);
     g.push({n:r.n,lv:r.lv,pts:0,gf:0,gc:0,pj:0});
   }
@@ -3597,7 +3739,7 @@ function agregarKOCont(){
   const T=p.temp,C=T.copa,fin=C.ko>=KO_CONT.length-1;
   T.mom.push({comp:fin?"final":"inter",
     fecha:C.nom.toUpperCase()+" · "+KO_CONT[C.ko].toUpperCase(),
-    peso:C.ko>=2?3:2,rival:rivalContinental(C.lib?1:2),
+    peso:C.ko>=2?3:2,rival:rivalDeCopa(C.hab,{otroPais:false,excluir:[C.ultKO||""]}),
     min:ri(20,89),mk:[ri(0,1),ri(0,1)],cup:"cont",kfase:C.ko});
 }
 function agregarKONac(){
@@ -3756,11 +3898,20 @@ function tokens(txt){
     const eleg=(p.rival&&p.rival.ap&&dado(.5))?p.rival:(G.length?rnd(G):null);
     _tok={c:compas.length?rnd(compas).nombre:(compaFicticio()||"un compañero del plantel"),
           e:rivales.length?rnd(rivales).nombre:(mRiv?"el nueve de "+mRiv:"el nueve rival"),
-          q:eleg};
+          q:eleg,
+          /* v11 · quién te dirige, quién te aprieta y quién te representa */
+          dt:dtDe(p.club),
+          barra:barraDe(p.club),
+          repre:(p.repre||(p.repre=rnd(REPRESENTANTES))),
+          idolo:idoloDe(p.club)};
   }
   return txt.replace(/\{COMPA\}/g,_tok.c).replace(/\{ELLOS\}/g,_tok.e)
     .replace(/\{PIBE\}/g,_tok.q?_tok.q.nombre:"el pibe de la camada")
-    .replace(/\{PIB\}/g,_tok.q?_tok.q.nombre.split(" ")[0]:"el pibe");
+    .replace(/\{PIB\}/g,_tok.q?_tok.q.nombre.split(" ")[0]:"el pibe")
+    .replace(/\{DT\}/g,_tok.dt)
+    .replace(/\{BARRA_LIDER\}/g,_tok.barra)
+    .replace(/\{REPRE\}/g,_tok.repre)
+    .replace(/\{IDOLO\}/g,_tok.idolo);
 }
 /* v8 · a quién le pega o a quién banca la carta que estás jugando */
 function pibeCarta(){
@@ -6192,6 +6343,87 @@ const IDOLOS_PAIS={
   GER:["Matthäus","Kahn"],
   FRA:["Zidane","Thuram"]
 };
+/* ══════ v11 · QUIÉN TE DIRIGE, QUIÉN TE APRIETA, QUIÉN TE REPRESENTA ══ */
+const TECNICOS_CLUBES={
+  /* Argentina */
+  "Aldosivi":"Israel Damonte","Argentinos Jrs":"Nicolás Diez","Atlético Tucumán":"Hugo Colace",
+  "Banfield":"Pedro Troglio","Barracas Central":"Rubén Darío Insua","Belgrano":"Ricardo Zielinski",
+  "Boca Juniors":"Rodolfo Arruabarrena","Central Córdoba":"Sebastián Domínguez",
+  "Defensa y Justicia":"Mariano Soso","Deportivo Riestra":"Gustavo Benítez",
+  "Estudiantes":"Alexander Medina","Gimnasia":"Fernando Zaniratto","Huracán":"Diego Martínez",
+  "Independiente":"Gustavo Quinteros","Independiente Rivadavia":"Alfredo Berti",
+  "Instituto":"Daniel Oldrá","Lanús":"Mauricio Pellegrino","Newell's":"Favio Orsi",
+  "Platense":"Walter Zunino","Racing Club":"Juan Pablo Vojvoda","River Plate":"Eduardo Coudet",
+  "Rosario Central":"Jorge Almirón","San Lorenzo":"Damián Ayude","Sarmiento":"Facundo Sava",
+  "Talleres":"Alexander Medina","Tigre":"Diego Dabove","Unión":"Leonardo Madelón",
+  "Vélez Sarsfield":"Guillermo Barros Schelotto","Colón":"Ariel Broggi","Quilmes":"Iván Delfino",
+  "Godoy Cruz":"Walter Ribonetto","Aldosivi ":"Israel Damonte",
+  /* Brasil */
+  "Flamengo":"Filipe Luís","Palmeiras":"Abel Ferreira","São Paulo":"Luis Zubeldía",
+  "Corinthians":"Ramón Díaz","Santos":"Leandro Zago","Botafogo":"Artur Jorge",
+  "Fluminense":"Mano Menezes","Atlético Mineiro":"Gabriel Milito","Internacional":"Roger Machado",
+  "Grêmio":"Renato Gaúcho","Cruzeiro":"Leonardo Jardim","Vasco da Gama":"Fernando Diniz",
+  /* España */
+  "Real Madrid":"José Mourinho","Barcelona":"Hansi Flick","Atlético Madrid":"Diego Simeone",
+  "Villarreal":"Íñigo Pérez","Valencia":"Carlos Corberán","Athletic Club":"Ernesto Valverde",
+  /* Inglaterra */
+  "Manchester City":"Enzo Maresca","Arsenal":"Mikel Arteta","Liverpool":"Andoni Iraola",
+  "Chelsea":"Xabi Alonso","Manchester United":"Michael Carrick","Tottenham":"Ange Postecoglou",
+  /* Italia */
+  "Juventus":"Luciano Spalletti","Milan":"Rúben Amorim","Inter":"Cristian Chivu",
+  "Roma":"Gian Piero Gasperini","Napoli":"Massimiliano Allegri","Atalanta":"Raffaele Palladino",
+  /* Alemania y Francia */
+  "Bayern Munich":"Vincent Kompany","Bayern":"Vincent Kompany","Leverkusen":"Kasper Hjulmand",
+  "Bayer Leverkusen":"Kasper Hjulmand","Borussia Dortmund":"Nuri Şahin","PSG":"Luis Enrique",
+  "Marsella":"Roberto De Zerbi","Lyon":"Paulo Fonseca",
+  /* Portugal y Países Bajos */
+  "Benfica":"Bruno Lage","Porto":"Vítor Bruno","Sporting CP":"Rui Borges",
+  "Ajax":"Francesco Farioli","PSV":"Peter Bosz",
+  /* Selecciones */
+  "Argentina":"Lionel Scaloni","Brasil":"Carlo Ancelotti","Francia":"Zinedine Zidane",
+  "Alemania":"Jürgen Klopp","Italia":"Silvio Baldini","Uruguay":"Diego Forlán",
+  "Inglaterra":"Thomas Tuchel","España":"Luis de la Fuente","Países Bajos":"Xavi Hernández",
+  "DEFAULT":"el DT de turno"
+};
+function dtDe(n){
+  if(TECNICOS_CLUBES[n])return TECNICOS_CLUBES[n];
+  /* si el club no tiene DT propio, se le arma uno estable por nombre */
+  const DT_GEN=["el Chino Ferreyra","el Turco Sandoval","el Vasco Etcheverry","el Pipa Miranda",
+    "el Ruso Kovalenko","el Colorado Britos","el Flaco Ledesma","el Gringo Bertolotti"];
+  return DT_GEN[Math.abs(hashTexto(n||"x"))%DT_GEN.length];
+}
+const BARRAS_CLUBES={
+  "Boca Juniors":["Rafael Di Zeo","Mauro Martín","Marcelo de Lomas","el Uruguayo Richard"],
+  "River Plate":["Caverna Godoy","Adrián Rousseau","Alan Schlenker","el Cerezón"],
+  "Racing Club":["el Gordo Huevo","Pacheco","Cara de Goma"],
+  "Independiente":["Bebote Álvarez","Loquillo","el Polaco","Jaime"],
+  "San Lorenzo":["el Portugués","el Gordo Ita"],
+  "Huracán":["el Rengo","el de la Famosa Plaza"],
+  "Vélez Sarsfield":["Pedro","el Gordo de Liniers"],
+  "Rosario Central":["el Lija","Pillín Jr."],
+  "Newell's":["el Pano","el Rengo Fiel"],
+  "DEFAULT_ARG":["Sailor","Ducaten","el Chucky de Moreno","el Puntero Cabeza"]
+};
+/* Si el club no es argentino, el que te aprieta no se llama Ducaten */
+const BARRAS_PAIS={
+  BRA:["o Chefe da Torcida","Marcinho da Geral","o Careca da Mancha"],
+  URU:["el Rusito de la Ámsterdam","el Loco de la Barra"],
+  ESP:["el Jefe del Fondo Sur","Ultra Boixos"],
+  ITA:["il Capo della Curva","Marco della Nord"],
+  ENG:["the Firm's Top Boy","Big Tony"],
+  GER:["der Capo der Südtribüne"],
+  FRA:["le Chef du Virage"]
+};
+function barraDe(n){
+  if(BARRAS_CLUBES[n])return rnd(BARRAS_CLUBES[n]);
+  const L=club(n).liga;
+  if(L==="ARG")return rnd(BARRAS_CLUBES["DEFAULT_ARG"]);
+  const P=BARRAS_PAIS[L];
+  return P?rnd(P):"el jefe de la hinchada";
+}
+const REPRESENTANTES=["Christian Bragarnik","Guillermo Cóppola","Settimio Aloisio","Mascardi",
+  "Barrena","Leo Rodríguez","Hidalgo","Mino Raiola","Jorge Mendes","Pini Zahavi"];
+
 function idoloDe(n){
   const L=IDOLOS_CLUBES[n];
   if(L&&L.length)return rnd(L);
@@ -6779,6 +7011,7 @@ function migrarV6(q){
   if(q.zonaNom===undefined)q.zonaNom="";
   if(q.compaNom===undefined)q.compaNom="";
   if(q.compaClub===undefined)q.compaClub="";
+  if(q.repre===undefined)q.repre="";
   if(q.afaFavor===undefined)q.afaFavor=0;
   if(q.idoloTemp===undefined)q.idoloTemp=-99;
   if(q.calor===undefined)q.calor=false;
