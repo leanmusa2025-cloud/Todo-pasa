@@ -157,6 +157,21 @@
   padding:4px 0 4px 13px;position:relative}
 .vitnote::before{content:'\203A';position:absolute;left:0;top:4px;color:#F5C542}
 
+/* ══════ v10 · BARRA DE GUARDADO ══════════════════════════════════ */
+.savebar{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 12px;
+  padding:9px 10px;border:1px solid #24405c;border-radius:12px;
+  background:linear-gradient(100deg,rgba(47,211,231,.08),rgba(27,147,255,.04) 70%)}
+.sv{flex:1 1 auto;min-width:120px;font-family:var(--cond);font-weight:700;font-size:15px;
+  letter-spacing:.06em;text-transform:uppercase;color:#04121c;cursor:pointer;
+  background:linear-gradient(135deg,var(--a1),var(--a2));border:0;border-radius:9px;
+  padding:11px 12px;box-shadow:0 4px 14px rgba(47,211,231,.24)}
+.sv:active{transform:translateY(1px)}
+.sv.ghost{flex:0 1 auto;min-width:96px;background:transparent;color:var(--a1);
+  border:1px solid #2c5570;box-shadow:none}
+.savebar .svinfo{flex:1 0 100%;font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+  color:var(--dim);text-transform:uppercase;line-height:1.5}
+.savebar .svinfo.ok{color:var(--ok)}
+
 /* ══════ v10 · VITRINA REDISEÑADA · oscuro y dorado ══════════════ */
 /* El contenedor traía la grilla de copitas de la v8: ahora es flujo normal */
 #vitrina{display:block}
@@ -723,6 +738,12 @@ button{font-family:inherit; color:inherit; border:0; background:none; cursor:poi
     <button class="tab on" onclick="tab('p-carrera',this)">Carrera</button>
     <button class="tab" onclick="tab('p-perfil',this)">Perfil</button>
     <button class="tab" onclick="tab('p-vitrina',this)">Vitrina</button>
+  </div>
+
+  <div class="savebar">
+    <button class="sv" id="btn-guardar" onclick="guardarManual()">GUARDAR PARTIDA</button>
+    <button class="sv ghost" id="btn-cargar" onclick="cargarManual()">CARGAR</button>
+    <div class="svinfo" id="sv-info">Se guarda solo al terminar cada temporada</div>
   </div>
 
   <div id="p-carrera" class="panel on">
@@ -3300,7 +3321,7 @@ function empezar(){
     p.relGen[keyGen(x.ap,y.ap)]=(x.par===y.ap)?ri(18,46):ri(-22,24);
   }));
 
-  go("s-juego");calcOVR();render();ledDin();
+  go("s-juego");calcOVR();render();ledDin();refrescarSaveInfo();
   granPrueba();          /* v6: la carrera arranca a los 15, en la prueba */
 }
 
@@ -5036,7 +5057,7 @@ function fichaDeclarar(ap,bien){
     :[["Fuerte: "+p.nombre+" apuntó contra "+q.nombre+". «"+frase+"»",1],
       ["LO DESTRUYÓ EN VIVO 😭😭 no puedo más",0,ri(9000,60000)],
       ["igual queda mal hablar así de un compañero de camada"]]);
-  render();ledDin();guardar();
+  render();ledDin();guardar();refrescarSaveInfo();
   const c=document.getElementById("cartas");
   c.innerHTML='<div class="card"><div class="eyebrow"><span>SALA DE PRENSA · '+p.anio+'</span>'
     +'<em>'+(bien?"LO BANCASTE":"LO CRUZASTE")+'</em></div>'
@@ -5080,7 +5101,7 @@ function fichaDecir(ap,i){
   if(d<=-26)chisme("Se cruzaron con "+q.nombre+" en un pasillo y no terminó bien.",-1,ap);
   else if(d>=22)chisme(q.nombre+" contó que sos de los pocos que lo llama.",1,ap);
   if(q.club===p.club)modVest(d>0?4:-5);
-  render();ledDin();guardar();
+  render();ledDin();guardar();refrescarSaveInfo();
   const c=document.getElementById("cartas");
   c.innerHTML='<div class="card"><div class="eyebrow"><span>CARA A CARA · '+p.anio+'</span>'
     +'<em>'+(d>0?"QUEDÓ BIEN":"QUEDÓ PICANDO")+'</em></div>'
@@ -5097,7 +5118,7 @@ function fichaDecir(ap,i){
 function finTurno(){
   clearTimeout(tJug);clearInterval(_tribT);
   const cz=document.getElementById("cartas");cz.dataset.ficha="0";cz.innerHTML="";_fichaPrev=null;
-  render();ledDin();guardar();pintarFeed();
+  render();ledDin();guardar();refrescarSaveInfo();pintarFeed();
   const bs=document.getElementById("btn-sobre");
   if(bs){bs.style.display=puedeSobre()?"block":"none";
     bs.textContent="Mover un sobre en la prensa · U$D "+p.plata+"k";}
@@ -5639,9 +5660,56 @@ function verCarta(id){if(!COLECCION.has(id)){COLECCION.add(id);lsSet(COL_KEY,JSO
 function desbloquearFinal(id){if(!FINDESB.has(id)){FINDESB.add(id);lsSet(FIN_KEY,JSON.stringify([...FINDESB]));}}
 function guardar(){
   if(!p||!p.nombre)return;
-  lsSet(SAVE_KEY,JSON.stringify({v:SAVE_VER,modo:MODO,dif:DIF,medio:medioIdx,p:p}));
+  lsSet(SAVE_KEY,JSON.stringify({v:SAVE_VER,t:Date.now(),modo:MODO,dif:DIF,medio:medioIdx,p:p}));
 }
 function borrarSave(){lsDel(SAVE_KEY);}
+/* ══ v10 · GUARDADO MANUAL ══════════════════════════════════════════
+   Ranura aparte de la del autoguardado. El autoguardado de fin de
+   temporada pisa la suya sola; el checkpoint que grabás vos con el botón
+   no lo toca nadie hasta que vuelvas a apretar GUARDAR.               */
+const MANUAL_KEY="oaky_save_manual_v1";
+function haySaveManual(){
+  const raw=lsGet(MANUAL_KEY); if(!raw)return null;
+  try{const d=JSON.parse(raw);return d&&d.v===SAVE_VER&&d.p?d:null;}catch(e){return null;}
+}
+function svInfo(txt,ok){
+  const e=document.getElementById("sv-info"); if(!e)return;
+  e.textContent=txt; e.className="svinfo"+(ok?" ok":"");
+}
+function sello(t){
+  if(!t)return "";
+  const f=new Date(t), dd=x=>(x<10?"0":"")+x;
+  return dd(f.getDate())+"/"+dd(f.getMonth()+1)+" "+dd(f.getHours())+":"+dd(f.getMinutes());
+}
+function resumenSave(q){
+  return (q.nombre||"?")+" · "+(q.edad||"?")+" años · "+(q.club||"sin club")
+    +" · "+((q.vitrina||[]).length)+" título"+(((q.vitrina||[]).length)===1?"":"s");
+}
+function guardarManual(){
+  if(!p||!p.nombre){svInfo("Todavía no empezaste ninguna carrera");toastTxt("No hay carrera para guardar");return;}
+  lsSet(MANUAL_KEY,JSON.stringify({v:SAVE_VER,t:Date.now(),modo:MODO,dif:DIF,medio:medioIdx,p:p}));
+  buzz(12); toastTxt("Partida guardada");
+  svInfo("GUARDADO "+sello(Date.now())+" · "+resumenSave(p),true);
+}
+function cargarManual(){
+  const d=haySaveManual();
+  if(!d){svInfo("No tenés ninguna partida guardada a mano todavía");
+    toastTxt("No hay partida guardada");return;}
+  const q=d.p||{};
+  if(p&&p.nombre&&!confirm("Volver al guardado del "+sello(d.t)+"\n"+resumenSave(q)
+    +"\n\nSe pierde todo lo que jugaste después de ese punto."))return;
+  p=migrarV6(d.p);MODO=d.modo||"realista";DIF=d.dif||"normal";medioIdx=d.medio||0;
+  document.body.dataset.modo=MODO;
+  caraPrev=p.cara||caraPrev;
+  go("s-juego");calcOVR();render();ledDin();finTurno();
+  buzz(12); toastTxt("Partida cargada");
+  svInfo("CARGADA del "+sello(d.t)+" · "+resumenSave(p),true);
+}
+function refrescarSaveInfo(){
+  const d=haySaveManual();
+  if(d&&d.p)svInfo("Guardado "+sello(d.t)+" · "+resumenSave(d.p));
+  else svInfo("Tocá GUARDAR para dejar un punto al que puedas volver");
+}
 const REC_KEY="oaky_records_v1";
 function records(){try{return JSON.parse(lsGet(REC_KEY)||"[]");}catch(e){return[];}}
 function guardarRecord(pts){
@@ -5659,7 +5727,7 @@ function cargarPartida(){
   p=migrarV6(d.p);MODO=d.modo||"realista";DIF=d.dif||"normal";medioIdx=d.medio||0;
   document.body.dataset.modo=MODO;
   caraPrev=p.cara||caraPrev;
-  go("s-juego");calcOVR();render();ledDin();finTurno();
+  go("s-juego");calcOVR();render();ledDin();refrescarSaveInfo();finTurno();
 }
 
 /* ══════════════ GALERÍA DE FINALES ══════════════ */
