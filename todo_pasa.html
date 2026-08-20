@@ -3817,8 +3817,10 @@ function resolverJugada(o,dormido){
   if(ef.gol_rival)m.mk[1]++;
 
   const rest=Math.max(0,90-m.min);
-  /* v10 · si el Jefe te debe una, el árbitro cobra distinto */
-  const fav=clamp((p.afaFavor||0)/340,-.28,.28);
+  /* v10 · si el Jefe te debe una, el árbitro cobra distinto. Y si le
+     declaraste la guerra, te la cobran: salvo que tengas el audio.   */
+  const venganza=banderaViva("afa_venganza")?(banderaViva("tengo_audio")?0.04:0.11):0;
+  const fav=clamp((p.afaFavor||0)/340-venganza,-.34,.28);
   if(dado(rest/260+(nivelClub()-m.rival.lv)/400+fav))m.mk[0]++;
   if(dado(rest/240+(m.rival.lv-nivelClub())/400+(T.rojas?0.18:0)-fav))m.mk[1]++;
   const res=m.mk[0]>m.mk[1]?"gano":m.mk[0]<m.mk[1]?"perdio":"empate";
