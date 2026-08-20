@@ -3016,9 +3016,11 @@ function cierreTemporada(){
   p.vestuario=Math.round((p.vestuario||0)*0.88);
   modVest(clamp(T.ganados*1.2-T.perdidos*0.8-(p.escandalos>2?3:0)+(p.capitan?2:0),-14,14));
   const camaEv=chequearCama();
+  const idoloEv=chequearIdolo();      /* v10 · habla una leyenda del club */
 
   const cola=[];
   if(camaEv)cola.push(camaEv);
+  if(idoloEv)cola.push(idoloEv);
   if(p.eventoGen){cola.push(p.eventoGen);p.eventoGen=null;}
   if(!libre)cola.push({eye:"TEMPORADA "+p.anio,titulo:tituloTemp(g,pj,T),crest:club(p.club),
     sub:pj+" partidos, "+g+" goles y "+a+" asistencias con "+p.club+". Rol: "+p.rol.toLowerCase()+".",
@@ -4667,11 +4669,55 @@ function cartaSobre(){
 
 /* ── 4 · FEED DE X ───────────────────────────────────────────────────
    Prensa y tribuna inventadas: ninguna cuenta real, ningún nombre real.  */
+/* v10 · El ecosistema real: periodistas y streamers que existen y que
+   opinan de todo. REGLA DE ORO: cualquier crítica, ataque o escándalo
+   lo encabeza Flavio Azzaro. Siempre. Sin excepción.                  */
 const PERIO=[
-  {u:"Rubén Vitale",h:"@vitaleoficial"},{u:"Marina Toscano",h:"@marina_tosco"},
-  {u:"Cacho Peluffo",h:"@cachopeluffo"},{u:"El Búnker Deportivo",h:"@bunkerdep"},
-  {u:"Duro de Cabeza",h:"@durodecabezatv"},{u:"Vero Sandoval",h:"@verosandovaltv"}
+  {u:"Flavio Azzaro", h:"@FlavioAzzaro"},
+  {u:"Mariano Closs", h:"@MarianoCloss"},
+  {u:"Paren la Mano", h:"@parenlamanook"},
+  {u:"La Cobra", h:"@lacobraaa"},
+  {u:"Davo Xeneize", h:"@Davo_Xeneize"},
+  {u:"El Duka", h:"@elducabigoton"},
+  {u:"Lucas Tenser", h:"@lucastenser"}
 ];
+const AZZARO=PERIO[0];
+/* Un tuit firmado por alguien concreto (para la regla Azzaro) */
+function tuitDe(a,txt,likes){return{u:a.u,h:a.h,t:txt,l:likes||ri(1200,48000),per:true};}
+
+/* v10 · ÍDOLOS DE CADA CLUB
+   Los que ya dieron la vuelta y ahora opinan desde un piso de TV.     */
+const IDOLOS_CLUBES={
+  "Boca Juniors": ["Román Riquelme","El Titán Palermo","Guillermo Barros Schelotto","El Diego"],
+  "River Plate": ["El Muñeco Gallardo","El Enzo","El Burrito Ortega","El Beto Alonso"],
+  "Racing Club": ["Mostaza Merlo","El Coco Basile","Gustavo Costas","Rubén Paz"],
+  "Independiente": ["El Bocha Bochini","El Kun Agüero","Dani Bertoni","El Palomo Usuriaga"],
+  "San Lorenzo": ["El Bambino Veira","El Pipi Romagnoli","Pipo Gorosito","El Patón Bauza"],
+  "Flamengo": ["Zico","Romário","Adriano Imperador"],
+  "Palmeiras": ["Marcos","Edmundo","Alex"],
+  "São Paulo": ["Rogério Ceni","Raí","Cafu"],
+  "Real Madrid": ["Raúl González","Iker Casillas","Zidane"],
+  "Barcelona": ["Carles Puyol","Stoichkov","Ronaldinho"],
+  "Juventus": ["Del Piero","Buffon","Nedved"],
+  "Milan": ["Maldini","Gattuso","Kaka"],
+  "Inter": ["Pupi Zanetti","Ronaldo Fenômeno","Adriano"]
+};
+/* Si tu club no tiene ídolo propio, habla un grande de tu país */
+const IDOLOS_PAIS={
+  ARG:["El Diego","El Bocha Bochini","El Coco Basile","Mostaza Merlo"],
+  BRA:["Zico","Romário","O Fenômeno Ronaldo","Cafu"],
+  ESP:["Raúl González","Stoichkov","Iker Casillas"],
+  ITA:["Del Piero","Maldini","Buffon"],
+  ENG:["Alan Shearer","Gary Neville"],
+  GER:["Matthäus","Kahn"],
+  FRA:["Zidane","Thuram"]
+};
+function idoloDe(n){
+  const L=IDOLOS_CLUBES[n];
+  if(L&&L.length)return rnd(L);
+  const c=club(n), P=IDOLOS_PAIS[c.liga];
+  return (P&&P.length)?rnd(P):"un viejo campeón del club";
+}
 const HINCHAS=[
   {u:"termo del ascenso",h:"@termodelaB"},{u:"Gordo Pastilla",h:"@gordopastilla"},
   {u:"la doce de mi barrio",h:"@ladocedelbarrio"},{u:"Fanático Serial",h:"@fanaticoserial"},
@@ -4694,6 +4740,8 @@ function feedDe(tipo,d){
   const arq=p.arquetipo?ARQ_NOM[p.arquetipo]:null;
   const T=[];
   const H=(t,l)=>T.push(tuit(HINCHAS,t,l)), P=(t,l)=>T.push(tuit(PERIO,t,l));
+  /* v10 · REGLA AZZARO: toda crítica, ataque o escándalo lo abre él */
+  const PN=(t,l)=>T.push(tuitDe(AZZARO,t,l));
   switch(tipo){
     case"gran_prueba":
       P("Prueba masiva. Anoten el nombre de "+N+", que hoy resolvió una pelota que no resuelve nadie de esa edad. #Inferiores");
@@ -4706,21 +4754,22 @@ function feedDe(tipo,d){
         H("ES DE OTRO PLANETA "+AP+" "+N+" LO AMO",ri(2000,40000));
         H("un gol y ya salen a decir que es el nuevo crack. tranquilos que en tres partidos lo puteamos igual");
       }else if(d.roja){
-        P("Roja de "+N+". Es la actitud que le viene marcando el año: "+(arq?"puro "+arq.toLowerCase():"pura calentura")+".");
+        PN("¡PERO ESTO ES INADMISIBLE! Roja de "+N+". ES LA ACTITUD que le viene marcando el año: "+(arq?"puro "+arq.toLowerCase():"pura calentura")+". Y después se ofenden cuando lo decimos.");
         H("ANDATE "+N+" SOS UN INÚTIL NOS DEJASTE CON DIEZ 🤬",ri(3000,22000));
         H("che pero lo empujaron eh. igual es un pecho frío");
       }else if(d.fallo){
-        P("Se la perdió "+N+". Estas son las que separan al que juega en "+C+" del que juega en Europa.");
+        PN("Se la perdió "+N+". ESTAS son las que separan al que juega en "+C+" del que juega en Europa. Se lo dije en la cara y me quisieron matar.");
         H("la tiró a la villa 😭😭😭 devuelvan la plata");
         H("dejen de romper que el pibe tiene "+p.edad+" años");
       }else{
-        P("Partido raro de "+N+" en "+C+". Le está costando la temporada y en el club lo saben.");
+        PN("Partido para el olvido de "+N+" en "+C+". Le está costando la temporada, en el club lo saben Y NADIE SE ANIMA A DECIRLO. Yo sí.");
         H("nunca vi a nadie correr tan poco y cobrar tanto");
         H("mientras tanto "+R+" la rompe y nosotros con este. gracias dirigencia");
       }
       break;
     case"temporada":
-      P("Cierra el año "+N+": "+d.pj+" partidos, "+d.g+" goles y "+d.a+" asistencias en "+C+".");
+      if(d.rend<0)PN("Cierra el año "+N+": "+d.pj+" partidos, "+d.g+" goles y "+d.a+" asistencias en "+C+". NÚMEROS DE SUPLENTE con sueldo de figura.");
+      else P("Cierra el año "+N+": "+d.pj+" partidos, "+d.g+" goles y "+d.a+" asistencias en "+C+".");
       if(d.rend>=2)H("temporadón del flaco, que le hagan estatua ya",ri(4000,30000));
       else H("un año más tirado a la basura. este club no cambia más");
       H(d.rend>=2?"y todavía hay giles que lo criticaban en enero":"lo comparás con "+R+" y da vergüenza ajena");
@@ -4731,14 +4780,14 @@ function feedDe(tipo,d){
       H("festejen que el año que viene los vendemos a todos");
       break;
     case"escandalo":
-      P("Complicado el momento de "+N+" fuera de la cancha. En el club piden silencio y en la tribuna piden otra cosa.");
+      PN("LO VENGO DICIENDO HACE MESES. Lo de "+N+" fuera de la cancha es un papelón. En el club piden silencio, en la tribuna piden otra cosa y a mí me van a tener que aguantar todos los días.",ri(12000,90000));
       H("que se vaya. que se vaya YA. no lo quiero ver más con la camiseta");
       H("hermano juega al fútbol, no es cura. déjenlo en paz");
       break;
     case"sobre":
       if(d.bien){P("Muy buena semana de prensa para "+N+". Curioso cómo cambió el tono de todos los programas de un día para el otro.");
         H("che nadie va a decir nada de las notas re parecidas que salieron todas juntas? no? bueno");
-      }else{P("Papelón: quedó expuesto el pago de "+N+" a periodistas. Esto se investiga o esto no es serio.");
+      }else{PN("PAPELÓN NACIONAL: quedó expuesto el pago de "+N+" a periodistas. A mí no me compró nadie nunca. ESTO SE INVESTIGA O ESTO NO ES SERIO.",ri(15000,120000));
         H("compró periodistas 😭 el peor no era el rival, era él",ri(8000,60000));
         H("todos lo hacen, este es el gil que se dejó agarrar");}
       break;
@@ -4746,7 +4795,7 @@ function feedDe(tipo,d){
       if(d.campeon){P("CAMPEÓN DEL MUNDO. Y "+N+" adentro de la cancha en el minuto que había que estar.");
         H("NO LO PUEDO CREER ESTOY LLORANDO EN EL LABURO 🇦🇷🇦🇷🇦🇷",ri(50000,300000));
         H("mañana feriado o hago quilombo");
-      }else{P("Afuera en "+d.ronda+" contra "+d.verdugo+". "+d.veredicto);
+      }else{PN("AFUERA en "+d.ronda+" contra "+d.verdugo+". "+d.veredicto+" Y el que puso la cara para criticarlo desde el primer día fui yo.");
         H("cuatro años esperando esto para que "+N+" haga lo que hizo. gracias por nada");
         H("dejen de matar al pibe, el problema es el sistema. igual que juegue otro");}
       break;
@@ -4756,7 +4805,7 @@ function feedDe(tipo,d){
       H("ojalá le vaya mal 😊");
       break;
     case"cama":
-      P("Hay ruido de vestuario en "+C+". Varios referentes no bancan más al "+AP+".");
+      PN("RUIDO DE VESTUARIO en "+C+" y no es un rumor: varios referentes no bancan más al "+AP+". Me lo confirmaron tres. TRES.");
       H("el vestuario lo largó hace rato, se nota en la cancha");
       H("un cacique más que se cree más grande que el club");
       break;
@@ -4771,7 +4820,7 @@ function feedDe(tipo,d){
       H("alguien tiene el link del partido? 🙏");
   }
   if(p.escandalos>=3&&dado(.5))H("recordemos los "+p.escandalos+" quilombos que se mandó este muchacho. hilo 🧵");
-  if((p.vestuario||0)<=-55&&dado(.5))P("Dato: en el plantel de "+C+" ya lo llaman cacique. Nunca es solo un rumor.");
+  if((p.vestuario||0)<=-55&&dado(.5))PN("DATO: en el plantel de "+C+" ya lo llaman cacique. Y cuando lo dice Azzaro es porque alguien de adentro lo contó.");
   p.feed=baraja(T).slice(0,ri(3,4));
   pintarFeed();
 }
@@ -4943,6 +4992,55 @@ function chequearCama(){
   return{clase:"malo",eye:"INTERNA",titulo:"TE HICIERON LA CAMA",crest:club(p.club),
     sub:"El plantel de "+p.club+" dejó de correr para vos. Dos referentes hablaron con la dirigencia y pidieron que te vayas. En la cancha se nota: nadie te busca.",
     stats:[["VESTUARIO",estadoVest(),"dn"],["FORMA","−14","dn"]]};
+}
+
+/* ── v10 · LA VOZ DE LOS ÍDOLOS ──────────────────────────────────────
+   Los que ya ganaron todo ahora opinan en la tele. Si venís bien te
+   bancan; si venís mal, te matan, y esa nota la abre Flavio Azzaro.   */
+const IDOLO_ELOGIO=[
+ '"{I} lo dijo en vivo: \'ese pibe juega como jugábamos nosotros. Le sobra huevo y le sobra pierna.\'"',
+ '"{I} paró el programa para hablar de él: \'no lo comparen con nadie, este tiene lo suyo.\'"',
+ '"{I} bancó al {AP}: \'a mí me gusta el que la pide cuando quema. Este la pide.\'"',
+ '"{I} en el piso: \'yo lo pondría de titular con los ojos cerrados. Y que se ofenda el que se ofenda.\'"',
+ '"{I} lo dejó picando: \'si sigue así, en {C} le van a hacer una bandera.\'"'
+];
+const IDOLO_CRITICA=[
+ '"{I} lo destrozó: \'con esa camiseta se corre, y este muchacho no corre.\'"',
+ '"{I} sin anestesia: \'yo a los veinte ya había ganado todo. Que no me vengan con el futuro.\'"',
+ '"{I} en vivo: \'le falta barrio. Le falta que lo caguen a patadas un domingo a la tarde.\'"',
+ '"{I} liquidó al {AP}: \'cobra como crack y juega como refuerzo de invierno.\'"',
+ '"{I} lo bajó de un hondazo: \'en {C} la camiseta pesa. A este le queda grande.\'"'
+];
+function chequearIdolo(){
+  if(p.club==="Libre"||p.idoloTemp===p.temporadas)return null;
+  const T=p.temp||{rend:0};
+  const bien=(T.rend||0)>=3||p.stats.forma>=76;
+  const mal=(T.rend||0)<=-3||p.stats.forma<=42||p.escandalos>=3;
+  if(!bien&&!mal)return null;
+  if(!dado(.55))return null;
+  p.idoloTemp=p.temporadas;
+  const I=idoloDe(p.club);
+  const frase=(bien?rnd(IDOLO_ELOGIO):rnd(IDOLO_CRITICA))
+    .replace(/\{I\}/g,I).replace(/\{AP\}/g,p.apodo.replace(/^(El|La)\s+/,""))
+    .replace(/\{C\}/g,p.club);
+  if(bien){
+    mod(p.rep,"local",10);mod(p.stats,"mor",8,5,100);
+    if(p.club!=="Libre")hist(p.club).mal-=3;
+    tuitarSobre([[I+" habló de "+p.nombre+" y en el club lo agradecen. Cuando habla un grande, se escucha.",true,ri(6000,40000)],
+      ["si "+I+" lo banca yo lo banco, no se discute 🙌",false,ri(3000,20000)]]);
+    return{clase:"oro",eye:"HABLÓ UN ÍDOLO",titulo:I.toUpperCase()+" SALIÓ A BANCARTE",
+      crest:club(p.club),sub:frase+" En "+p.club+" lo tomaron como una bendición y la tribuna te canta distinto.",
+      stats:[["HINCHADA","+10","up"],["MORAL","+8","up"]]};
+  }
+  mod(p.rep,"local",-12);mod(p.stats,"mor",-10,5,100);hist(p.club).mal+=4;
+  /* La crítica de un ídolo la levanta y la amplifica Azzaro */
+  tuitarSobre([["LO DIJO "+I.toUpperCase()+", NO LO DIGO YO. Y cuando lo dice un ídolo del club, se termina la discusión.",true,ri(14000,95000)],
+    ["salió "+I+" a matarlo y tiene razón en todo 😤",false,ri(4000,26000)]]);
+  p.feed=(p.feed||[]);p.feed.unshift(tuitDe(AZZARO,"LO DIJO "+I.toUpperCase()+". Yo lo vengo diciendo hace un año y me trataron de exagerado.",ri(18000,110000)));
+  p.feed=p.feed.slice(0,5);pintarFeed();
+  return{clase:"malo",eye:"HABLÓ UN ÍDOLO",titulo:I.toUpperCase()+" TE PASÓ POR ENCIMA",
+    crest:club(p.club),sub:frase+" Lo levantaron todos los programas y en la tribuna ya se escuchó el primer silbido.",
+    stats:[["HINCHADA","−12","dn"],["MORAL","−10","dn"]]};
 }
 
 /* ── 7 · MUNDIAL AMPLIADO ────────────────────────────────────────────
