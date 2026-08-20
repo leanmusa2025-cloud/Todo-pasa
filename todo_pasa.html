@@ -663,7 +663,7 @@ button{font-family:inherit; color:inherit; border:0; background:none; cursor:poi
   <div class="field"><label>Duración de la carrera</label>
     <div class="chips" id="f-largo">
       <button class="chip sel" data-v="completa"><b>COMPLETA</b><small>DT Y PRESIDENCIA</small></button>
-      <button class="chip" data-v="express"><b>EXPRÉS</b><small>~6 MINUTOS</small></button>
+      <button class="chip" data-v="express"><b>EXPRÉS</b><small>SOLO JUGADOR</small></button>
     </div></div>
 
   <div class="field"><label>Semilla <span style="color:var(--dimmer)">(opcional)</span></label>
@@ -7997,7 +7997,7 @@ function render(){
   document.querySelectorAll("#f-largo .chip").forEach(c=>{c.onclick=()=>{
     document.querySelectorAll("#f-largo .chip").forEach(x=>x.classList.remove("sel"));
     c.classList.add("sel");MODO_LARGO=c.dataset.v;
-    led(MODO_LARGO==="express"?["Carrera exprés","Se termina al colgar los botines","Seis minutos y el veredicto"]
+    led(MODO_LARGO==="express"?["Carrera exprés","Se termina al colgar los botines","Menos fechas y el grupo resumido"]
       :["Carrera completa","Jugador, técnico y presidencia","La estatua está al final"]);};});
 
   /* semilla */
