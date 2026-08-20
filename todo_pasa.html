@@ -198,6 +198,18 @@
   color:#F5C542;background:#1a1509;border:1px solid #3a2f18;border-radius:999px;padding:2px 7px}
 .opt.singuts{opacity:.5}
 .opt.singuts .cost{color:#FF8A9B;border-color:#5a2030}
+/* La pantalla del partido: canvas de 256x144 escalado sin suavizar */
+.tsuwrap{position:relative;margin:0 0 10px;border:2px solid #0b1018;border-radius:10px;
+  overflow:hidden;background:#080b12;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+canvas.tsucv{display:block;width:100%;height:auto;image-rendering:crisp-edges;
+  image-rendering:pixelated;cursor:pointer;touch-action:manipulation}
+.tsubar{display:flex;justify-content:space-between;align-items:center;margin:-6px 0 9px}
+.tsuhint{font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--dim);opacity:.7}
+.minib{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:#F5C542;
+  background:#1a1509;border:1px solid #3a2f18;border-radius:999px;padding:3px 9px;cursor:pointer}
+.minib:active{transform:scale(.95)}
+.card.duelo #du-txt{min-height:78px}
+.card.duelo #du-txt h4{margin:0 0 4px}
 
 /* ══════ v12 · JUGO: SACUDÓN, FUEGO, RELOJ AGÓNICO, CLIMA, VAR ═════ */
 @keyframes sacudon{0%,100%{transform:translate(0,0)}
@@ -7773,7 +7785,7 @@ function munKO(){
     comp:_mun.ko>=MUNDIAL_KO.length-1?"final":"inter",
     rival:{n:_mun.riv,lv:dur},mundial:true,peso:3};
   duelIniciar(m,null,{
-    loc:yo,vis:riv,total:_mun.ko>=2?6:4,
+    loc:yo,vis:riv,total:_mun.ko>=2?9:7,
     est:{n:rnd(ESTADIOS_MUNDIAL),t:[yo.c[0],yo.c[1]],alto:1},
     riv:{n:_mun.riv,fis:clamp(dur+ri(-5,5),50,97),
          tec:clamp(dur+ri(-5,5),50,97),car:clamp(dur+ri(-5,5),50,97)},
@@ -8935,9 +8947,12 @@ function retoDelDia(){
   const rs=records().filter(r=>r.seed===sd);
   if(rs.length)toastTxt("Tu mejor puntaje de hoy: "+rs[0].pts);
 }
-/* ══════ v14 · MODO DUELO ESTILO TSUBASA ════════════════════════════
-   Sólo en los partidos grandes: Mundial y de semifinal para adelante.
-   Barra de Guts, duelos uno contra uno y cartas de ataque y defensa.  */
+/* ══════ v15 · MOTOR TSUBASA · TODO DIBUJADO Y TODO ANIMADO ═════════
+   Los partidos grandes no se leen: se miran. Canvas de 256x144 píxeles
+   escalado sin suavizado, sprites hechos a mano con rectángulos, cámara
+   que sigue la pelota, tribuna que se mueve y una pantalla de remate
+   igual a la del cartucho, pero con la Bombonera atrás y en criollo.
+   Cero imágenes, cero librerías, cero archivos externos.            */
 function esPartidoGrande(m){
   if(!m)return false;
   if(m.mundial)return true;                              /* todo el Mundial */
@@ -8946,188 +8961,829 @@ function esPartidoGrande(m){
   if(m.cup==="pliga"&&(m.kfase||0)>=1)return true;       /* semi y final del playoff */
   return false;
 }
-/* Tiros y jugadas especiales del potrero, no de Japón */
+
+/* ── 1 · PALETA Y FUENTE DE PÍXELES ─────────────────────────────── */
+const SKY=24,TRIBA=24,PISO=48;
+const PAL={cielo:"#5C94FC",cielo2:"#9CD0FC",nube:"#FCFCFC",
+  pasto:"#00A844",pasto2:"#009038",pastoOsc:"#00702C",
+  linea:"#FCFCFC",tribOsc:"#181828",trib:"#242438",
+  piel:"#FCBC90",piel2:"#C88458",pelo:"#241808",neg:"#101018",
+  red:"#D8D8E8",amar:"#FCD800",naranja:"#FC7460",rojo:"#E82020",
+  sombra:"rgba(0,0,0,.30)",blanco:"#FCFCFC",gris:"#7C7C90"};
+/* Tipografía de 3x5 dibujada a mano: cada dígito es una fila de 3 bits */
+const FNT={" ":"00000","0":"75557","1":"26227","2":"61247","3":"61216","4":"55711",
+"5":"74616","6":"34652","7":"71222","8":"25252","9":"25316",
+"A":"25755","B":"65656","C":"34443","D":"65556","E":"74647","F":"74644","G":"34553",
+"H":"55755","I":"72227","J":"11152","K":"55655","L":"44447","M":"57755","N":"57775",
+"O":"25552","P":"65644","Q":"25573","R":"65655","S":"34216","T":"72222","U":"55557",
+"V":"55552","W":"55775","X":"55255","Y":"55222","Z":"71247",
+"!":"22202","¡":"20222","·":"00200","-":"00700",":":"02020","'":"22000","/":"11244",
+".":"00002",",":"00022","?":"61202","+":"02720","%":"50247"};
+function sinTilde(s){return (s||"").replace(/[ÁÀÄÂ]/g,"A").replace(/[ÉÈËÊ]/g,"E")
+  .replace(/[ÍÌÏÎ]/g,"I").replace(/[ÓÒÖÔ]/g,"O").replace(/[ÚÙÜÛ]/g,"U").replace(/Ñ/g,"N");}
+function anchoTxt(s,e){return sinTilde(s).length*4*(e||1)-(e||1);}
+function tsuTexto(s,x,y,e,col){
+  e=e||1;s=sinTilde(String(s).toUpperCase());
+  for(let i=0;i<s.length;i++){
+    const g=FNT[s[i]];if(!g){continue;}
+    for(let r=0;r<5;r++){const b=+g[r];
+      if(b&4)P(x+i*4*e,y+r*e,e,e,col);
+      if(b&2)P(x+i*4*e+e,y+r*e,e,e,col);
+      if(b&1)P(x+i*4*e+2*e,y+r*e,e,e,col);}
+  }
+}
+function tsuTextoC(s,y,e,col,sombra){
+  const x=Math.round((TSU.W-anchoTxt(s,e))/2);
+  if(sombra)tsuTexto(s,x+e,y+e,e,sombra);
+  tsuTexto(s,x,y,e,col);
+}
+
+/* ── 2 · EL MOTOR: un canvas, un reloj y una cola de escenas ─────── */
+const TSU={cv:null,g:null,W:224,H:132,veloc:1,raf:0,esc:null,cola:[],fin:null,
+  shake:0,flash:0,flashCol:"#FCFCFC",cam:0,vivo:false,mundo:520,skip:0};
+function P(x,y,w,h,c){const g=TSU.g;if(!g)return;g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
+function tsuArranca(){
+  const cv=document.getElementById("tsucv");
+  if(!cv)return false;
+  TSU.cv=cv;TSU.g=cv.getContext("2d");TSU.g.imageSmoothingEnabled=false;
+  TSU.vivo=true;TSU.cola=[];TSU.esc=null;TSU.shake=0;TSU.flash=0;
+  cv.onclick=()=>{TSU.skip=1;};
+  cancelAnimationFrame(TSU.raf);TSU.raf=requestAnimationFrame(tsuFrame);
+  return true;
+}
+function tsuPara(){TSU.vivo=false;cancelAnimationFrame(TSU.raf);TSU.esc=null;TSU.cola=[];}
+function tsuFrame(now){
+  if(!TSU.vivo)return;
+  /* si la ficha tapa la pantalla el partido se pausa, no se muere */
+  const cv=document.getElementById("tsucv");
+  if(!cv){
+    TSU.faltas=(TSU.faltas||0)+1;
+    if(!TSU.pausa)TSU.pausa=now;
+    if(TSU.faltas>900){TSU.vivo=false;return;}
+    TSU.raf=requestAnimationFrame(tsuFrame);return;
+  }
+  if(cv!==TSU.cv){TSU.cv=cv;TSU.g=cv.getContext("2d");TSU.g.imageSmoothingEnabled=false;
+    cv.onclick=()=>{TSU.skip=1;};}
+  TSU.faltas=0;
+  const e=TSU.esc;
+  if(TSU.pausa){if(e&&e.t0)e.t0+=now-TSU.pausa;TSU.pausa=0;}
+  if(e){
+    if(!e.t0)e.t0=now;
+    let t=(now-e.t0)/(e.dur*(TSU.veloc||1));
+    if(TSU.skip&&!e.loop){TSU.skip=0;t=1;}
+    if(e.loop)t=(t%1);else if(t>1)t=1;
+    TSU.g.save();
+    if(TSU.shake>0){TSU.g.translate((azar()*2-1)*TSU.shake,(azar()*2-1)*TSU.shake);TSU.shake-=0.35;}
+    e.draw(t,now);
+    TSU.g.restore();
+    if(TSU.flash>0){TSU.g.globalAlpha=Math.min(1,TSU.flash);P(0,0,TSU.W,TSU.H,TSU.flashCol);
+      TSU.g.globalAlpha=1;TSU.flash-=0.09;}
+    if(!e.loop&&t>=1){TSU.esc=null;const f=e.fin;if(f)f();else tsuSigue();}
+  }
+  TSU.raf=requestAnimationFrame(tsuFrame);
+}
+function tsuEscena(e,fin){
+  e.t0=0;e.fin=fin||e.fin;
+  /* sin lienzo la jugada se resuelve igual: el partido nunca se traba */
+  if(!TSU.vivo)return void setTimeout(()=>{const f=e.fin;if(f)f();else tsuSigue();},140);
+  TSU.esc=e;TSU.skip=0;
+}
+function tsuSigue(){if(TSU.cola.length)tsuEscena(TSU.cola.shift());else if(TSU.fin){const f=TSU.fin;TSU.fin=null;f();}}
+function tsuCola(lista,fin){TSU.cola=lista.slice();TSU.fin=fin;tsuSigue();}
+function chispazo(c,f){TSU.flashCol=c||"#FCFCFC";TSU.flash=f||1;}
+function temblor(n){TSU.shake=n||4;}
+
+/* ── 3 · SPRITES: gente de píxeles hecha con rectángulos ─────────── */
+/* Un jugador entra en 14 de ancho por 21 de alto. Cabeza, camiseta con
+   el patrón real del club, short, piernas que corren y sombra abajo.  */
+function dibJugador(x,y,kit,pose,f,dir,esc,sinSombra){
+  const s=esc||1, g=TSU.g;
+  const A=kit.c[0],B=kit.c[1],pa=kit.pa||"solido";
+  const sh=lum(A)>0.6?"#1C1C2C":"#F0F0F8";
+  const d=dir<0?-1:1;
+  g.save();g.translate(Math.round(x),Math.round(y));g.scale(d*s,s);
+  const R=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(a,b,w,h);};
+  const tumbado=(pose==="barrida"||pose==="caido");
+  if(!sinSombra&&pose!=="salta"&&pose!=="vuela"){
+    g.fillStyle=PAL.sombra;g.fillRect(2,26,13,2);}
+  let cab=0,tor=9;
+  if(tumbado){cab=11;tor=15;}
+  else if(pose==="salta"){cab=-3;tor=6;}
+  /* ── piernas ── */
+  const pie=(ax,ay,w,h)=>R(ax,ay,w,h,PAL.piel);
+  const bota=(ax,ay,w)=>R(ax,ay,w||5,2,PAL.neg);
+  if(tumbado){
+    pie(9,20,8,3);bota(16,20,4);
+    pie(8,23,6,2);bota(13,23,4);
+  }else if(pose==="patea"){
+    pie(4,22,3,5);bota(3,26);
+    pie(10,18,6,3);bota(15,17,4);
+  }else if(pose==="salta"){
+    pie(4,20,3,5);bota(3,24);
+    pie(9,20,3,4);bota(9,23);
+  }else if(pose==="corre"){
+    const k=f&3;
+    if(k===0){pie(3,22,3,5);bota(2,26);pie(10,22,3,5);bota(10,26);}
+    else if(k===1){pie(5,22,3,5);bota(4,26);pie(9,20,5,3);bota(12,22,4);}
+    else if(k===2){pie(6,22,3,5);bota(5,26);pie(8,22,3,5);bota(8,26);}
+    else{pie(2,20,5,3);bota(1,22,4);pie(9,22,3,5);bota(9,26);}
+  }else{pie(5,22,3,5);bota(4,26);pie(9,22,3,5);bota(9,26);}
+  /* ── short ── */
+  R(3,tor+9,10,3,sh);
+  R(7,tor+9,2,3,lum(sh)>0.6?"#C8C8D8":"#2A2A3E");
+  /* ── camiseta ── */
+  R(3,tor,10,10,A);
+  if(pa==="franjas"){R(5,tor,2,10,B);R(9,tor,2,10,B);}
+  else if(pa==="aros"){R(3,tor+2,10,2,B);R(3,tor+6,10,2,B);}
+  else if(pa==="banda"){R(3,tor+6,4,2,B);R(6,tor+4,4,2,B);R(9,tor+1,4,3,B);}
+  else if(pa==="mitades"){R(8,tor,5,10,B);}
+  R(3,tor,10,1,lum(A)>0.6?"rgba(0,0,0,.22)":"rgba(255,255,255,.22)");
+  /* ── brazos ── */
+  const br=(ax,ay,h)=>{R(ax,ay,3,h,A);R(ax,ay+h,3,2,PAL.piel);};
+  if(pose==="salta"||pose==="vuela"){br(0,tor-4,5);br(13,tor-4,5);}
+  else if(pose==="patea"){br(0,tor+1,5);br(13,tor-1,4);}
+  else if(tumbado){br(1,tor-3,5);br(13,tor+1,4);}
+  else if(pose==="corre"){const k=f&3;
+    if(k===1||k===2){br(0,tor,6);br(13,tor+3,5);}else{br(0,tor+3,5);br(13,tor,6);}}
+  else{br(0,tor+2,6);br(13,tor+2,6);}
+  /* ── cabeza ── */
+  R(4,cab,9,4,PAL.pelo);
+  R(5,cab+3,7,5,PAL.piel);
+  R(4,cab+3,3,3,PAL.pelo);
+  R(12,cab+3,1,4,PAL.pelo);
+  R(10,cab+5,1,2,PAL.neg);
+  R(5,cab+7,7,1,PAL.piel2);
+  R(7,cab+8,3,1,PAL.piel2);
+  g.restore();
+}
+/* El arquero es igual pero de amarillo, con guantes y en vuelo se tumba */
+function dibArquero(x,y,pose,f,dir,esc){
+  const kit={c:["#F2C500","#1A1A28"],pa:"solido"};
+  const s=esc||1,g=TSU.g,vuela=(pose==="vuela");
+  g.save();
+  if(vuela){
+    g.translate(Math.round(x+8*s),Math.round(y+14*s));
+    g.rotate((dir<0?-1:1)*0.98);
+    g.translate(-8*s,-14*s);
+    dibJugador(0,0,kit,"salta",f,dir,s,1);
+    g.fillStyle="#FCFCFC";
+    g.fillRect((dir<0?-3:13)*s,1*s,5*s,4*s);
+  }else{
+    dibJugador(x,y,kit,"quieto",f,dir,s,1);
+    g.fillStyle="#FCFCFC";
+    g.fillRect(x-3*s,y+10*s,4*s,4*s);
+    g.fillRect(x+15*s,y+10*s,4*s,4*s);
+  }
+  g.restore();
+}
+function dibPelota(x,y,r){
+  const g=TSU.g;
+  r=Math.max(1,Math.round(r));
+  const cx=Math.round(x),cy=Math.round(y);
+  g.fillStyle=PAL.blanco;
+  for(let dy=-r;dy<=r;dy++){
+    const w=Math.round(Math.sqrt(Math.max(0,r*r-dy*dy)));
+    if(w>0)g.fillRect(cx-w,cy+dy,w*2,1);
+  }
+  g.fillStyle=PAL.neg;
+  if(r>=2)g.fillRect(cx-1,cy-1,2,2);
+  if(r>=4){g.fillRect(cx-r+1,cy+1,2,2);g.fillRect(cx+r-3,cy-2,2,2);}
+  if(r>=6){g.fillRect(cx-1,cy-r+1,2,2);g.fillRect(cx-1,cy+r-3,2,2);}
+}
+function estelaPelota(x,y,r,dx,dy,n){
+  const g=TSU.g;
+  for(let i=n;i>0;i--){
+    g.globalAlpha=0.16*i/n;
+    dibPelota(x-dx*i*0.5,y-dy*i*0.5,Math.max(1,r-i*0.5));
+  }
+  g.globalAlpha=1;
+}
+
+/* ── 4 · EL ESCENARIO: cielo, tribuna que se mueve y cancha ──────── */
+function dibCielo(now,est){
+  const g=TSU.g;
+  const gr=g.createLinearGradient(0,0,0,SKY);
+  gr.addColorStop(0,PAL.cielo);gr.addColorStop(1,PAL.cielo2);
+  g.fillStyle=gr;g.fillRect(0,0,TSU.W,SKY);
+  const nx=(now/70)%(TSU.W+60)-60;
+  P(nx,5,22,4,PAL.nube);P(nx+7,3,12,3,PAL.nube);
+  P(nx+64,11,16,3,PAL.nube);
+}
+function dibTribuna(now,est,y0,alto){
+  const A=est.t[0],B=est.t[1];
+  P(0,y0,TSU.W,alto,PAL.tribOsc);
+  const filas=Math.floor(alto/4);
+  const on=Math.floor(now/110);
+  for(let f=0;f<filas;f++){
+    const yy=y0+f*4;
+    for(let i=0;i<TSU.W/4+1;i++){
+      const k=(i+f*3);
+      let c=(k%3===0)?B:(k%2?A:PAL.trib);
+      /* la ola: cada tanto se levanta una franja de gente */
+      const salto=((k+on)%17===0)?-1:0;
+      P(i*4,yy+salto,3,3,c);
+    }
+  }
+  P(0,y0+alto-2,TSU.W,2,"#0C0C14");   /* baranda */
+}
+/* La cancha se dibuja en coordenadas de mundo y la cámara la recorre */
+function mx(wx){return wx-TSU.cam;}
+function dibCancha(now,est,cam){
+  const W=TSU.W,H=TSU.H,MU=TSU.mundo;
+  dibCielo(now,est);
+  dibTribuna(now,est,SKY,TRIBA);
+  /* pasto en franjas verticales que se mueven con la cámara */
+  P(0,PISO,W,H-PISO,PAL.pasto);
+  for(let i=0;i<MU/16+2;i++){
+    const x=mx(i*16);
+    if(x>-16&&x<W)P(x,PISO,8,H-PISO,PAL.pasto2);
+  }
+  P(0,PISO,W,2,PAL.pastoOsc);
+  const g=TSU.g;
+  const L=(x,y,w,h)=>{const xx=mx(x);if(xx>-w-4&&xx<W+4)P(xx,y,w,h,PAL.linea);};
+  /* líneas: laterales, mitad, círculo central y áreas */
+  L(6,PISO+4,MU-12,2);L(6,H-18,MU-12,2);
+  L(6,PISO+4,2,H-PISO-22);L(MU-8,PISO+4,2,H-PISO-22);
+  L(MU/2-1,PISO+4,2,H-PISO-22);
+  g.strokeStyle=PAL.linea;g.lineWidth=2;
+  g.beginPath();g.arc(mx(MU/2),(PISO+4+H-18)/2,18,0,6.284);g.stroke();
+  [[6,1],[MU-8,-1]].forEach(a=>{
+    const bx=a[0],d=a[1];
+    L(bx+(d>0?0:-52),PISO+12,2,H-PISO-38);
+    L(bx+(d>0?0:-52),PISO+12,52,2);
+    L(bx+(d>0?0:-52),H-26,52,2);
+  });
+  /* los dos arcos, de perfil, con red de cuadrícula */
+  dibArco(6,1);dibArco(MU-8,-1);
+}
+function dibArco(wx,d){
+  const x=mx(wx),H=TSU.H;
+  if(x<-40||x>TSU.W+40)return;
+  const g=TSU.g;
+  const y0=PISO+14,y1=H-30;
+  P(x,y0,2,y1-y0,PAL.blanco);
+  P(x-(d>0?14:0),y0,14,2,PAL.blanco);
+  P(x-(d>0?14:0),y1,14,2,PAL.blanco);
+  P(x-(d>0?14:-12),y0,2,y1-y0,PAL.blanco);
+  g.globalAlpha=.5;g.fillStyle=PAL.red;
+  for(let i=1;i<7;i++)g.fillRect(x-(d>0?i*2:-i*2),y0,1,y1-y0);
+  for(let j=y0+4;j<y1;j+=4)g.fillRect(x-(d>0?13:0),j,13,1);
+  g.globalAlpha=1;
+}
+/* El pasto de la cancha en coordenadas de partido: 0 es tu arco, 100 el de ellos */
+function wxDe(pos){return 20+(pos/100)*(TSU.mundo-40);}
+function camA(wx,suave){
+  const meta=clamp(wx-TSU.W/2,0,TSU.mundo-TSU.W);
+  TSU.cam=suave?TSU.cam+(meta-TSU.cam)*0.18:meta;
+}
+
+/* ── 5 · EL HUD DIBUJADO: marcador y reloj en píxeles ────────────── */
+function dibHud(D){
+  const g=TSU.g,W=TSU.W;
+  P(0,0,W,13,"#080A12");P(0,13,W,1,"#1C2030");
+  tsuTexto(D.loc.i||"LOC",4,4,1,PAL.blanco);
+  const marc=D.gol+"-"+D.golRival;
+  tsuTexto(marc,Math.round(W/2-anchoTxt(marc,1)/2),4,1,PAL.amar);
+  const iv=D.vis.i||"VIS";
+  tsuTexto(iv,W-6-anchoTxt(iv,1),4,1,PAL.blanco);
+  const mn=D.min+"'";
+  tsuTexto(mn,Math.round(W/2+18),4,1,PAL.gris);
+  /* Guts: barra abajo con fondo propio, siempre legible */
+  P(0,TSU.H-12,W,12,"#080A12");P(0,TSU.H-13,W,1,"#1C2030");
+  tsuTexto("GUTS",4,TSU.H-8,1,PAL.amar);
+  const pc=clamp(D.guts/D.gmax,0,1), an=W-48;
+  P(24,TSU.H-9,an,6,"#1A1A26");
+  P(25,TSU.H-8,(an-2)*pc,4,pc>.55?"#3DDC97":pc>.25?"#F9D423":"#FF2D55");
+  const gn=Math.round(D.guts)+"";
+  tsuTexto(gn,W-8-anchoTxt(gn,1),TSU.H-8,1,PAL.blanco);
+}
+/* ── 6 · ESCENAS ────────────────────────────────────────────────── */
+/* 6a · Salida al campo: la cámara pasea por el estadio */
+function escPresentacion(D){
+  return {dur:2800,draw:(t,now)=>{
+    TSU.cam=(TSU.mundo-TSU.W)*ease(t);
+    dibCancha(now,D.est,TSU.cam);
+    const f=Math.floor(now/110);
+    for(let i=0;i<7;i++)dibJugador(mx(54+i*56),52+((i*37)%36),D.loc,"corre",f+i,1);
+    for(let i=0;i<7;i++)dibJugador(mx(84+i*54),56+((i*41)%34),D.vis,"corre",f+i*2,-1);
+    const a=t<.14?t/.14:t>.88?(1-t)/.12:1;
+    TSU.g.globalAlpha=Math.max(0,a);
+    P(0,50,TSU.W,34,"rgba(8,10,18,.80)");
+    tsuTextoC(D.est.n,55,2,PAL.amar,"#7A5C00");
+    tsuTextoC(D.loc.n+" - "+D.vis.n,70,1,PAL.blanco);
+    TSU.g.globalAlpha=1;
+  }};
+}
+/* 6b · Avance: corrés con la pelota y la cámara te sigue */
+function escAvance(D,desde,hasta,mio){
+  const dir=mio?1:-1;
+  return {dur:1250,draw:(t,now)=>{
+    const wx=wxDe(desde+(hasta-desde)*ease(t));
+    camA(wx,false);
+    dibCancha(now,D.est,TSU.cam);
+    const f=Math.floor(now/70), yy=70;
+    const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
+    dibJugador(mx(wx-56*dir),52,kit,"corre",f+1,dir);
+    dibJugador(mx(wx-34*dir),86,kit,"corre",f+3,dir);
+    dibJugador(mx(wx+60*dir),56,kit2,"corre",f+2,-dir);
+    dibJugador(mx(wx+88*dir),84,kit2,"corre",f,-dir);
+    dibJugador(mx(wx),yy,kit,"corre",f,dir);
+    dibPelota(mx(wx)+(dir>0?19:-3),yy+24+Math.abs(Math.sin(now/85))*3,3);
+    dibHud(D);
+  }};
+}
+/* 6c · El cruce cara a cara, con líneas de velocidad y el VS del medio */
+function escCutIn(D,mio,titulo){
+  const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
+  return {dur:1250,draw:(t,now)=>{
+    const g=TSU.g,W=TSU.W,H=TSU.H;
+    const fondo=g.createLinearGradient(0,0,0,H);
+    fondo.addColorStop(0,mio?"#14224A":"#3A1020");
+    fondo.addColorStop(1,"#080A12");
+    g.fillStyle=fondo;g.fillRect(0,0,W,H);
+    g.save();g.translate(W/2,H/2);
+    for(let i=0;i<30;i++){
+      const a=i*0.2094+now/500;
+      const l=52+((i*41+now/5)%130);
+      g.strokeStyle=i%3?"rgba(255,255,255,.13)":"rgba(252,216,0,.26)";
+      g.lineWidth=1+(i%3);
+      g.beginPath();g.moveTo(Math.cos(a)*14,Math.sin(a)*9);
+      g.lineTo(Math.cos(a)*l,Math.sin(a)*l*0.66);g.stroke();
+    }
+    g.restore();
+    const e=ease(Math.min(1,t*1.7));
+    const es=2.3, an=16*es;
+    const fA=24, fB=W-24-an;
+    const x1=-an-30+e*(fA+an+30), x2=W+30-e*(W+30-fB);
+    const yy=30;
+    g.fillStyle="rgba(0,0,0,.35)";
+    g.beginPath();g.ellipse(x1+18,yy+66,22,5,0,0,6.284);g.fill();
+    g.beginPath();g.ellipse(x2+18,yy+66,22,5,0,0,6.284);g.fill();
+    dibJugador(x1,yy,kit,"quieto",Math.floor(now/170),1,es,1);
+    dibJugador(x2,yy,kit2,"quieto",Math.floor(now/160),-1,es,1);
+    if(t>.5){
+      const bl=Math.floor(now/120)%2;
+      tsuTextoC("VS",H/2-8,3,bl?PAL.amar:PAL.naranja,"#7A5C00");
+      P(0,H-30,W,17,"rgba(8,10,18,.88)");
+      tsuTextoC(titulo,H-26,2,PAL.amar,"#7A5C00");
+      P(0,14,W,11,"rgba(8,10,18,.82)");
+      tsuTextoC(mio?(D.loc.n+" ATACA"):(D.vis.n+" AL ATAQUE"),17,1,PAL.blanco);
+    }
+    if(t>.47&&t<.53)chispazo("#FCFCFC",.55);
+  }};
+}
+/* 6d · Espera con el menú abierto: los dos se miden y la flecha late */
+function escEspera(D,mio){
+  const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
+  return {dur:1400,loop:true,draw:(t,now)=>{
+    const wx=wxDe(D.pos);camA(wx,true);
+    dibCancha(now,D.est,TSU.cam);
+    const f=Math.floor(now/230), dir=mio?1:-1;
+    dibJugador(mx(wx)+(mio?34:-34),66,kit2,"quieto",f+1,-dir);
+    dibJugador(mx(wx),72,kit,"quieto",f,dir);
+    dibPelota(mx(wx)+(dir>0?19:-3),97+Math.sin(now/230)*1.5,3);
+    const s=Math.sin(now/170)>0?0:1;
+    P(mx(wx)+4,56+s,8,2,PAL.amar);P(mx(wx)+5,58+s,6,2,PAL.amar);
+    P(mx(wx)+6,60+s,4,2,PAL.amar);P(mx(wx)+7,62+s,2,2,PAL.amar);
+    dibHud(D);
+  }};
+}
+/* 6e · Resolución del duelo de campo: gambeta, barrida, caño */
+function escDuelo(D,mio,ok,esp){
+  const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
+  const dir=mio?1:-1, gana=mio?ok:!ok;
+  return {dur:1600,draw:(t,now)=>{
+    const wx=wxDe(D.pos);camA(wx,true);
+    dibCancha(now,D.est,TSU.cam);
+    const f=Math.floor(now/60);
+    const av=t<.45?0:(t-.45)/.55;
+    let xA=mx(wx), xB=mx(wx)+34*dir;
+    if(gana===mio)xA+=av*52*dir; else xB-=av*44*dir;
+    const perdiVos=(mio&&!ok)||(!mio&&!ok);
+    const poseA=perdiVos?(t>.5?"caido":"corre"):"corre";
+    const poseB=(gana===mio)?(t>.5?"barrida":"corre"):"corre";
+    if(t>.36&&t<.43){temblor(3);chispazo("#FCD800",.32);}
+    dibJugador(xB,poseB==="barrida"?78:66,kit2,poseB,f+2,-dir);
+    dibJugador(xA,poseA==="caido"?80:72,kit,poseA,f,dir);
+    const bx=(gana===mio?xA:xB)+(dir>0?19:-3);
+    dibPelota(bx,96+Math.abs(Math.sin(now/70))*4,3);
+    if(t>.43&&esp){
+      TSU.g.globalAlpha=Math.max(0,1-(t-.43)*1.8);
+      P(0,44,TSU.W,16,"rgba(8,10,18,.78)");
+      tsuTextoC(esp,47,2,PAL.amar,"#7A5C00");TSU.g.globalAlpha=1;
+    }
+    dibHud(D);
+  }};
+}
+/* 6f · EL REMATE · el arco de frente, el arquero volando y la pelota que crece */
+function escRemate(D,ok,nombre,mio){
+  const kitT=mio?D.loc:D.vis, est=D.est;
+  return {dur:2700,draw:(t,now)=>{
+    const g=TSU.g,W=TSU.W,H=TSU.H;
+    /* tribuna de fondo, bien alta, como cuando la cámara se pone atrás del arco */
+    P(0,0,W,42,PAL.tribOsc);
+    for(let f=0;f<10;f++)for(let i=0;i<W/4+1;i++){
+      const k=i+f*3,on=Math.floor(now/90);
+      P(i*4,f*4+((((k+on)%13)===0)?-1:0),3,3,(k%3===0)?est.t[1]:(k%2?est.t[0]:PAL.trib));
+    }
+    P(0,40,W,4,"#0C0C14");
+    P(0,44,W,H-44,PAL.pasto);
+    for(let i=0;i<9;i++)P(i*28,44,14,H-44,PAL.pasto2);
+    P(0,44,W,2,PAL.pastoOsc);
+    /* el arco, creciendo mientras la pelota viaja */
+    const z=0.6+ease(Math.min(1,t*1.3))*0.4;
+    const aw=Math.round(150*z), ah=Math.round(60*z);
+    const ax=Math.round(W/2-aw/2), ay=Math.round(52-ah*0.12);
+    g.globalAlpha=.5;g.fillStyle=PAL.red;
+    for(let i=0;i<=12;i++)g.fillRect(ax+Math.round(i*aw/12),ay,1,ah);
+    for(let j=0;j<=6;j++)g.fillRect(ax,ay+Math.round(j*ah/6),aw,1);
+    g.globalAlpha=1;
+    P(ax-3,ay-3,3,ah+6,PAL.blanco);P(ax+aw,ay-3,3,ah+6,PAL.blanco);
+    P(ax-3,ay-3,aw+6,3,PAL.blanco);
+    /* el arquero: parado, después el vuelo */
+    const lado=(D.ladoTiro||1);
+    const tv=clamp((t-.30)/.38,0,1);
+    const ez=1.25*z;
+    const kx=ax+aw/2-8*ez+(ok?-lado*10:lado*(26+34*tv))*z;
+    const ky=ay+ah-30*ez-(ok?0:14*tv*z);
+    dibArquero(kx,ky,tv>.12?"vuela":"quieto",Math.floor(now/90),lado>0?1:-1,ez);
+    /* el que remata, de espaldas, abajo */
+    if(t<.44)dibJugador(W/2-14,H-38,kitT,t<.20?"corre":"patea",Math.floor(now/60),1,1.8,0);
+    /* la pelota: chica abajo, grande arriba */
+    const bt=clamp((t-.16)/.52,0,1), be=bt*bt;
+    const bx0=W/2, by0=H-22;
+    const bx1=ax+aw/2+lado*(ok?aw*0.34:aw*0.30);
+    const by1=ay+ah*(ok?0.26:0.44);
+    const bx=bx0+(bx1-bx0)*be, by=by0+(by1-by0)*be, br=2+be*7;
+    if(bt>0&&bt<1){
+      g.strokeStyle="rgba(252,216,0,.45)";g.lineWidth=1;
+      for(let i=0;i<5;i++){g.beginPath();
+        g.moveTo(bx0+(i-2)*8,by0);g.lineTo(bx+(i-2)*3,by+br);g.stroke();}
+      estelaPelota(bx,by,br,(bx1-bx0)/40,(by1-by0)/40,5);
+    }
+    if(bt>=1&&!ok){
+      const rt=clamp((t-.68)/.32,0,1);
+      dibPelota(bx+lado*rt*80,by-rt*44+rt*rt*34,Math.max(2,7-rt*4));
+    }else if(bt>0)dibPelota(bx,by,br);
+    if(t>.64&&t<.70){temblor(6);chispazo(ok?"#FCFCFC":"#5C94FC",.85);}
+    if(t<.34){P(0,15,W,18,"rgba(6,8,14,.92)");P(0,32,W,1,PAL.amar);
+      tsuTextoC(nombre,19,2,PAL.amar,"#7A5C00");}
+    if(t>.70){
+      /* el cartel va abajo: la jugada no se tapa nunca */
+      const bl=Math.floor(now/110)%2, txt=ok?"¡¡GOL!!":"¡LA SACO!";
+      const an=anchoTxt(txt,3)+16, bx2=Math.round((W-an)/2);
+      P(bx2,H-36,an,22,"rgba(6,8,14,.93)");
+      P(bx2,H-37,an,1,ok?PAL.amar:PAL.naranja);
+      P(bx2,H-15,an,1,ok?PAL.amar:PAL.naranja);
+      tsuTextoC(txt,H-31,3,ok?(bl?PAL.amar:PAL.blanco):PAL.naranja,"#7A5C00");
+    }
+    dibHud(D);
+  }};
+}
+/* 6g · Gol: papelitos, la tribuna encendida y el equipo corriendo */
+function escFestejo(D,mio){
+  const kit=mio?D.loc:D.vis;
+  return {dur:2300,draw:(t,now)=>{
+    camA(wxDe(mio?92:8),false);
+    dibCancha(now,D.est,TSU.cam);
+    const f=Math.floor(now/80);
+    for(let i=0;i<5;i++)
+      dibJugador(mx(wxDe(mio?92:8)-46+i*24),56+((i*29)%32),kit,i===2?"salta":"corre",f+i,mio?1:-1);
+    for(let i=0;i<46;i++){
+      const px=(i*53+now/6)%TSU.W, py=((i*91)+now/3.2)%(TSU.H-46)+22;
+      P(px,py,2,3,[PAL.amar,PAL.blanco,PAL.naranja,"#3DDC97"][i%4]);
+    }
+    const bl=Math.floor(now/130)%2;
+    P(0,15,TSU.W,24,"rgba(6,8,14,.90)");P(0,39,TSU.W,1,mio?PAL.amar:PAL.naranja);
+    tsuTextoC(mio?"¡¡GOL!!":"GOL DE ELLOS",20,3,
+      mio?(bl?PAL.amar:PAL.blanco):PAL.naranja,"#7A5C00");
+    dibHud(D);
+  }};
+}
+/* 6h · Pitazo final */
+function escFinal(D,res){
+  return {dur:2600,draw:(t,now)=>{
+    TSU.cam=(TSU.mundo-TSU.W)*(0.5+0.42*Math.sin(now/2400));
+    dibCancha(now,D.est,TSU.cam);
+    const f=Math.floor(now/130);
+    const kit=res==="perdio"?D.vis:D.loc;
+    for(let i=0;i<6;i++)
+      dibJugador(mx(50+i*60),54+((i*33)%34),kit,res==="empate"?"quieto":"salta",f+i,1);
+    if(res!=="perdio")for(let i=0;i<40;i++){
+      const px=(i*61+now/7)%TSU.W, py=((i*83)+now/3.6)%(TSU.H-46)+22;
+      P(px,py,2,3,[PAL.amar,PAL.blanco,"#3DDC97"][i%3]);
+    }
+    P(0,15,TSU.W,38,"rgba(6,8,14,.90)");P(0,53,TSU.W,1,PAL.amar);
+    tsuTextoC(res==="gano"?"GANAMOS":res==="perdio"?"PERDIMOS":"EMPATE",19,3,
+      res==="gano"?PAL.amar:res==="perdio"?PAL.naranja:PAL.blanco,"#7A5C00");
+    tsuTextoC(D.gol+" - "+D.golRival,39,2,PAL.blanco);
+  }};
+}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+/* ── 7 · LAS CARTAS · lo que se puede hacer con la pelota ────────── */
+/* Armado de jugada: sirven para llegar hasta el área de ellos */
 const CARTAS_ATAQUE=[
  {id:"gambeta",n:"Gambeta corta",d:"Sacártelo de encima",st:"tec",g:14,base:54},
+ {id:"pared",n:"Pared con {COMPA}",d:"Dos toques y adentro",st:"tec",g:16,base:58},
  {id:"filtrado",n:"Pase filtrado",d:"Romper la línea",st:"tec",g:16,base:50},
- {id:"pared",n:"Pared con {COMPA}",d:"Dos toques y adentro",st:"tec",g:18,base:56},
- {id:"caño",n:"Caño y salir jugando",d:"Humillación fina",st:"tec",g:20,base:42},
- {id:"bombazo",n:"Bombazo de Fiorito",d:"Tiro especial",st:"fis",g:34,base:38,esp:1},
- {id:"rosca",n:"Rosca al segundo palo",d:"Tiro especial",st:"tec",g:30,base:41,esp:1},
- {id:"palomita",n:"Palomita en el área",d:"Meter la cabeza",st:"fis",g:22,base:48},
- {id:"pique",n:"Pique largo por afuera",d:"Ganarle la espalda",st:"fis",g:20,base:52}
+ {id:"cano",n:"Caño y a correr",d:"Humillación fina",st:"tec",g:20,base:42,esp:"¡CAÑO!"},
+ {id:"pique",n:"Pique largo por afuera",d:"Ganarle la espalda",st:"fis",g:18,base:52},
+ {id:"sombrero",n:"Sombrero y de frente",d:"Riesgo puro",st:"tec",g:22,base:40,esp:"¡SOMBRERO!"},
+ {id:"aguante",n:"Aguantarla de espaldas",d:"Esperar la ayuda",st:"fis",g:12,base:60}
 ];
+/* Definición: sólo aparecen cuando estás metido en el área */
+const CARTAS_TIRO=[
+ {id:"bombazo",n:"Bombazo de Fiorito",d:"Tiro especial",st:"fis",g:32,base:49,esp:"¡BOMBAZO DE FIORITO!"},
+ {id:"rosca",n:"Rosca al segundo palo",d:"Tiro especial",st:"tec",g:28,base:53,esp:"¡ROSCA AL SEGUNDO PALO!"},
+ {id:"tijera",n:"Tijera de espaldas",d:"Tiro especial",st:"fis",g:34,base:43,esp:"¡TIJERA!"},
+ {id:"palomita",n:"Palomita en el área",d:"Meter la cabeza",st:"fis",g:20,base:59},
+ {id:"vaselina",n:"Vaselina sobre el arquero",d:"Fina y cruel",st:"tec",g:24,base:53},
+ {id:"cruzado",n:"Zurdazo cruzado abajo",d:"Al palo de la mano",st:"tec",g:18,base:63}
+];
+/* Marca: para cortarles el avance en mitad de cancha */
 const CARTAS_DEFENSA=[
  {id:"barrida",n:"Barrida a fondo",d:"Todo o nada",st:"fis",g:22,base:50},
  {id:"bloqueo",n:"Bloqueo con el cuerpo",d:"Poner la pierna",st:"fis",g:16,base:56},
  {id:"achique",n:"Achicar el espacio",d:"Cerrarle el camino",st:"car",g:12,base:58},
- {id:"intercepcion",n:"Anticipar el pase",d:"Leerle la jugada",st:"tec",g:18,base:48},
+ {id:"anticipo",n:"Anticipar el pase",d:"Leerle la jugada",st:"tec",g:18,base:48},
  {id:"marca",n:"Marca personal",d:"No despegarte",st:"car",g:14,base:54},
- {id:"falta",n:"Falta táctica",d:"Cortar como sea",st:"car",g:10,base:62}
+ {id:"tactica",n:"Falta táctica",d:"Cortar como sea",st:"car",g:10,base:62}
 ];
-let _du=null;
-function gutsBarra(){
-  const g=_du?_du.guts:100, mx=(_du&&_du.gmax)||100;
-  const pct=clamp(g/mx*100,0,100);
-  const cls=pct<=25?"bajo":pct<=55?"medio":"";
-  return '<div class="guts"><span class="gl">GUTS</span>'
-    +'<div class="gbar"><div class="gfill '+cls+'" style="width:'+pct+'%"></div></div>'
-    +'<span class="gn">'+Math.round(g)+'/'+mx+'</span></div>';
-}
-/* El rival tiene números propios según el club y la instancia */
+/* Último hombre: te llegaron al área y sos lo único que queda */
+const CARTAS_ULTIMA=[
+ {id:"apies",n:"Tirarte a los pies",d:"Todo el cuerpo",st:"fis",g:20,base:52},
+ {id:"linea",n:"Barrer sobre la línea",d:"Último recurso",st:"fis",g:26,base:46},
+ {id:"angulo",n:"Achicarle el ángulo",d:"Cabeza fría",st:"car",g:14,base:56},
+ {id:"colgarte",n:"Colgarte del delantero",d:"Roja segura",st:"car",g:10,base:70,roja:1}
+];
+
+/* ── 8 · EL RIVAL Y LA CANCHA ────────────────────────────────────── */
 function rivalDelDuelo(m){
   const c=club(m.rival.n);
-  const base=c.lv||60;
+  const base=(m.rival&&m.rival.lv)||c.lv||60;
   const extra=(m.kfase||0)*2+(m.mundial?6:0);
   return {n:m.rival.n,
     fis:clamp(base+extra+ri(-6,6),35,97),
     tec:clamp(base+extra+ri(-6,6),35,97),
     car:clamp(base+extra+ri(-6,6),35,97)};
 }
-function duelIniciar(m,cb,op){
-  op=op||{};
-  const aguante=clamp(96+Math.round((p.stats.fis-55)*0.35),80,124);
-  _du={m:m,guts:aguante,gmax:aguante,turno:0,total:op.total||6,gol:0,golRival:0,cb:cb,
-       riv:op.riv||rivalDelDuelo(m),
-       est:op.est||(m.comp==="final"?estadioNeutral():estadioDe(p.club)),
-       loc:op.loc||club(p.club),vis:op.vis||club(m.rival.n),
-       inst:op.inst||m.fecha||"PARTIDO GRANDE",
-       eye:op.eye||"",cierre:op.cierre||null,hist:[]};
-  duelPresentacion();
-}
-/* Las finales no se juegan en tu cancha: se juegan en un neutral lleno */
 const NEUTRALES=["El Monumental","Estadio Centenario","Maracaná",
   "El Cilindro de Avellaneda","La Bombonera","El Kempes","El Nuevo Gasómetro"];
 function estadioNeutral(){
   const c=club(p.club);
   return {n:rnd(NEUTRALES),t:[c.c[0],c.c[1]],alto:1};
 }
-function duelPresentacion(){
+
+/* ── 9 · LA PANTALLA · el canvas arriba y las cartas abajo ───────── */
+let _du=null;
+function duelPantalla(){
   const D=_du;
-  let h='<div class="card"><div class="eyebrow"><span>'+(D.eye||D.inst)+'</span><em>'+p.anio+'</em></div>';
-  h+=escenarioHTML(D.loc,D.vis,D.est);
-  h+='<div class="duelo-h"><b>'+(D.eye?D.inst:(D.loc.n+' vs '+D.vis.n))+'</b>'
-    +'<em>'+(D.eye?(D.loc.n+' vs '+D.vis.n):(D.total+' duelos')) +'</em></div>';
-  h+='<h3>'+D.est.n.toUpperCase()+'</h3>';
-  h+='<p>Se juega en '+D.est.n+'. '+(D.total===6?"Seis":"Cuatro")+' duelos hasta el pitazo final. '
-    +'Cada carta te cuesta Guts: si te quedás en cero, no ganás una sola pelota. '
-    +'El que gana más duelos se lleva el partido.</p>';
-  h+=gutsBarra();
-  h+='<button class="cta" id="btn-seguir">Salir a la cancha</button></div>';
+  let h='<div class="card duelo">'
+    +'<div class="eyebrow"><span>'+(D.eye||D.inst)+'</span><em>'+(p.anio||"")+'</em></div>'
+    +'<div class="tsuwrap"><canvas id="tsucv" class="tsucv" width="224" height="132"></canvas>'
+    +'</div><div class="tsubar"><button id="du-vel" class="minib">'
+    +(p.duVel?'▶▶ RÁPIDO':'▶ NORMAL')+'</button>'
+    +'<span class="tsuhint">tocá la pantalla para adelantar la jugada</span></div>'
+    +'<div class="duelo-h"><b>'+D.inst+'</b><em>'+D.loc.n+' vs '+D.vis.n+'</em></div>'
+    +'<div id="du-txt" class="res"></div><div id="du-opts"></div></div>';
   const c=document.getElementById("cartas");c.dataset.ficha="0";c.innerHTML=h;
-  const b=document.getElementById("btn-seguir");if(b)b.onclick=()=>{silbato();duelTurno();};
+  TSU.veloc=p.duVel?0.4:1;
+  const bv=document.getElementById("du-vel");
+  if(bv)bv.onclick=()=>{p.duVel=!p.duVel;TSU.veloc=p.duVel?0.4:1;
+    bv.textContent=p.duVel?'▶▶ RÁPIDO':'▶ NORMAL';buzz(8);};
   c.scrollIntoView({behavior:"smooth",block:"end"});
 }
-function duelTurno(){
-  const D=_du;
-  if(D.turno>=D.total)return duelCierre();
-  if(D.turno)D.guts=clamp(D.guts+9,0,D.gmax);   /* aire entre jugada y jugada */
-  /* que el partido tenga ida y vuelta: alterna, con sesgo por jerarquía */
-  const sesgo=clamp(0.5+(p.ovr-D.riv.fis)/260,0.32,0.68);
-  const ataca=dado(D.turno%2===0?sesgo+0.18:sesgo-0.18);
-  D.ataca=ataca;
-  const mazo=baraja((ataca?CARTAS_ATAQUE:CARTAS_DEFENSA).slice()).slice(0,5);
-  D.mazo=mazo;
-  nuevosTokens();
-  const min=10+D.turno*14+ri(0,6);
-  let h='<div class="card"><div class="eyebrow"><span>'+D.inst+'</span>'
-    +'<em>'+(D.turno+1)+'/'+D.total+' · '+min+"'"+'</em></div>';
-  h+=escenarioHTML(D.loc,D.vis,D.est);
-  h+='<div class="mk">'+escudo(D.loc,18)+'<span class="sc">'+D.gol+'-'+D.golRival+'</span>'
-    +escudo(D.vis,18)+'<span>'+D.vis.n+'</span><span class="min">'+min+"'"+'</span></div>';
-  h+=gutsBarra();
-  h+='<div class="duelo-h"><b>'+(ataca?"⚡ Atacás vos":"🛡 Te vienen encima")+'</b>'
-    +'<em>'+D.riv.n+'</em></div>';
-  h+='<h3>'+(ataca?"LA TENÉS VOS Y TE SALEN A APRETAR":"VIENEN DE CONTRA Y SOS EL ÚLTIMO")+'</h3>';
-  h+='<p>'+(ataca
-    ?"Te quedaste con la pelota en tres cuartos. Enfrente hay uno de "+D.riv.n
-      +" que no te va a regalar nada."
-    :"Se les escapó la marca y el que viene lanzado es el peligro de "+D.riv.n
-      +". Si lo pasás, es gol.")+'</p>';
+function duelTexto(tit,txt,cls){
+  const e=document.getElementById("du-txt");if(!e)return;
+  e.innerHTML='<h4 class="'+(cls||"")+'">'+tit+'</h4><p>'+txt+'</p>';
+}
+function duelOpts(mazo,tipo){
+  let e=document.getElementById("du-opts");
+  if(!e&&_du){duelPantalla();e=document.getElementById("du-opts");}   /* se rearma solo */
+  if(!e)return;
+  if(!mazo||!mazo.length){e.innerHTML="";return;}
+  let h='';
   mazo.forEach((k,i)=>{
-    const puede=D.guts>=k.g;
+    const puede=_du.guts>=k.g;
     h+='<button class="opt'+(puede?"":" singuts")+'" id="d'+i+'">'
       +'<span class="n">0'+(i+1)+'</span>'
       +'<span class="t"><b>'+tokens(k.n)+'</b><small>'+k.d+'</small></span>'
       +'<span class="cost">'+k.g+' G</span></button>';
   });
-  h+='</div>';
-  const c=document.getElementById("cartas");c.dataset.ficha="0";c.innerHTML=h;
+  e.innerHTML=h;
   mazo.forEach((k,i)=>{const el=document.getElementById("d"+i);
-    if(el)el.onclick=()=>{buzz(12);sonTic();duelResolver(k);};});
-  c.scrollIntoView({behavior:"smooth",block:"end"});
+    if(el)el.onclick=()=>{buzz(12);sonTic();duelOpts([]);duelResolver(k,tipo);};});
 }
-function duelResolver(k){
+function duelBoton(txt,cb){
+  const e=document.getElementById("du-opts");if(!e)return;
+  e.innerHTML='<button class="cta" id="btn-seguir">'+txt+'</button>';
+  const b=document.getElementById("btn-seguir");if(b)b.onclick=cb;
+}
+
+/* ── 10 · EL PARTIDO ─────────────────────────────────────────────── */
+function duelIniciar(m,cb,op){
+  clearTimeout(tJug);clearInterval(_agT);   /* nada de relojes viejos encima */
+  op=op||{};
+  const aguante=clamp(104+Math.round((p.stats.fis-55)*0.40),88,132);
+  _du={m:m,cb:cb,cierre:op.cierre||null,
+    guts:aguante,gmax:aguante,turno:0,total:op.total||9,
+    gol:0,golRival:0,pos:50,mia:true,min:1,ladoTiro:1,hist:[],
+    riv:op.riv||rivalDelDuelo(m),
+    est:op.est||(m.comp==="final"?estadioNeutral():estadioDe(p.club)),
+    loc:op.loc||club(p.club),vis:op.vis||club(m.rival.n),
+    inst:op.inst||m.fecha||"PARTIDO GRANDE",eye:op.eye||""};
+  duelPantalla();
+  duelTexto("SALEN A LA CANCHA","Se juega en "+_du.est.n+". "
+    +"Cada carta te cuesta Guts: si te quedás en cero no ganás una pelota. "
+    +"Llegá al área y definí.");
+  if(!tsuArranca()){silbato();return duelTurno();}   /* sin canvas, se juega igual */
+  silbato();
+  tsuEscena(escPresentacion(_du),()=>duelTurno());
+}
+function duelTurno(){
   const D=_du;
-  /* sin Guts se puede intentar igual, pero es casi imposible */
+  if(!D)return;
+  if(D.turno>=D.total)return duelFinal();
+  D.min=clamp(Math.round(4+D.turno*(86/D.total))+ri(0,3),1,94);
+  if(D.turno)D.guts=clamp(D.guts+11,0,D.gmax);      /* aire entre jugada y jugada */
+  const desde=D.pos;
+  let hasta;
+  if(D.mia)hasta=clamp(desde+ri(6,14),8,86);
+  else hasta=clamp(desde-ri(5,11),14,92);
+  const tit=D.mia?(hasta>=70?"LLEGASTE AL ÁREA":"SALÍS JUGANDO"):"TE VIENEN ENCIMA";
+  tsuCola([escAvance(D,desde,hasta,D.mia),
+           escCutIn(D,D.mia,tit)],()=>{
+    D.pos=hasta;
+    duelMenu();
+  });
+}
+function duelMenu(){
+  const D=_du;
+  let tipo,mazo;
+  if(D.mia){
+    tipo=D.pos>=66?"tiro":"ataque";
+    mazo=baraja((tipo==="tiro"?CARTAS_TIRO:CARTAS_ATAQUE).slice()).slice(0,5);
+  }else{
+    tipo=D.pos<=26?"ultima":"defensa";
+    mazo=baraja((tipo==="ultima"?CARTAS_ULTIMA:CARTAS_DEFENSA).slice()).slice(0,tipo==="ultima"?4:5);
+  }
+  nuevosTokens();
+  const T={
+    tiro:["ESTÁS DE FRENTE AL ARCO","Te quedaste solo contra el arquero de "+D.riv.n
+      +". Esto se define ahora o no se define más."],
+    ataque:["LA TENÉS VOS Y TE SALEN A APRETAR","Enfrente hay uno de "+D.riv.n
+      +" que no te va a regalar nada. Hay que pasarlo."],
+    defensa:["VIENEN DE CONTRA Y SOS EL ÚLTIMO","Se les escapó la marca y el que viene lanzado "
+      +"es el peligro de "+D.riv.n+"."],
+    ultima:["TE LLEGARON AL ÁREA","Está adentro, encara al arquero y sos lo único que queda "
+      +"entre él y el gol."]
+  }[tipo];
+  duelTexto(T[0],T[1],tipo==="tiro"?"ok":tipo==="ultima"?"no":"");
+  tsuEscena(escEspera(D,D.mia));
+  duelOpts(mazo,tipo);
+}
+function duelProb(k){
+  const D=_du;
   const sinAire=D.guts<k.g;
   D.guts=clamp(D.guts-(sinAire?D.guts:k.g),0,D.gmax);
   const mio=(p.stats[k.st]||55)+(p.ovr-62)*0.40;
   const suyo=(D.riv[k.st]||60);
   let pr=k.base+(mio-suyo)*0.55+(D.guts/D.gmax-0.5)*22;
-  if(sinAire)pr-=42;
+  if(sinAire)pr-=36;
   if(enLlamas())pr+=15;
   const cab=cabalaActiva(); if(cab&&cab[k.st])pr+=cab[k.st];
-  const ok=dado(clamp(pr,5,93)/100);
-  rachaSuma(ok);
-  let tit,txt;
-  if(D.ataca){
-    if(ok){
-      if(k.esp||dado(.7)){D.gol++;sacudir();sonGol();relator(rnd(RELATOS_OK));
-        tit=k.esp?"¡"+k.n.toUpperCase()+"!":"GOL";
-        txt=k.esp?"Le pegaste con todo y no la vio pasar. El estadio se vino abajo."
-          :"Salió como en la cabeza. Adentro.";}
-      else{sonTic();relator("¡LA SACÓ DE ABAJO DEL ÁNGULO!");
-        tit="LE GANASTE Y LA SACÓ EL ARQUERO";
-        txt="Le ganaste el duelo limpio, pero el arquero de "+D.riv.n
-          +" voló y la mandó al córner. Bronca pura.";}}
-    else{sonMal();relator(rnd(RELATOS_MAL));
-      tit="TE LA SACARON";
-      txt=sinAire?"No te daban las piernas. Te la sacaron sin despeinarse."
-        :"El de "+D.riv.n+" te ganó el duelo. A empezar de nuevo.";}
-  }else{
-    if(ok){
-      if(dado(.3)){D.gol++;sacudir();sonGol();relator(rnd(RELATOS_OK));
-        tit="CORTASTE Y LA CLAVASTE DE CONTRA";
-        txt="Le ganaste el duelo, arrancaste solo desde tu campo y la mandaste "
-          +"a guardar. De esas se habla veinte años.";}
-      else{sonTic();relator("¡QUÉ CIERRE SALVAJE!");
-        tit="LA CORTASTE";
-        txt="Le ganaste el duelo y la sacaste jugando. Así se defiende.";}}
-    else if(sinAire||dado(.7)){D.golRival++;sacudir();sonMal();relator(rnd(RELATOS_MAL));
-      tit="TE PASARON";
-      txt=sinAire?"No llegaste ni con el alma. Gol de ellos."
-        :"Te la picó por arriba y la mandó a guardar.";}
-    else{sonTic();relator("¡LA MANDÓ A LA TRIBUNA!");
-      tit="TE PASÓ Y LA TIRÓ AFUERA";
-      txt="Te dejó parado, quedó de frente al arco y la reventó contra el cartel. "
-        +"Zafaste de casualidad.";}
-  }
-  D.hist.push({ok:ok,n:k.n});
-  D.turno++;
-  calcOVR();render();
-  let h='<div class="card"><div class="eyebrow"><span>'+D.inst+'</span>'
-    +'<em>'+D.turno+'/'+D.total+' · '+D.gol+'-'+D.golRival+'</em></div>';
-  h+='<div class="res"><h4 class="'+(ok?"ok":"no")+'">'+tit+'</h4><p>'+txt+'</p>'
-    +(sinAire?'<p class="cnota mal">Estabas sin Guts: la jugaste a pulmón.</p>':'')+'</div>';
-  h+=gutsBarra();
-  h+='<button class="cta" id="btn-seguir">'+(D.turno>=D.total?"Pitazo final":"Seguir")+'</button></div>';
-  const c=document.getElementById("cartas");c.innerHTML=h;
-  const b=document.getElementById("btn-seguir");
-  if(b)b.onclick=()=>{if(D.turno>=D.total)duelCierre();else duelTurno();};
-  c.scrollIntoView({behavior:"smooth",block:"end"});
+  return {ok:dado(clamp(pr,5,93)/100),sinAire:sinAire};
 }
-function duelCierre(){
+function duelResolver(k,tipo){
+  const D=_du;
+  const r=duelProb(k), ok=r.ok, sinAire=r.sinAire;
+  rachaSuma(ok);
+  D.hist.push({ok:ok,n:k.n});
+  const nota=sinAire?" Estabas sin Guts y la jugaste a pulmón.":"";
+  if(tipo==="tiro")return duelTiro(k,ok,nota);
+  if(tipo==="ultima")return duelUltima(k,ok,nota);
+  if(tipo==="ataque")return duelAtaque(k,ok,nota);
+  return duelDefensa(k,ok,nota);
+}
+function duelAtaque(k,ok,nota){
+  const D=_du;
+  const antes=D.pos;
+  tsuEscena(escDuelo(D,true,ok,ok?k.esp:null),()=>{
+    if(ok){
+      D.pos=clamp(D.pos+ri(18,29),0,96);
+      relator(rnd(RELATOS_OK));
+      duelTexto("LO PASASTE","Le ganaste el duelo con "+tokens(k.n).toLowerCase()
+        +" y te metiste en campo de ellos."+nota,"ok");
+      /* si la gambeta te dejó adentro del área, se define ya, sin esperar */
+      if(D.pos>=66){
+        calcOVR();render();
+        return tsuCola([escAvance(D,antes,D.pos,true),
+          escCutIn(D,true,"MANO A MANO CON EL ARQUERO")],()=>duelMenu());
+      }
+    }else{
+      D.mia=false;D.pos=clamp(D.pos-ri(2,8),6,94);
+      sonMal();relator(rnd(RELATOS_MAL));
+      duelTexto("TE LA SACARON","El de "+D.riv.n+" te ganó el duelo y salieron jugando."+nota,"no");
+    }
+    D.turno++;calcOVR();render();duelTurno();
+  });
+}
+function duelDefensa(k,ok,nota){
+  const D=_du;
+  const antes=D.pos;
+  tsuEscena(escDuelo(D,false,ok,ok?k.esp:null),()=>{
+    if(ok){
+      D.mia=true;D.pos=clamp(D.pos+ri(4,14),8,90);
+      sonTic();relator("¡QUÉ CIERRE SALVAJE!");
+      duelTexto("LA CORTASTE","Le ganaste el duelo, la sacaste jugando y ahora la tenés vos."+nota,"ok");
+    }else{
+      D.pos=clamp(D.pos-ri(14,24),4,96);
+      sonMal();relator(rnd(RELATOS_MAL));
+      duelTexto("TE PASARON","Te dejó parado y siguen de frente."+nota,"no");
+      /* si te dejó en el área, sos el último y hay que resolver ahora */
+      if(D.pos<=26){
+        calcOVR();render();
+        return tsuCola([escAvance(D,antes,D.pos,false),
+          escCutIn(D,false,"SOS EL ÚLTIMO HOMBRE")],()=>duelMenu());
+      }
+    }
+    D.turno++;calcOVR();render();duelTurno();
+  });
+}
+function duelTiro(k,ok,nota){
+  const D=_du;
+  D.ladoTiro=dado(.5)?1:-1;
+  tsuEscena(escRemate(D,ok,k.esp||k.n,true),()=>{
+    if(ok){
+      D.gol++;sonGol();buzz([30,40,30]);relator(rnd(RELATOS_OK));
+      tsuEscena(escFestejo(D,true),()=>{
+        duelTexto(k.esp?k.esp:"GOL",
+          "La clavaste con "+tokens(k.n).toLowerCase()+" y el estadio se vino abajo. "
+          +D.gol+"-"+D.golRival+"."+nota,"ok");
+        D.pos=50;D.mia=false;D.turno++;calcOVR();render();duelTurno();
+      });
+    }else{
+      sonMal();relator("¡LA SACÓ DE ABAJO DEL ÁNGULO!");
+      duelTexto("LA SACÓ EL ARQUERO",
+        "Le pegaste con todo y el arquero de "+D.riv.n+" voló y la mandó al córner."+nota,"no");
+      D.pos=clamp(68+ri(0,10),4,96);D.mia=false;D.turno++;calcOVR();render();duelTurno();
+    }
+  });
+}
+function duelUltima(k,ok,nota){
+  const D=_du;
+  if(ok){
+    tsuEscena(escDuelo(D,false,true,k.roja?"¡ROJA!":null),()=>{
+      if(k.roja){
+        if(p.temp)p.temp.rojas++;
+        mod(p.rep,"local",6);mod(p.stats,"mor",-6,5,100);
+        duelTexto("LO COLGASTE Y TE FUISTE EXPULSADO",
+          "Lo agarraste de la camiseta cuando ya se iba solo. Roja directa, pero no fue gol. "
+          +"La tribuna te aplaudió de pie."+nota,"ok");
+      }else{
+        duelTexto("LA SACASTE DE LA LÍNEA",
+          "Te tiraste con todo y la sacaste cuando ya la cantaban."+nota,"ok");
+      }
+      D.mia=true;D.pos=clamp(38+ri(0,14),8,90);
+      D.turno++;calcOVR();render();duelTurno();
+    });
+  }else{
+    D.ladoTiro=dado(.5)?1:-1;
+    /* te pasó, pero todavía queda tu arquero */
+    const entra=dado(.76);
+    tsuEscena(escRemate(D,entra,"REMATE DE "+D.riv.n.toUpperCase(),false),()=>{
+      if(!entra){
+        sonTic();relator("¡LA SACÓ EL ARQUERO!");
+        duelTexto("LA SACÓ TU ARQUERO",
+          "Te pasó de largo, quedó solo y tu arquero le tapó el remate con el cuerpo. "
+          +"Zafaste."+nota,"ok");
+        D.pos=clamp(30+ri(0,12),4,96);D.mia=true;D.turno++;calcOVR();render();return duelTurno();
+      }
+      D.golRival++;sonMal();temblor(6);
+      tsuEscena(escFestejo(D,false),()=>{
+        duelTexto("GOL DE ELLOS",
+          "No llegaste y la mandó a guardar. "+D.gol+"-"+D.golRival+"."+nota,"no");
+        D.pos=50;D.mia=true;D.turno++;calcOVR();render();duelTurno();
+      });
+    });
+  }
+}
+function duelFinal(){
+  const D=_du;
+  const res=D.gol>D.golRival?"gano":D.gol<D.golRival?"perdio":"empate";
+  silbato();
+  tsuEscena(escFinal(D,res),()=>duelCierre(res));
+}
+function duelCierre(res){
   const D=_du,m=D.m,T=p.temp;
   m.mk=[D.gol,D.golRival];
-  const res=D.gol>D.golRival?"gano":D.gol<D.golRival?"perdio":"empate";
   const ganados=D.hist.filter(x=>x.ok).length;
-  mod(p.stats,"forma",ganados>=Math.ceil(D.total*0.7)?10:ganados<=1?-10:0,10,100);
-  silbato();calcOVR();render();
-  /* el Mundial arma su propia pantalla de cierre */
-  if(D.cierre){const fn=D.cierre;_du=null;return fn({res:res,ganados:ganados,
-    gf:D.gol,gc:D.golRival,total:D.total,loc:D.loc,vis:D.vis,est:D.est});}
-  /* el duelo alimenta la temporada igual que un partido normal */
+  mod(p.stats,"forma",ganados>=Math.ceil(D.hist.length*0.62)?10:ganados<=1?-10:0,10,100);
+  calcOVR();render();
+  tsuPara();
+  if(D.cierre){const fn=D.cierre;_du=null;
+    return fn({res:res,ganados:ganados,gf:D.gol,gc:D.golRival,total:D.hist.length,
+      loc:D.loc,vis:D.vis,est:D.est});}
   if(T){
     T.goles+=D.gol;
     if(res==="gano"){T.ganados++;T.rend+=m.peso||2;}
@@ -9137,19 +9793,12 @@ function duelCierre(){
   if(m.comp==="clasico"&&res==="gano"&&p.club!=="Libre")hist(p.club).cla++;
   copaProgreso(m,res);
   if(m.cup==="pliga")playoffLigaProgreso(m,res);
-  let h='<div class="card"><div class="eyebrow"><span>'+D.inst+'</span><em>FINAL</em></div>';
-  h+=escenarioHTML(D.loc,D.vis,D.est);
-  h+='<div class="res"><h4 class="'+(res==="gano"?"ok":res==="perdio"?"no":"")+'">'
-    +(res==="gano"?"GANARON ":res==="perdio"?"PERDIERON ":"EMPATE ")+D.gol+'-'+D.golRival+'</h4>'
-    +'<p>Ganaste '+ganados+' de '+D.total+' duelos en '+D.est.n+'.</p>'
-    +notaCopa(m,res)+'</div>';
-  h+='<button class="cta" id="btn-seguir">Seguir</button></div>';
-  const c=document.getElementById("cartas");c.innerHTML=h;
-  const b=document.getElementById("btn-seguir");
+  duelTexto((res==="gano"?"GANARON ":res==="perdio"?"PERDIERON ":"EMPATE ")+D.gol+"-"+D.golRival,
+    "Ganaste "+ganados+" de "+D.hist.length+" duelos en "+D.est.n+". "
+    +(notaCopa(m,res)||"").replace(/<[^>]+>/g,""),res==="gano"?"ok":res==="perdio"?"no":"");
   const sigue=D.cb;
-  if(b)b.onclick=()=>{_du=null;sigue();};
+  duelBoton("Seguir",()=>{_du=null;if(sigue)sigue();});
   feedDe("jugada",{gol:D.gol>0,roja:false,fallo:res==="perdio"});
-  c.scrollIntoView({behavior:"smooth",block:"end"});
 }
 
 /* ══════ v14 · CAMISETA DIBUJADA · SVG, con el patrón real del club ══ */
