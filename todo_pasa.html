@@ -157,6 +157,48 @@
   padding:4px 0 4px 13px;position:relative}
 .vitnote::before{content:'\203A';position:absolute;left:0;top:4px;color:#F5C542}
 
+/* ══════ v14 · MODO TSUBASA · escenario NES y duelos ════════════════ */
+.tsu-esc{position:relative;border-radius:12px;overflow:hidden;margin:0 0 11px;
+  border:2px solid #0d1420;background:#0b1017;image-rendering:pixelated}
+.tsu-cielo{height:26px;background:linear-gradient(#3aa9e8,#7fd0f5)}
+.tsu-cielo::after{content:'';position:absolute;top:5px;right:18%;width:34px;height:10px;
+  background:#fff;border-radius:9px;opacity:.9;box-shadow:-26px 4px 0 -2px #fff,34px 3px 0 -3px #fff}
+.tsu-trib{display:block;width:100%;height:34px;background:#141c28}
+.tsu-trib.empinada{height:44px}
+.tsu-pasto{position:relative;height:78px;
+  background:repeating-linear-gradient(90deg,#1f8b3a 0 16px,#1a7d33 16px 32px)}
+.tsu-lineas{position:absolute;inset:0;width:100%;height:100%;opacity:.85}
+.tsu-vs{position:absolute;left:0;right:0;bottom:24px;display:flex;align-items:center;
+  justify-content:center;gap:16px}
+.tsu-eq{display:flex;flex-direction:column;align-items:center;gap:2px;
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.55))}
+.tsu-eq b{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#fff;
+  background:rgba(8,12,18,.7);border-radius:4px;padding:1px 6px}
+.tsu-x{font-family:var(--disp);font-size:20px;color:#F5C542;
+  text-shadow:0 3px 0 #7a5c00,0 0 14px rgba(245,197,66,.5)}
+.tsu-nom{position:absolute;left:0;right:0;bottom:0;text-align:center;
+  font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:#cfe6ff;
+  background:linear-gradient(transparent,rgba(6,10,16,.92));padding:8px 6px 5px}
+/* Barra de Guts */
+.guts{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.guts .gl{font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#F5C542}
+.guts .gbar{flex:1;height:12px;border:2px solid #3a2f18;border-radius:3px;background:#120f08;
+  overflow:hidden}
+.guts .gfill{height:100%;background:linear-gradient(90deg,#3DDC97,#F9D423);transition:width .3s}
+.guts .gfill.medio{background:linear-gradient(90deg,#F9D423,#FF8A3D)}
+.guts .gfill.bajo{background:linear-gradient(90deg,#FF8A3D,#FF2D55)}
+.guts .gn{font-family:var(--cond);font-weight:700;font-size:15px;color:#F7E7B0;min-width:52px;
+  text-align:right}
+/* Mazo de duelo */
+.duelo-h{display:flex;justify-content:space-between;align-items:baseline;margin:2px 0 8px}
+.duelo-h b{font-family:var(--mono);font-size:9px;letter-spacing:.26em;color:#7BE8B8;
+  text-transform:uppercase}
+.duelo-h em{font-style:normal;font-family:var(--mono);font-size:9px;color:var(--dim)}
+.opt .cost{flex-shrink:0;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+  color:#F5C542;background:#1a1509;border:1px solid #3a2f18;border-radius:999px;padding:2px 7px}
+.opt.singuts{opacity:.5}
+.opt.singuts .cost{color:#FF8A9B;border-color:#5a2030}
+
 /* ══════ v12 · JUGO: SACUDÓN, FUEGO, RELOJ AGÓNICO, CLIMA, VAR ═════ */
 @keyframes sacudon{0%,100%{transform:translate(0,0)}
  15%{transform:translate(-7px,3px)}30%{transform:translate(6px,-4px)}
@@ -2072,7 +2114,80 @@ const PRETEMP=[
  o:[{b:"Enseñarle todo",s:"Te come el puesto",st:"car",base:99,fijo:1,ok:{mor:10,vinculoFav:"Pibe",local:6,msg:"Lo apadrinaste"}},
     {b:"Hacerle la vida imposible",s:"Te quedás el puesto",st:"car",base:70,ok:{forma:10,vinculoOdio:"Pibe",msg:"Lo mandaste a préstamo"},mal:{mor:-12,local:-10,vinculoOdio:"Pibe",msg:"Se filtró y quedaste de villano"}},
     {b:"Pedirle al club que lo venda",s:"Movida de despacho",st:"car",base:52,ok:{plata:40,forma:6,msg:"Lo vendieron"},mal:{mor:-10,local:-12,msg:"Se enteró el vestuario"}},
-    {b:"Ignorarlo",s:"No es tu problema",st:"car",base:99,fijo:1,ok:{msg:"Nada"}}]}
+    {b:"Ignorarlo",s:"No es tu problema",st:"car",base:99,fijo:1,ok:{msg:"Nada"}}]},
+/* v14 · Doce pretemporadas más: enero es donde se arma el año */
+{id:"pre_predio",max:3,cd:4,t:"EL PREDIO ES UN DESASTRE",
+ x:"Las canchas están peladas, no hay agua caliente y el plantel te mira a vos para que hables.",
+ o:[{b:"Encarar al presidente en persona",s:"Carácter",st:"car",base:58,ok:{car:4,local:10,mor:8,msg:"Arreglaron todo en una semana"},mal:{mor:-10,local:-6,afa:-6,msg:"Te marcaron la cara"}},
+    {b:"Bancar y entrenar igual",s:"Cabeza para abajo",st:"car",base:92,fijo:1,ok:{fis:3,car:2,msg:"Ni una queja"}},
+    {b:"Filtrar fotos a un periodista",s:"Escándalo",st:"car",base:50,ok:{local:14,escandalo:1,msg:"Salió en todos lados"},mal:{escandalo:1,mor:-12,local:-8,msg:"Te descubrieron y quedaste solo"}},
+    {b:"Pagar el arreglo de tu bolsillo",s:"U$D −70k",st:"car",base:99,fijo:1,ok:{plata:-70,local:20,mor:10,msg:"El plantel te hizo pasillo"}}]},
+{id:"pre_sueldo",max:3,cd:4,req:{conClub:1},t:"EL CLUB DEBE TRES MESES",
+ x:"Se juntó el plantel en el vestuario. Hay que decidir qué se hace y todos esperan tu voz.",
+ o:[{b:"Encabezar el reclamo",s:"Te ponen de cara visible",st:"car",base:56,ok:{car:5,mor:10,plata:120,msg:"Pagaron todo"},mal:{mor:-12,local:-10,afa:-8,msg:"Quedaste de rebelde"}},
+    {b:"No entrenar hasta que paguen",s:"Medida de fuerza",st:"car",base:48,ok:{plata:150,mor:8,msg:"Cedieron a los dos días"},mal:{plata:-20,local:-16,escandalo:1,msg:"La hinchada se puso en contra"}},
+    {b:"Arreglar por lo bajo lo tuyo",s:"Sálvese quien pueda",st:"car",base:80,ok:{plata:100,mor:-6,msg:"Cobraste vos solo"},mal:{plata:60,local:-12,mor:-10,msg:"Se enteró el vestuario"}},
+    {b:"Poner el hombro y esperar",s:"Aguantar",st:"car",base:99,fijo:1,ok:{local:12,car:3,msg:"El hincha no se olvida de eso"}}]},
+{id:"pre_asado",max:3,cd:3,t:"ASADO DE INTEGRACIÓN DEL PLANTEL",
+ x:"Quincho del predio, ocho kilos de asado y un plantel que todavía no se conoce las caras.",
+ o:[{b:"Ponerte a la parrilla vos",s:"Ganarte al vestuario",st:"car",base:78,ok:{mor:10,relSube:2,local:6,msg:"Quedaste como el capo del grupo"},mal:{mor:-6,msg:"Se te quemó todo y te cargaron un mes"}},
+    {b:"Llevar a los pibes de inferiores",s:"Gesto grande",st:"car",base:99,fijo:1,ok:{mor:8,relPibe:2,msg:"Los pibes no se lo olvidan más"}},
+    {b:"Irte temprano a descansar",s:"Profesionalismo",st:"car",base:99,fijo:1,ok:{fis:3,forma:5,mor:-4,msg:"Dormiste ocho horas"}},
+    {b:"Quedarte hasta las cuatro",s:"Noche larga",st:"car",base:44,ok:{mor:12,relSube:2,msg:"Grupo soldado a fuego"},mal:{forma:-12,salud:["gemR",-10],escandalo:1,msg:"Los vieron saliendo de un boliche"}}]},
+{id:"pre_numero",max:2,cd:4,t:"LA PELEA POR EL NÚMERO",
+ x:"La diez la tenía un histórico que se fue. Hay tres que la quieren y uno sos vos.",
+ o:[{b:"Pedirla de frente",s:"Hacerse cargo",st:"car",base:62,ok:{car:4,local:12,mor:8,msg:"Te la dieron y te la bancaste"},mal:{mor:-12,local:-10,relBaja:2,msg:"Te la dieron y te pesó como plomo"}},
+    {b:"Dejársela al pibe de la casa",s:"Gesto de grande",st:"car",base:99,fijo:1,ok:{local:14,mor:6,relPibe:3,msg:"El vestuario te miró distinto"}},
+    {b:"Quedarte con tu número de siempre",s:"Cábala",st:"car",base:99,fijo:1,ok:{mor:6,forma:4,msg:"Lo tuyo es lo tuyo"}},
+    {b:"Comprarla con un asado",s:"Diplomacia criolla",st:"car",base:82,ok:{plata:-15,mor:8,relSube:2,msg:"Arreglado sin quilombo"},mal:{plata:-15,mor:-6,msg:"Se la quedó otro igual"}}]},
+{id:"pre_refuerzo",max:3,cd:3,req:{conClub:1},t:"LLEGÓ UN REFUERZO PARA TU PUESTO",
+ x:"Lo presentaron con bombos y platillos y cobra el triple que vos. Juega de lo tuyo.",
+ o:[{b:"Salir a comérselo en la práctica",s:"Físico",st:"fis",base:60,ok:{fis:5,forma:10,car:3,msg:"El DT vio quién manda"},mal:{salud:["rodR",-16],mor:-8,msg:"Te pasaste de rosca y te lesionaste"}},
+    {b:"Hacerte amigo y usarlo",s:"Aprender de él",st:"car",base:84,ok:{tec:4,mor:6,relSube:2,msg:"Terminaron jugando juntos"},mal:{mor:-4,msg:"Te usó él a vos"}},
+    {b:"Pedirle explicaciones al DT",s:"Frontal",st:"car",base:54,ok:{car:4,forma:8,msg:"Te aseguró el puesto"},mal:{mor:-12,vinculoOdio:"DT",msg:"Te mandó al banco de arranque"}},
+    {b:"Pedir que te vendan",s:"Portazo de enero",st:"car",base:52,ok:{forzarMercado:1,mor:6,msg:"Te pusieron en la lista"},mal:{mor:-14,local:-12,msg:"Quedaste colgado y sin lugar"}}]},
+{id:"pre_barra",max:2,cd:5,req:{conClub:1},t:"LA BARRA CAYÓ AL PREDIO",
+ x:"Entraron seis en dos autos sin que nadie los pare. Dicen que vienen a hablar con el plantel.",
+ o:[{b:"Escucharlos y no prometer nada",s:"Carácter",st:"car",base:70,ok:{car:4,local:8,msg:"Se fueron tranquilos"},mal:{mor:-10,escandalo:1,msg:"Quedó grabado y salió en la tele"}},
+    {b:"Mandarlos a la mierda",s:"Alto riesgo",st:"car",base:40,ok:{car:6,local:16,mor:10,msg:"Se corrió la voz y te respetan"},mal:{mor:-18,salud:["tobL",-14],escandalo:1,msg:"Te esperaron afuera del predio"}},
+    {b:"Darles plata para que se vayan",s:"U$D −60k",st:"car",base:88,ok:{plata:-60,mor:-4,msg:"Se fueron sin hacer ruido"},mal:{plata:-60,escandalo:1,local:-8,msg:"Volvieron a pedir más el mes siguiente"}},
+    {b:"Llamar al presidente delante de ellos",s:"Que se haga cargo otro",st:"car",base:76,ok:{afa:4,mor:6,msg:"Se los llevaron en diez minutos"},mal:{local:-10,mor:-8,msg:"El presidente los saludó de abrazo"}}]},
+{id:"pre_medios",max:3,cd:3,t:"DÍA DE MEDIOS EN EL PREDIO",
+ x:"Veinte micrófonos y Flavio Azzaro adelante de todos preguntando por lo único que te duele.",
+ o:[{b:"Contestarle con altura",s:"Salir bien parado",st:"car",base:74,ok:{mundo:8,local:8,car:3,msg:"Quedaste como un señor"},mal:{mor:-6,local:-4,msg:"Te editaron y salió al revés"}},
+    {b:"Cruzarlo en vivo",s:"Se hace viral",st:"car",base:50,ok:{local:18,mundo:10,escandalo:1,msg:"El país entero lo repitió una semana"},mal:{escandalo:1,mor:-12,mundo:-8,msg:"Quedaste de irascible en cadena nacional"}},
+    {b:"No contestar y seguir de largo",s:"Silencio",st:"car",base:99,fijo:1,ok:{car:2,mundo:-4,msg:"Ni una palabra"}},
+    {b:"Prometer que salen campeones",s:"Palo alto",st:"car",base:56,ok:{local:16,mor:8,msg:"La hinchada se prendió fuego"},mal:{local:-14,mor:-10,mote:"Bocón",msg:"Te lo van a recordar en cada derrota"}}]},
+{id:"pre_altura",max:2,cd:4,t:"PRETEMPORADA EN LA ALTURA",
+ x:"Diez días arriba de los dos mil metros. Se corre con un ladrillo en el pecho.",
+ o:[{b:"Bancarte los diez días",s:"Pulmón puro",st:"fis",base:66,ok:{fis:7,car:3,forma:8,msg:"Volviste con motor nuevo"},mal:{fis:3,salud:["gemL",-14],mor:-6,msg:"Te descompusiste y perdiste días"}},
+    {b:"Bajar el ritmo por tu cuenta",s:"Cuidarte",st:"car",base:92,fijo:1,ok:{fis:2,salud:["pubis",8],msg:"Llegaste entero"}},
+    {b:"Competirle al más joven del plantel",s:"Orgullo",st:"fis",base:52,ok:{fis:6,mor:10,relSube:2,msg:"Lo dejaste sin aire y sin argumentos"},mal:{salud:["isqR",-18],mor:-10,msg:"Te desgarraste queriendo demostrar"}},
+    {b:"Quedarte a entrenar abajo",s:"El DT toma nota",st:"car",base:60,ok:{fis:3,tec:3,msg:"Nadie dijo nada"},mal:{mor:-10,vinculoOdio:"DT",msg:"Te marcó como el que se borra"}}]},
+{id:"pre_botines",max:2,cd:4,t:"CONTRATO DE BOTINES",
+ x:"Dos marcas te quieren. Una pone plata y la otra pone cámaras en tu barrio.",
+ o:[{b:"Firmar con la que paga más",s:"U$D +180k",st:"car",base:99,fijo:1,ok:{plata:180,mundo:6,msg:"Plata en el bolsillo"}},
+    {b:"Firmar la del documental del barrio",s:"Vidriera",st:"car",base:80,ok:{mundo:16,local:12,plata:60,msg:"El corto lo vio todo el mundo"},mal:{mundo:4,local:-6,msg:"Quedó un producto berreta"}},
+    {b:"Pedir botines para el club del barrio",s:"Corazón",st:"car",base:99,fijo:1,ok:{plata:60,local:20,mor:10,msg:"El potrero donde jugabas tiene camisetas nuevas"}},
+    {b:"No firmar con nadie",s:"Sin ataduras",st:"car",base:99,fijo:1,ok:{car:3,mor:4,msg:"Jugás con lo que te gusta"}}]},
+{id:"pre_mudanza",max:2,cd:5,req:{tempMin:2},t:"TE QUERÉS MUDAR DEL BARRIO",
+ x:"Ya te alcanza para irte a un country. Tu vieja no quiere y en la cuadra ya se enteraron.",
+ o:[{b:"Comprar en el country y mudar a todos",s:"U$D −250k",st:"car",base:99,fijo:1,ok:{plata:-250,mor:12,local:-8,msg:"Tranquilidad, pero lejos de todo"}},
+    {b:"Arreglar la casa de tu vieja",s:"U$D −120k",st:"car",base:99,fijo:1,ok:{plata:-120,mor:16,local:16,msg:"Sigue siendo del barrio y todos lo saben"}},
+    {b:"Quedarte donde estás",s:"Sin mover nada",st:"car",base:99,fijo:1,ok:{local:12,car:3,msg:"Mismo timbre, misma esquina"}},
+    {b:"Comprarle una casa a cada hermano",s:"U$D −300k",st:"car",base:70,ok:{plata:-300,mor:14,local:10,msg:"La familia entera acomodada"},mal:{plata:-300,mor:-10,escandalo:1,msg:"Se pelearon por la más grande y salió en la tele"}}]},
+{id:"pre_video",max:3,cd:3,t:"EL DT NUEVO Y EL VIDEO",
+ x:"Tres horas de proyector en una sala sin ventanas mostrando todo lo que hacés mal.",
+ o:[{b:"Tomar nota de todo",s:"Técnica",st:"tec",base:86,ok:{tec:5,car:2,msg:"Entendiste el sistema antes que nadie"},mal:{tec:2,mor:-4,msg:"Te comiste tres horas al pedo"}},
+    {b:"Discutirle el análisis",s:"Frontal",st:"car",base:50,ok:{car:5,tec:3,msg:"Te dio la razón delante de todos"},mal:{mor:-12,vinculoOdio:"DT",msg:"Te dejó de mirar por dos meses"}},
+    {b:"Dormirte en el fondo",s:"Riesgo alto",st:"car",base:46,ok:{mor:6,msg:"Nadie se dio cuenta"},mal:{mor:-14,local:-6,msg:"Te sacaron una foto y llegó al vestuario"}},
+    {b:"Pedir videos del rival de la fecha 1",s:"Obsesivo",st:"tec",base:90,fijo:1,ok:{tec:4,forma:6,msg:"Arrancaste sabiendo dónde pisar"}}]},
+{id:"pre_pesas",max:3,cd:3,t:"GIMNASIO O POTRERO",
+ x:"El nuevo preparador quiere sacarte tres kilos y ponerte cinco de músculo. Vos no le creés.",
+ o:[{b:"Hacer todo lo que dice el profe",s:"Físico ++",st:"fis",base:80,ok:{fis:6,forma:6,msg:"Cuerpo distinto en seis semanas"},mal:{fis:3,tec:-3,msg:"Te pusiste duro y perdiste toque"}},
+    {b:"Pelota todos los días igual",s:"Lo de siempre",st:"tec",base:88,ok:{tec:5,mor:6,msg:"El pie sigue siendo lo tuyo"},mal:{tec:2,fis:-3,msg:"Llegaste sin piernas a marzo"}},
+    {b:"Mitad y mitad",s:"Equilibrio",st:"car",base:94,fijo:1,ok:{fis:3,tec:3,msg:"Pretemporada sin sobresaltos"}},
+    {b:"Volver al potrero de tu barrio",s:"Fútbol de verdad",st:"car",base:64,ok:{tec:5,car:4,mor:12,local:8,msg:"Volviste con la cabeza en su lugar"},mal:{salud:["tobR",-16],mor:-6,msg:"Te barrieron en un baldío y casi no llegás"}}]}
 ];
 
 /* ══════════════ MAZO 3 · EXTRADEPORTIVO / POLÉMICA ══════════════ */
@@ -3951,17 +4066,7 @@ function cartaPretemporada(){
 function cartaExtra(){
   /* v10 · una de cada nueve veces sale algo que no se explica */
   const bizarro=dado(.11);
-  const cap1=!bizarro&&dado(.30);   /* v12 · las situaciones del Capítulo 1 */
-  let mazo=bizarro?BIZARROS:cap1?CAP1:EXTRA;
-  /* v13 · ninguna situación se repite hasta que pasaron todas */
-  if(cap1){
-    p.situVistas=p.situVistas||[];
-    let libres=CAP1.filter(x=>p.situVistas.indexOf(x.id)<0&&cumpleReq(x));
-    if(!libres.length){p.situVistas=[];libres=CAP1.slice();}
-    mazo=libres;
-  }
-  const c=rnd(disponibles(mazo));marcar(c.id);nuevosTokens();
-  if(cap1)(p.situVistas=p.situVistas||[]).push(c.id);
+  const c=rnd(disponibles(bizarro?BIZARROS:EXTRA));marcar(c.id);nuevosTokens();
   c.__o=seis(c.o,"extra");
   carta({eye:bizarro?"ESTO NO PASA NUNCA":"FUERA DE LA CANCHA",titulo:tokens(c.t),texto:tokens(c.x),ciego:1,
     opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"POLÉMICA",cierreTemporada)}))});
@@ -4282,17 +4387,31 @@ function bonusRelacion(){
 }
 function momento(){
   const T=p.temp,m=T.mom[T.i];
+  /* v14 · Los grandes no se juegan con una carta: se juegan a duelo.
+     Semifinal y final de copa, y todo el Mundial.                    */
+  if(esPartidoGrande(m)&&!m.duelHecho){m.duelHecho=1;return duelIniciar(m,avanzarMomento);}
   let pool=disponibles(JUGADAS,j=>j.pos.indexOf(p.pos)>=0&&(!j.comp||j.comp.indexOf(m.comp)>=0));
   if(!pool.length)pool=disponibles(JUGADAS,j=>j.pos.indexOf(p.pos)>=0);
   let cand=pool;
   if(m.peso>=2){const gr=pool.filter(j=>j.peso>=2);if(gr.length&&dado(.65))cand=gr;}
-  const j=rnd(cand);marcar(j.id);nuevosTokens();
+  /* v14 · Las situaciones del Capítulo 1 son de partido: entran acá, que
+     es donde el jugador pasa el 90% del tiempo, y no una vez cada cinco
+     temporadas. Sin repetir hasta agotar las sesenta.                  */
+  let j;
+  if(dado(.42)){
+    p.situVistas=p.situVistas||[];
+    let libres=CAP1.filter(x=>p.situVistas.indexOf(x.id)<0);
+    if(!libres.length){p.situVistas=[];libres=CAP1.slice();}
+    j=rnd(libres);
+    p.situVistas.push(j.id);
+  }else j=rnd(cand);
+  marcar(j.id);nuevosTokens();
   T.jug=j;T.m=m;
   if(!m.clima)m.clima=climaDelPartido();
   nuevaMision();
   carta({eye:"TEMPORADA "+p.anio,comp:m.comp,compTxt:m.fecha,compSub:subCompetencia(m),
     clima:m.clima,mision:T.mision,
-    titulo:tokens(j.t),texto:tokens(j.x),seg:SEG(j.seg),mk:m,prog:[T.i,T.mom.length],ciego:1,
+    titulo:tokens(j.t),texto:tokens(j.x),seg:j.seg?SEG(j.seg):0,mk:m,prog:[T.i,T.mom.length],ciego:1,
     opts:seis(j.o,"jugada").map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverJugada(o,false)})),
     onTimeout:()=>resolverJugada(null,true)});
 }
@@ -6426,7 +6545,8 @@ function verGaleria(){
 function totalCartas(){
   return JUGADAS.length+PRETEMP.length+EXTRA.length+MEDIO.length
     +DT_MERCADO.length+DT_PARTIDO.length+DT_PRENSA.length
-    +Object.keys(PARES).length+LOCURA.length+BIZARROS.length+CAP1.length;
+    +Object.keys(PARES).length+LOCURA.length+BIZARROS.length+CAP1.length
+    +MUNDIAL_ERA.length;
 }
 
 /* ══════════════ VALIDADOR DE MAZOS ══════════════
@@ -6456,7 +6576,7 @@ function medirToken(t){
 function validarMazos(){
   const errs=[],ids={},zonas=Object.keys(ZONAS);
   const mazos={JUGADAS:JUGADAS,PRETEMP:PRETEMP,EXTRA:EXTRA,MEDIO:MEDIO,
-    BIZARROS:BIZARROS,CAP1:CAP1,
+    BIZARROS:BIZARROS,CAP1:CAP1,MUNDIAL_ERA:MUNDIAL_ERA,
     DT_MERCADO:DT_MERCADO,DT_PARTIDO:DT_PARTIDO,DT_PRENSA:DT_PRENSA};
   /* v6.1 · los mazos de edad ya vienen con las seis escritas */
   const porEdad=Object.keys(PARES).map(k=>PARES[k]).concat(LOCURA);
@@ -7476,8 +7596,9 @@ function cartaMundial(ofertas){
     _mun.mult=mult;
     if(karmaPendiente())dispararKarma("el Mundial "+p.anio,munGrupos);else munGrupos();
   }});
-  carta({eye:"🏆 COPA DEL MUNDO "+p.anio,comp:"inter",compTxt:"COPA DEL MUNDO "+p.anio,
-    compSub:"fase de grupos · un país entero encima",
+  const listaDe26=()=>carta({eye:"🏆 COPA DEL MUNDO "+p.anio,comp:"inter",
+    compTxt:"COPA DEL MUNDO "+p.anio,
+    compSub:"sede: "+sedeMundial(p.anio)[0],
     titulo:"ESTÁS EN LA LISTA DE 26",ciego:1,
     texto:"Leyeron tu apellido y se te cayó el teléfono. Concentración de cinco semanas, un país entero encima y un solo torneo que se acuerda todo el mundo. Primero hay que salir del grupo. ¿Cómo lo jugás?",
     opts:baraja([
@@ -7488,6 +7609,77 @@ function cartaMundial(ofertas){
       ir(1.3,()=>{modVest(12);mod(p.stats,"mor",8,5,100);},{b:"Ser el que ordena el vestuario"}),
       ir(.9,()=>{p.plata+=60;mod(p.rep,"local",-8);},{b:"Llevar a toda la familia a la concentra"})
     ])});
+  escenaMundial(listaDe26);
+}
+/* ══════ v14 · LOS MUNDIALES DE 2026 A 2050 ═══════════════════════
+   Cada Copa del Mundo tiene su sede y su clima de época, y te agarra
+   en un momento distinto de la vida. Siete escenas según la edad.   */
+const SEDES_MUNDIAL={
+ 2026:["Estados Unidos, México y Canadá","El primero de 48 selecciones. Estadios de la NFL, aire acondicionado y partidos al mediodía para la tele europea."],
+ 2030:["España, Portugal y Marruecos, con el debut en Uruguay","El Mundial del Centenario. La primera fecha se juega en el Centenario de Montevideo y después todos al avión."],
+ 2034:["Arabia Saudita","Estadios con aire acondicionado en el desierto, hoteles de cinco estrellas y una FIFA que no quiere preguntas."],
+ 2038:["China","Cuarenta grados de humedad, ciudades de veinte millones y una final a las seis de la mañana en Buenos Aires."],
+ 2042:["Inglaterra e Irlanda","Lluvia, canchas pesadas y una prensa que te mide con regla desde que bajás del avión."],
+ 2046:["Brasil","El Maracaná otra vez y todo un continente encima. Ganar ahí vale doble y perder ahí no se olvida nunca."],
+ 2050:["un Mundial repartido en tres continentes","Sesenta y cuatro selecciones, cuarenta días de torneo y un calendario que no lo entiende nadie."]
+};
+function sedeMundial(a){
+  return SEDES_MUNDIAL[a]||["una sede que la FIFA todavía discute en un hotel",
+    "Todavía no se sabe bien dónde se juega, pero se juega y vos estás en la lista."];
+}
+/* Siete escenas de Mundial, una por franja de edad */
+const MUNDIAL_ERA=[
+{id:"mun_pibe",max:9,cd:0,req:{edadMax:21},t:"TU PRIMER MUNDIAL Y TENÉS CARA DE PIBE",
+ x:"Sos el más chico de la lista. Los grandes te cargan, los periodistas te preguntan si te da miedo y tu vieja no durmió en toda la semana.",
+ o:[{b:"Pedir jugar desde el arranque",s:"Alto riesgo",st:"car",base:48,ok:{nac:14,mor:12,forma:8,msg:"El DT te puso de titular"},mal:{mor:-12,nac:-6,msg:"Te bajó el pulgar delante del plantel"}},
+    {b:"Escuchar y callarte la boca",s:"Aprender",st:"car",base:99,fijo:1,ok:{car:5,mor:8,msg:"Los referentes te adoptaron"}},
+    {b:"Pegarte al capitán todo el día",s:"Sombra",st:"car",base:88,ok:{car:4,tec:3,relSube:2,msg:"Te enseñó más en un mes que nadie"},mal:{mor:-6,msg:"Se cansó de tenerte atrás"}},
+    {b:"Salir a comerte a los grandes",s:"Físico",st:"fis",base:54,ok:{fis:5,forma:12,nac:10,msg:"En la práctica no te sacaba nadie"},mal:{salud:["isqL",-16],mor:-10,msg:"Te desgarraste antes del debut"}}]},
+{id:"mun_confirmar",max:9,cd:0,req:{edadMin:22,edadMax:24},t:"EL MUNDIAL DE LA CONSAGRACIÓN",
+ x:"Venís de una temporada grande y el país te empezó a mirar distinto. Este es el torneo donde se decide si sos una promesa o si sos.",
+ o:[{b:"Hacerte cargo del equipo",s:"Liderazgo",st:"car",base:60,ok:{nac:16,mor:12,car:4,msg:"El equipo te siguió"},mal:{nac:-8,mor:-12,msg:"Te quedó grande la mochila"}},
+    {b:"Jugar tranquilo y aportar",s:"Sin ruido",st:"tec",base:90,fijo:1,ok:{tec:4,nac:8,msg:"Fuiste el que no falla"}},
+    {b:"Buscar el gol a como dé lugar",s:"Egoísmo útil",st:"fis",base:52,ok:{nac:18,mundo:12,forma:10,msg:"Metiste en tres partidos seguidos"},mal:{nac:-10,relBaja:2,msg:"Erraste todo y el vestuario te lo marcó"}},
+    {b:"Cuidarte para el club",s:"Pensar en el sueldo",st:"car",base:80,ok:{plata:80,salud:["pubis",8],nac:-8,msg:"Volviste entero al club"},mal:{nac:-16,local:-10,mote:"Tibio",msg:"Se notó que no dejaste todo"}}]},
+{id:"mun_pico",max:9,cd:0,req:{edadMin:25,edadMax:27},t:"ESTÁS EN EL PICO Y TE TOCA ESTE MUNDIAL",
+ x:"Nunca vas a estar mejor que ahora. Lo sabés vos, lo sabe el DT y lo sabe cada tipo que te para en la calle.",
+ o:[{b:"Pedir la pelota siempre",s:"Hacerse cargo",st:"tec",base:64,ok:{nac:18,mundo:14,car:4,msg:"El equipo pasó a jugar por vos"},mal:{nac:-10,forma:-10,msg:"Te marcaron de a tres y desapareciste"}},
+    {b:"Jugar para el equipo",s:"Asistencias",st:"tec",base:86,ok:{tec:4,nac:12,relSube:2,msg:"Repartiste y te lo reconocieron"},mal:{nac:-4,msg:"Nadie definió lo que armaste"}},
+    {b:"Infiltrarte para no perderte nada",s:"El cuerpo lo paga",st:"car",base:70,ok:{forma:14,nac:12,salud:["rodR",-20],msg:"Jugaste todos los partidos a fuerza de inyecciones"},mal:{salud:["rodR",-35],mor:-14,msg:"Se te fue la rodilla en el segundo partido"}},
+    {b:"Hablar antes que nadie en la prensa",s:"Poner la cara",st:"car",base:66,ok:{local:16,mundo:10,car:3,msg:"Sacaste la presión de encima del plantel"},mal:{escandalo:1,mor:-10,msg:"Dijiste una de más y la usaron en contra"}}]},
+{id:"mun_madurez",max:9,cd:0,req:{edadMin:28,edadMax:30},t:"EL MUNDIAL DE LA MADUREZ",
+ x:"Ya no sos el que corre más, pero sos el que sabe dónde pararse. Y en el vestuario hay ocho pibes que te miran para saber qué hacer.",
+ o:[{b:"Ser el que ordena el vestuario",s:"Capitanía real",st:"car",base:78,ok:{car:5,nac:14,mor:10,capitan:1,msg:"Te pusieron la cinta"},mal:{mor:-10,relBaja:2,msg:"Se armó un grupo en contra"}},
+    {b:"Apadrinar al pibe que debuta",s:"Dejar escuela",st:"car",base:99,fijo:1,ok:{relPibe:3,mor:10,local:8,msg:"Lo bancaste y no se lo olvida más"}},
+    {b:"Guardarte para los partidos que importan",s:"Administrar",st:"car",base:84,ok:{forma:10,salud:["pubis",6],nac:8,msg:"Llegaste fresco a las finales"},mal:{nac:-8,mor:-6,msg:"Perdiste el ritmo y no volviste a entrar"}},
+    {b:"Jugarlo como si fuera el último",s:"Dejar todo",st:"fis",base:58,ok:{nac:20,mundo:12,forma:12,msg:"Corriste como a los veinte"},mal:{salud:["gemR",-22],forma:-12,msg:"El cuerpo te pasó la factura en cuartos"}}]},
+{id:"mun_ultimo",max:9,cd:0,req:{edadMin:31,edadMax:33},t:"PROBABLEMENTE TU ÚLTIMO MUNDIAL GRANDE",
+ x:"Hacé la cuenta: el que viene lo jugás con treinta y seis. Todos los que están acá adentro saben que esta es la tuya.",
+ o:[{b:"Decirlo en la conferencia",s:"Poner el corazón",st:"car",base:74,ok:{local:20,nac:14,mor:12,msg:"El país entero se abrazó a la historia"},mal:{mor:-12,mundo:-6,msg:"Sonó a despedida y el plantel se aflojó"}},
+    {b:"No decir una palabra y jugar",s:"Silencio",st:"car",base:99,fijo:1,ok:{car:4,nac:8,forma:6,msg:"Ni una palabra hasta el último partido"}},
+    {b:"Pedirle al DT los noventa minutos",s:"Todo o nada",st:"fis",base:54,ok:{nac:18,forma:14,mundo:10,msg:"Jugaste cada minuto del torneo"},mal:{salud:["isqR",-24],mor:-14,msg:"Te rompiste queriendo estirar la carrera"}},
+    {b:"Prometerle la copa a tu vieja",s:"Cábala pesada",st:"car",base:60,ok:{mor:16,forma:10,local:12,msg:"Jugaste liviano como nunca"},mal:{mor:-14,msg:"El peso de la promesa te comió vivo"}}]},
+{id:"mun_veterano",max:9,cd:0,req:{edadMin:34,edadMax:36},t:"EL VETERANO QUE NO SE QUIERE IR",
+ x:"Media prensa dice que le sacaste el lugar a un pibe. La otra mitad dice que sin vos este equipo no tiene quién hable.",
+ o:[{b:"Callar bocas adentro de la cancha",s:"Orgullo",st:"tec",base:56,ok:{nac:18,local:16,forma:12,msg:"Jugaste el mejor Mundial de tu vida"},mal:{nac:-14,mote:"El Jubilado",msg:"Confirmaste todo lo que decían"}},
+    {b:"Aceptar el rol de suplente",s:"Grupo primero",st:"car",base:99,fijo:1,ok:{car:5,mor:10,relSube:3,msg:"El vestuario te lo agradeció"}},
+    {b:"Contestarle a Azzaro en vivo",s:"Se hace viral",st:"car",base:50,ok:{local:22,mundo:10,escandalo:1,msg:"Lo dejaste mudo en cadena nacional"},mal:{escandalo:1,nac:-12,mor:-10,msg:"Quedaste de viejo amargo"}},
+    {b:"Anunciar que te retirás después",s:"Última función",st:"car",base:80,ok:{local:20,mor:14,mundo:8,msg:"Todo el torneo fue una despedida"},mal:{mor:-10,nac:-8,msg:"Te sacaron el foco de encima demasiado pronto"}}]},
+{id:"mun_milagro",max:9,cd:0,req:{edadMin:37},t:"NADIE ENTIENDE CÓMO SEGUÍS ACÁ",
+ x:"Sos el jugador más viejo del torneo. Te sacan fotos como a una pieza de museo y en el hotel te dieron la habitación del fondo.",
+ o:[{b:"Jugar los minutos que te den",s:"Lo que quede",st:"car",base:92,fijo:1,ok:{mor:12,local:14,car:4,msg:"Cada vez que entraste se paró el estadio"}},
+    {b:"Pedir ser titular una vez más",s:"Vergüenza o gloria",st:"car",base:42,ok:{nac:20,local:20,mundo:14,msg:"Jugaste y no desentonaste ni un minuto"},mal:{nac:-16,mote:"El Museo",msg:"Te sacaron a los treinta minutos"}},
+    {b:"Ser el ayudante del DT adentro",s:"Cerebro",st:"car",base:88,ok:{car:6,mor:10,relPibe:3,msg:"Terminaste dirigiendo desde el banco"},mal:{mor:-8,msg:"El cuerpo técnico te vio como una amenaza"}},
+    {b:"Llevar a toda tu familia al Mundial",s:"U$D −200k",st:"car",base:99,fijo:1,ok:{plata:-200,mor:18,msg:"Los tuyos te vieron con la camiseta una última vez"}}]}
+];
+function escenaMundial(sigue){
+  const S=sedeMundial(p.anio);
+  const c=rnd(disponibles(MUNDIAL_ERA));marcar(c.id);nuevosTokens();
+  carta({eye:"\ud83c\udfc6 COPA DEL MUNDO "+p.anio,comp:"inter",
+    compTxt:"COPA DEL MUNDO "+p.anio,compSub:"sede: "+S[0],ciego:1,
+    titulo:tokens(c.t),texto:S[1]+" "+tokens(c.x),
+    opts:seis(c.o,"mundial").map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,
+      cb:()=>resolverSimple(o,"COPA DEL MUNDO "+p.anio,sigue)}))});
 }
 /* ── v12 · FASE DE GRUPOS DEL MUNDIAL, FECHA POR FECHA ── */
 function munGrupos(){
@@ -7567,67 +7759,50 @@ function munCerrarGrupo(){
       cuerpo,"Volver al club",()=>munFin(false,"fase de grupos",tabla[0].n));
   }
 }
-/* ── ELIMINACIÓN DIRECTA · TRES DECISIONES DE CUATRO SEGUNDOS ── */
+/* ── v14 · ELIMINACIÓN DIRECTA DEL MUNDIAL · A PURO DUELO ──────────
+   De octavos para arriba se juega cara a cara, con la camiseta de tu
+   selección y un estadio lleno. Cuatro duelos en octavos y cuartos,
+   seis de semifinal en adelante, que ahí ya no se respira.           */
 function munKO(){
   const R=MUNDIAL_KO[_mun.ko];
   _mun.riv=rivalMundial(R,_mun.ultRival);
   _mun.ultRival=_mun.riv;
-  _mun.qte=0;_mun.ok=0;
-  _mun.cartas=baraja(MUN_QTE.slice()).slice(0,3);
-  munPantalla("🏆 COPA DEL MUNDO "+p.anio,R.toUpperCase()+" CONTRA "+_mun.riv.toUpperCase(),"",
-    '<p>Se define en noventa minutos: el que pierde se vuelve a casa. '
-    +'Van a pasar <b>tres momentos</b> y en cada uno tenés <b>cuatro segundos</b> para elegir. '
-    +'Con <b>dos de tres</b> que te salgan, pasás de ronda. Si dudás, la jugada se muere sola.</p>',
-    "Salir a la cancha",munQTE);
+  const yo=selKit(miSeleccion()), riv=selKit(_mun.riv);
+  const dur=clamp(72+_mun.ko*5+ri(-4,4),58,95);
+  const m={fecha:"COPA DEL MUNDO · "+R.toUpperCase(),
+    comp:_mun.ko>=MUNDIAL_KO.length-1?"final":"inter",
+    rival:{n:_mun.riv,lv:dur},mundial:true,peso:3};
+  duelIniciar(m,null,{
+    loc:yo,vis:riv,total:_mun.ko>=2?6:4,
+    est:{n:rnd(ESTADIOS_MUNDIAL),t:[yo.c[0],yo.c[1]],alto:1},
+    riv:{n:_mun.riv,fis:clamp(dur+ri(-5,5),50,97),
+         tec:clamp(dur+ri(-5,5),50,97),car:clamp(dur+ri(-5,5),50,97)},
+    eye:"\ud83c\udfc6 COPA DEL MUNDO "+p.anio,
+    inst:R.toUpperCase()+" \u00b7 VS "+_mun.riv.toUpperCase(),
+    cierre:munKODuelo});
 }
-function munQTE(){
-  if(_mun.qte>=3)return munKOResuelto();
-  const c=_mun.cartas[_mun.qte];
-  const esFinal=_mun.ko>=MUNDIAL_KO.length-1;
-  nuevosTokens();
-  carta({eye:"🏆 "+MUNDIAL_KO[_mun.ko].toUpperCase()+" · VS "+_mun.riv.toUpperCase(),
-    comp:esFinal?"final":"inter",
-    compTxt:"DECISIÓN "+(_mun.qte+1)+" DE 3",
-    compSub:"cuatro segundos · necesitás dos de tres",
-    prog:[_mun.qte,3],
-    titulo:tokens(c.t),texto:tokens(c.x),seg:4.0,ciego:1,
-    opts:c.o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>munQTEResolver(o)})),
-    onTimeout:()=>munQTEResolver(null)});
-}
-function munQTEResolver(o){
-  clearTimeout(tJug);
-  let ok=false,msg,tit;
-  if(!o){tit="TE DORMISTE";msg="Cuatro segundos y te quedaste pensando. La jugada pasó de largo.";
-    mod(p.stats,"mor",-4,5,100);}
-  else{
-    ok=o.fijo?true:dado(prob(o)/100);
-    tit=ok?"SALIÓ":"NO SALIÓ";
-    msg=ok?(o.m||"Salió como querías."):(o.mm||"Te salió por la culata.");
-    if(ok){mod(p.stats,"forma",4,10,100);}else{mod(p.stats,"forma",-3,10,100);}
-  }
-  if(ok)_mun.ok++;
-  _mun.qte++;
-  const faltan=3-_mun.qte;
-  const estado="Llevás "+_mun.ok+" de "+_mun.qte+"."
-    +(faltan?" Quedan "+faltan+".":"");
-  calcOVR();render();
-  munPantalla("🏆 "+MUNDIAL_KO[_mun.ko].toUpperCase()+" · VS "+_mun.riv.toUpperCase(),
-    tit,ok?"ok":"no",'<p>'+msg+' '+estado+'</p>',
-    faltan?"Seguir":"Ver el resultado",munQTE);
-}
-function munKOResuelto(){
-  const paso=_mun.ok>=2;
-  const R=MUNDIAL_KO[_mun.ko];
-  if(paso){
-    if(_mun.ko>=MUNDIAL_KO.length-1)return munFin(true,"la final",_mun.riv);
+function munKODuelo(r){
+  let res=r.res,pen=false;
+  if(res==="empate"){pen=true;
+    res=dado(clamp(0.30+r.ganados*0.09+(p.stats.car-55)/300,0.15,0.85))?"gano":"perdio";}
+  const R=MUNDIAL_KO[_mun.ko], ultima=_mun.ko>=MUNDIAL_KO.length-1;
+  const marc=(res==="gano"?"Ganamos ":"Perdimos ")+r.gf+"-"+r.gc
+    +(pen?(res==="gano"?" y lo sacamos por penales":" y nos ganaron los penales"):"");
+  const cuerpo=escenarioHTML(r.loc,r.vis,r.est)
+    +'<p>'+marc+'. Ganaste '+r.ganados+' de '+r.total+' duelos en '+r.est.n+'.</p>';
+  if(res==="gano"){
+    if(ultima)return munFin(true,"la final",_mun.riv);
     _mun.ko++;
     mod(p.rep,"nac",8);mod(p.stats,"mor",6,5,100);
-    munPantalla("🏆 COPA DEL MUNDO "+p.anio,"PASAMOS A "+MUNDIAL_KO[_mun.ko].toUpperCase(),"ok",
-      '<p>'+_mun.ok+' de 3 y el país se vuelve loco. Le ganaste a '+_mun.riv
-      +' y ahora viene '+MUNDIAL_KO[_mun.ko].toLowerCase()+'.</p>',
+    munPantalla("\ud83c\udfc6 COPA DEL MUNDO "+p.anio,
+      "PASAMOS A "+MUNDIAL_KO[_mun.ko].toUpperCase(),"ok",
+      cuerpo+'<p>Le ganaste a '+_mun.riv+' y ahora viene '
+        +MUNDIAL_KO[_mun.ko].toLowerCase()+'. El pa\u00eds no duerme.</p>',
       "Seguir en carrera",munKO);
   }else{
-    munFin(false,R.toLowerCase(),_mun.riv);
+    munPantalla("\ud83c\udfc6 COPA DEL MUNDO "+p.anio,
+      ultima?"PERDIMOS LA FINAL":"AFUERA EN "+R.toUpperCase(),"no",cuerpo,
+      "Ver c\u00f3mo termin\u00f3",()=>munFin(false,ultima?"la final":R.toLowerCase(),_mun.riv));
   }
 }
 /* ══════ v12 · PAPELITOS · canvas nativo, sin librerías ═══════════ */
@@ -8760,6 +8935,397 @@ function retoDelDia(){
   const rs=records().filter(r=>r.seed===sd);
   if(rs.length)toastTxt("Tu mejor puntaje de hoy: "+rs[0].pts);
 }
+/* ══════ v14 · MODO DUELO ESTILO TSUBASA ════════════════════════════
+   Sólo en los partidos grandes: Mundial y de semifinal para adelante.
+   Barra de Guts, duelos uno contra uno y cartas de ataque y defensa.  */
+function esPartidoGrande(m){
+  if(!m)return false;
+  if(m.mundial)return true;                              /* todo el Mundial */
+  if(m.cup==="cont"&&(m.kfase||0)>=2)return true;        /* semi y final continental */
+  if(m.cup==="nac"&&(m.kfase||0)>=1)return true;         /* semi y final de copa */
+  if(m.cup==="pliga"&&(m.kfase||0)>=1)return true;       /* semi y final del playoff */
+  return false;
+}
+/* Tiros y jugadas especiales del potrero, no de Japón */
+const CARTAS_ATAQUE=[
+ {id:"gambeta",n:"Gambeta corta",d:"Sacártelo de encima",st:"tec",g:14,base:54},
+ {id:"filtrado",n:"Pase filtrado",d:"Romper la línea",st:"tec",g:16,base:50},
+ {id:"pared",n:"Pared con {COMPA}",d:"Dos toques y adentro",st:"tec",g:18,base:56},
+ {id:"caño",n:"Caño y salir jugando",d:"Humillación fina",st:"tec",g:20,base:42},
+ {id:"bombazo",n:"Bombazo de Fiorito",d:"Tiro especial",st:"fis",g:34,base:38,esp:1},
+ {id:"rosca",n:"Rosca al segundo palo",d:"Tiro especial",st:"tec",g:30,base:41,esp:1},
+ {id:"palomita",n:"Palomita en el área",d:"Meter la cabeza",st:"fis",g:22,base:48},
+ {id:"pique",n:"Pique largo por afuera",d:"Ganarle la espalda",st:"fis",g:20,base:52}
+];
+const CARTAS_DEFENSA=[
+ {id:"barrida",n:"Barrida a fondo",d:"Todo o nada",st:"fis",g:22,base:50},
+ {id:"bloqueo",n:"Bloqueo con el cuerpo",d:"Poner la pierna",st:"fis",g:16,base:56},
+ {id:"achique",n:"Achicar el espacio",d:"Cerrarle el camino",st:"car",g:12,base:58},
+ {id:"intercepcion",n:"Anticipar el pase",d:"Leerle la jugada",st:"tec",g:18,base:48},
+ {id:"marca",n:"Marca personal",d:"No despegarte",st:"car",g:14,base:54},
+ {id:"falta",n:"Falta táctica",d:"Cortar como sea",st:"car",g:10,base:62}
+];
+let _du=null;
+function gutsBarra(){
+  const g=_du?_du.guts:100, mx=(_du&&_du.gmax)||100;
+  const pct=clamp(g/mx*100,0,100);
+  const cls=pct<=25?"bajo":pct<=55?"medio":"";
+  return '<div class="guts"><span class="gl">GUTS</span>'
+    +'<div class="gbar"><div class="gfill '+cls+'" style="width:'+pct+'%"></div></div>'
+    +'<span class="gn">'+Math.round(g)+'/'+mx+'</span></div>';
+}
+/* El rival tiene números propios según el club y la instancia */
+function rivalDelDuelo(m){
+  const c=club(m.rival.n);
+  const base=c.lv||60;
+  const extra=(m.kfase||0)*2+(m.mundial?6:0);
+  return {n:m.rival.n,
+    fis:clamp(base+extra+ri(-6,6),35,97),
+    tec:clamp(base+extra+ri(-6,6),35,97),
+    car:clamp(base+extra+ri(-6,6),35,97)};
+}
+function duelIniciar(m,cb,op){
+  op=op||{};
+  const aguante=clamp(96+Math.round((p.stats.fis-55)*0.35),80,124);
+  _du={m:m,guts:aguante,gmax:aguante,turno:0,total:op.total||6,gol:0,golRival:0,cb:cb,
+       riv:op.riv||rivalDelDuelo(m),
+       est:op.est||(m.comp==="final"?estadioNeutral():estadioDe(p.club)),
+       loc:op.loc||club(p.club),vis:op.vis||club(m.rival.n),
+       inst:op.inst||m.fecha||"PARTIDO GRANDE",
+       eye:op.eye||"",cierre:op.cierre||null,hist:[]};
+  duelPresentacion();
+}
+/* Las finales no se juegan en tu cancha: se juegan en un neutral lleno */
+const NEUTRALES=["El Monumental","Estadio Centenario","Maracaná",
+  "El Cilindro de Avellaneda","La Bombonera","El Kempes","El Nuevo Gasómetro"];
+function estadioNeutral(){
+  const c=club(p.club);
+  return {n:rnd(NEUTRALES),t:[c.c[0],c.c[1]],alto:1};
+}
+function duelPresentacion(){
+  const D=_du;
+  let h='<div class="card"><div class="eyebrow"><span>'+(D.eye||D.inst)+'</span><em>'+p.anio+'</em></div>';
+  h+=escenarioHTML(D.loc,D.vis,D.est);
+  h+='<div class="duelo-h"><b>'+(D.eye?D.inst:(D.loc.n+' vs '+D.vis.n))+'</b>'
+    +'<em>'+(D.eye?(D.loc.n+' vs '+D.vis.n):(D.total+' duelos')) +'</em></div>';
+  h+='<h3>'+D.est.n.toUpperCase()+'</h3>';
+  h+='<p>Se juega en '+D.est.n+'. '+(D.total===6?"Seis":"Cuatro")+' duelos hasta el pitazo final. '
+    +'Cada carta te cuesta Guts: si te quedás en cero, no ganás una sola pelota. '
+    +'El que gana más duelos se lleva el partido.</p>';
+  h+=gutsBarra();
+  h+='<button class="cta" id="btn-seguir">Salir a la cancha</button></div>';
+  const c=document.getElementById("cartas");c.dataset.ficha="0";c.innerHTML=h;
+  const b=document.getElementById("btn-seguir");if(b)b.onclick=()=>{silbato();duelTurno();};
+  c.scrollIntoView({behavior:"smooth",block:"end"});
+}
+function duelTurno(){
+  const D=_du;
+  if(D.turno>=D.total)return duelCierre();
+  if(D.turno)D.guts=clamp(D.guts+9,0,D.gmax);   /* aire entre jugada y jugada */
+  /* que el partido tenga ida y vuelta: alterna, con sesgo por jerarquía */
+  const sesgo=clamp(0.5+(p.ovr-D.riv.fis)/260,0.32,0.68);
+  const ataca=dado(D.turno%2===0?sesgo+0.18:sesgo-0.18);
+  D.ataca=ataca;
+  const mazo=baraja((ataca?CARTAS_ATAQUE:CARTAS_DEFENSA).slice()).slice(0,5);
+  D.mazo=mazo;
+  nuevosTokens();
+  const min=10+D.turno*14+ri(0,6);
+  let h='<div class="card"><div class="eyebrow"><span>'+D.inst+'</span>'
+    +'<em>'+(D.turno+1)+'/'+D.total+' · '+min+"'"+'</em></div>';
+  h+=escenarioHTML(D.loc,D.vis,D.est);
+  h+='<div class="mk">'+escudo(D.loc,18)+'<span class="sc">'+D.gol+'-'+D.golRival+'</span>'
+    +escudo(D.vis,18)+'<span>'+D.vis.n+'</span><span class="min">'+min+"'"+'</span></div>';
+  h+=gutsBarra();
+  h+='<div class="duelo-h"><b>'+(ataca?"⚡ Atacás vos":"🛡 Te vienen encima")+'</b>'
+    +'<em>'+D.riv.n+'</em></div>';
+  h+='<h3>'+(ataca?"LA TENÉS VOS Y TE SALEN A APRETAR":"VIENEN DE CONTRA Y SOS EL ÚLTIMO")+'</h3>';
+  h+='<p>'+(ataca
+    ?"Te quedaste con la pelota en tres cuartos. Enfrente hay uno de "+D.riv.n
+      +" que no te va a regalar nada."
+    :"Se les escapó la marca y el que viene lanzado es el peligro de "+D.riv.n
+      +". Si lo pasás, es gol.")+'</p>';
+  mazo.forEach((k,i)=>{
+    const puede=D.guts>=k.g;
+    h+='<button class="opt'+(puede?"":" singuts")+'" id="d'+i+'">'
+      +'<span class="n">0'+(i+1)+'</span>'
+      +'<span class="t"><b>'+tokens(k.n)+'</b><small>'+k.d+'</small></span>'
+      +'<span class="cost">'+k.g+' G</span></button>';
+  });
+  h+='</div>';
+  const c=document.getElementById("cartas");c.dataset.ficha="0";c.innerHTML=h;
+  mazo.forEach((k,i)=>{const el=document.getElementById("d"+i);
+    if(el)el.onclick=()=>{buzz(12);sonTic();duelResolver(k);};});
+  c.scrollIntoView({behavior:"smooth",block:"end"});
+}
+function duelResolver(k){
+  const D=_du;
+  /* sin Guts se puede intentar igual, pero es casi imposible */
+  const sinAire=D.guts<k.g;
+  D.guts=clamp(D.guts-(sinAire?D.guts:k.g),0,D.gmax);
+  const mio=(p.stats[k.st]||55)+(p.ovr-62)*0.40;
+  const suyo=(D.riv[k.st]||60);
+  let pr=k.base+(mio-suyo)*0.55+(D.guts/D.gmax-0.5)*22;
+  if(sinAire)pr-=42;
+  if(enLlamas())pr+=15;
+  const cab=cabalaActiva(); if(cab&&cab[k.st])pr+=cab[k.st];
+  const ok=dado(clamp(pr,5,93)/100);
+  rachaSuma(ok);
+  let tit,txt;
+  if(D.ataca){
+    if(ok){
+      if(k.esp||dado(.7)){D.gol++;sacudir();sonGol();relator(rnd(RELATOS_OK));
+        tit=k.esp?"¡"+k.n.toUpperCase()+"!":"GOL";
+        txt=k.esp?"Le pegaste con todo y no la vio pasar. El estadio se vino abajo."
+          :"Salió como en la cabeza. Adentro.";}
+      else{sonTic();relator("¡LA SACÓ DE ABAJO DEL ÁNGULO!");
+        tit="LE GANASTE Y LA SACÓ EL ARQUERO";
+        txt="Le ganaste el duelo limpio, pero el arquero de "+D.riv.n
+          +" voló y la mandó al córner. Bronca pura.";}}
+    else{sonMal();relator(rnd(RELATOS_MAL));
+      tit="TE LA SACARON";
+      txt=sinAire?"No te daban las piernas. Te la sacaron sin despeinarse."
+        :"El de "+D.riv.n+" te ganó el duelo. A empezar de nuevo.";}
+  }else{
+    if(ok){
+      if(dado(.3)){D.gol++;sacudir();sonGol();relator(rnd(RELATOS_OK));
+        tit="CORTASTE Y LA CLAVASTE DE CONTRA";
+        txt="Le ganaste el duelo, arrancaste solo desde tu campo y la mandaste "
+          +"a guardar. De esas se habla veinte años.";}
+      else{sonTic();relator("¡QUÉ CIERRE SALVAJE!");
+        tit="LA CORTASTE";
+        txt="Le ganaste el duelo y la sacaste jugando. Así se defiende.";}}
+    else if(sinAire||dado(.7)){D.golRival++;sacudir();sonMal();relator(rnd(RELATOS_MAL));
+      tit="TE PASARON";
+      txt=sinAire?"No llegaste ni con el alma. Gol de ellos."
+        :"Te la picó por arriba y la mandó a guardar.";}
+    else{sonTic();relator("¡LA MANDÓ A LA TRIBUNA!");
+      tit="TE PASÓ Y LA TIRÓ AFUERA";
+      txt="Te dejó parado, quedó de frente al arco y la reventó contra el cartel. "
+        +"Zafaste de casualidad.";}
+  }
+  D.hist.push({ok:ok,n:k.n});
+  D.turno++;
+  calcOVR();render();
+  let h='<div class="card"><div class="eyebrow"><span>'+D.inst+'</span>'
+    +'<em>'+D.turno+'/'+D.total+' · '+D.gol+'-'+D.golRival+'</em></div>';
+  h+='<div class="res"><h4 class="'+(ok?"ok":"no")+'">'+tit+'</h4><p>'+txt+'</p>'
+    +(sinAire?'<p class="cnota mal">Estabas sin Guts: la jugaste a pulmón.</p>':'')+'</div>';
+  h+=gutsBarra();
+  h+='<button class="cta" id="btn-seguir">'+(D.turno>=D.total?"Pitazo final":"Seguir")+'</button></div>';
+  const c=document.getElementById("cartas");c.innerHTML=h;
+  const b=document.getElementById("btn-seguir");
+  if(b)b.onclick=()=>{if(D.turno>=D.total)duelCierre();else duelTurno();};
+  c.scrollIntoView({behavior:"smooth",block:"end"});
+}
+function duelCierre(){
+  const D=_du,m=D.m,T=p.temp;
+  m.mk=[D.gol,D.golRival];
+  const res=D.gol>D.golRival?"gano":D.gol<D.golRival?"perdio":"empate";
+  const ganados=D.hist.filter(x=>x.ok).length;
+  mod(p.stats,"forma",ganados>=Math.ceil(D.total*0.7)?10:ganados<=1?-10:0,10,100);
+  silbato();calcOVR();render();
+  /* el Mundial arma su propia pantalla de cierre */
+  if(D.cierre){const fn=D.cierre;_du=null;return fn({res:res,ganados:ganados,
+    gf:D.gol,gc:D.golRival,total:D.total,loc:D.loc,vis:D.vis,est:D.est});}
+  /* el duelo alimenta la temporada igual que un partido normal */
+  if(T){
+    T.goles+=D.gol;
+    if(res==="gano"){T.ganados++;T.rend+=m.peso||2;}
+    else if(res==="perdio"){T.perdidos++;T.rend-=Math.round((m.peso||2)*0.7);}
+  }
+  mod(p.rep,"local",res==="gano"?12:res==="perdio"?-8:0);
+  if(m.comp==="clasico"&&res==="gano"&&p.club!=="Libre")hist(p.club).cla++;
+  copaProgreso(m,res);
+  if(m.cup==="pliga")playoffLigaProgreso(m,res);
+  let h='<div class="card"><div class="eyebrow"><span>'+D.inst+'</span><em>FINAL</em></div>';
+  h+=escenarioHTML(D.loc,D.vis,D.est);
+  h+='<div class="res"><h4 class="'+(res==="gano"?"ok":res==="perdio"?"no":"")+'">'
+    +(res==="gano"?"GANARON ":res==="perdio"?"PERDIERON ":"EMPATE ")+D.gol+'-'+D.golRival+'</h4>'
+    +'<p>Ganaste '+ganados+' de '+D.total+' duelos en '+D.est.n+'.</p>'
+    +notaCopa(m,res)+'</div>';
+  h+='<button class="cta" id="btn-seguir">Seguir</button></div>';
+  const c=document.getElementById("cartas");c.innerHTML=h;
+  const b=document.getElementById("btn-seguir");
+  const sigue=D.cb;
+  if(b)b.onclick=()=>{_du=null;sigue();};
+  feedDe("jugada",{gol:D.gol>0,roja:false,fallo:res==="perdio"});
+  c.scrollIntoView({behavior:"smooth",block:"end"});
+}
+
+/* ══════ v14 · CAMISETA DIBUJADA · SVG, con el patrón real del club ══ */
+function camisetaSVG(c,size){
+  const A=c.c[0],B=c.c[1],pa=c.pa||"solido";
+  const id="k"+(_uid++);
+  const linea=lum(A)>0.62?"rgba(0,0,0,.45)":"rgba(255,255,255,.35)";
+  let patron="";
+  if(pa==="franjas"){
+    for(let i=0;i<5;i++)patron+='<rect x="'+(20+i*13)+'" y="16" width="6.5" height="76" fill="'+B+'"/>';
+  }else if(pa==="banda"){
+    patron='<path d="M16 30 L84 82 L84 62 L16 12 Z" fill="'+B+'"/>';
+  }else if(pa==="aros"){
+    for(let i=0;i<3;i++)patron+='<rect x="14" y="'+(30+i*20)+'" width="72" height="9" fill="'+B+'"/>';
+  }else if(pa==="mitades"){
+    patron='<rect x="50" y="12" width="36" height="82" fill="'+B+'"/>';
+  }
+  return '<svg viewBox="0 0 100 100" style="width:'+(size||46)+'px;height:'+(size||46)+'px;display:block">'
+    +'<defs><clipPath id="'+id+'"><path d="M32 10 L42 6 Q50 12 58 6 L68 10 L86 20 L80 36 L72 32 L72 92'
+    +' Q50 96 28 92 L28 32 L20 36 L14 20 Z"/></clipPath></defs>'
+    +'<g clip-path="url(#'+id+')">'
+    +'<rect x="0" y="0" width="100" height="100" fill="'+A+'"/>'+patron+'</g>'
+    +'<path d="M32 10 L42 6 Q50 12 58 6 L68 10 L86 20 L80 36 L72 32 L72 92 Q50 96 28 92 L28 32 L20 36 L14 20 Z"'
+    +' fill="none" stroke="'+linea+'" stroke-width="2.5"/>'
+    +'<path d="M42 6 Q50 16 58 6" fill="none" stroke="'+linea+'" stroke-width="2.5"/>'
+    +'</svg>';
+}
+
+/* ══════ v14 · ESTADIOS · el escenario donde se juega el partido ═════ */
+const ESTADIOS={
+  "Boca Juniors":{n:"La Bombonera",t:["#0B2C6B","#F2C500"],alto:1},
+  "River Plate":{n:"El Monumental",t:["#E8E8E8","#D8232A"],alto:0},
+  "Racing Club":{n:"El Cilindro de Avellaneda",t:["#6CACE4","#FFFFFF"],alto:0},
+  "Independiente":{n:"Libertadores de América",t:["#D8232A","#FFFFFF"],alto:1},
+  "San Lorenzo":{n:"El Nuevo Gasómetro",t:["#0B2C6B","#C8102E"],alto:0},
+  "Vélez Sarsfield":{n:"El Fortín de Liniers",t:["#E8E8E8","#12439E"],alto:0},
+  "Huracán":{n:"El Palacio Ducó",t:["#E8E8E8","#C8102E"],alto:1},
+  "Rosario Central":{n:"El Gigante de Arroyito",t:["#F2C500","#0B2C6B"],alto:0},
+  "Newell's":{n:"El Coloso del Parque",t:["#C8102E","#000000"],alto:0},
+  "Estudiantes":{n:"El UNO de La Plata",t:["#C8102E","#FFFFFF"],alto:1},
+  "Lanús":{n:"La Fortaleza",t:["#7B1E2B","#FFFFFF"],alto:1},
+  "Argentinos Jrs":{n:"El Diego Maradona",t:["#D8232A","#FFFFFF"],alto:0},
+  "Talleres":{n:"El Kempes",t:["#003DA5","#FFFFFF"],alto:0},
+  "Corinthians":{n:"Neo Química Arena",t:["#E8E8E8","#000000"],alto:0},
+  "Palmeiras":{n:"Allianz Parque",t:["#046A38","#FFFFFF"],alto:0},
+  "Flamengo":{n:"Maracaná",t:["#C8102E","#000000"],alto:0},
+  "São Paulo":{n:"Morumbí",t:["#E8E8E8","#C8102E"],alto:0},
+  "Boca":{n:"La Bombonera",t:["#0B2C6B","#F2C500"],alto:1}
+};
+/* Las camisetas de las selecciones, con el patr\u00f3n que las hace reconocibles */
+const KITS_SEL={
+ "Argentina":{c:["#6CACE4","#FFFFFF"],pa:"franjas",i:"ARG"},
+ "Brasil":{c:["#F2C500","#0F7A3D"],pa:"solido",i:"BRA"},
+ "Francia":{c:["#12439E","#FFFFFF"],pa:"solido",i:"FRA"},
+ "Espa\u00f1a":{c:["#C8102E","#F2C500"],pa:"solido",i:"ESP"},
+ "Inglaterra":{c:["#FFFFFF","#C8102E"],pa:"solido",i:"ING"},
+ "Portugal":{c:["#A6192E","#0F7A3D"],pa:"mitades",i:"POR"},
+ "Pa\u00edses Bajos":{c:["#F36C21","#FFFFFF"],pa:"solido",i:"NED"},
+ "B\u00e9lgica":{c:["#C8102E","#000000"],pa:"solido",i:"BEL"},
+ "Italia":{c:["#12439E","#FFFFFF"],pa:"solido",i:"ITA"},
+ "Alemania":{c:["#FFFFFF","#000000"],pa:"banda",i:"ALE"},
+ "Croacia":{c:["#FFFFFF","#C8102E"],pa:"aros",i:"CRO"},
+ "Uruguay":{c:["#6CACE4","#000000"],pa:"solido",i:"URU"},
+ "Colombia":{c:["#F2C500","#12439E"],pa:"solido",i:"COL"},
+ "Marruecos":{c:["#C8102E","#0F7A3D"],pa:"solido",i:"MAR"},
+ "Estados Unidos":{c:["#FFFFFF","#12439E"],pa:"solido",i:"USA"},
+ "M\u00e9xico":{c:["#0F7A3D","#FFFFFF"],pa:"solido",i:"MEX"},
+ "Suiza":{c:["#C8102E","#FFFFFF"],pa:"solido",i:"SUI"},
+ "Dinamarca":{c:["#C8102E","#FFFFFF"],pa:"solido",i:"DIN"},
+ "Austria":{c:["#C8102E","#FFFFFF"],pa:"banda",i:"AUT"},
+ "Jap\u00f3n":{c:["#12439E","#FFFFFF"],pa:"solido",i:"JPN"},
+ "Corea del Sur":{c:["#C8102E","#12439E"],pa:"solido",i:"KOR"},
+ "Senegal":{c:["#0F7A3D","#FFFFFF"],pa:"solido",i:"SEN"},
+ "Ecuador":{c:["#F2C500","#12439E"],pa:"solido",i:"ECU"},
+ "Canad\u00e1":{c:["#C8102E","#FFFFFF"],pa:"solido",i:"CAN"},
+ "Serbia":{c:["#C8102E","#12439E"],pa:"solido",i:"SRB"},
+ "Polonia":{c:["#FFFFFF","#C8102E"],pa:"solido",i:"POL"},
+ "T\u00fanez":{c:["#C8102E","#FFFFFF"],pa:"solido",i:"TUN"},
+ "Ghana":{c:["#FFFFFF","#000000"],pa:"banda",i:"GHA"},
+ "Ir\u00e1n":{c:["#FFFFFF","#0F7A3D"],pa:"solido",i:"IRN"},
+ "Australia":{c:["#F2C500","#0F7A3D"],pa:"solido",i:"AUS"},
+ "Costa Rica":{c:["#C8102E","#12439E"],pa:"solido",i:"CRC"},
+ "Paraguay":{c:["#C8102E","#FFFFFF"],pa:"franjas",i:"PAR"}
+};
+function selKit(n){
+  const k=KITS_SEL[n]||{c:["#C8102E","#FFFFFF"],pa:"solido",
+    i:(n||"SEL").replace(/[^A-Za-z\u00c0-\u00ff]/g,"").slice(0,3).toUpperCase()};
+  return {n:n,lv:78,c:k.c,pa:k.pa,i:k.i,f:"escudo"};
+}
+const ESTADIOS_MUNDIAL=["Estadio Azteca","MetLife Stadium","Estadio Monumental",
+ "Maracan\u00e1","Estadio Centenario","Rose Bowl","Estadio Akron","BMO Field"];
+/* La cancha de cada club, con su nombre de verdad */
+const ESTADIOS_N={
+ "AZ Alkmaar":"AFAS Stadion","Ajax":"Johan Cruyff ArenA","Al-Sadd FC":"Jassim bin Hamad",
+ "Aldosivi":"José María Minella","Amazonas FC":"Arena da Amazônia",
+ "América de Cali":"Pascual Guerrero","Anderlecht":"Lotto Park","Arsenal":"Emirates Stadium",
+ "Aston Villa":"Villa Park","Atalanta":"Gewiss Stadium","Athletic Club":"San Mamés",
+ "Athletico PR":"Arena da Baixada","Atlético Madrid":"El Metropolitano",
+ "Atlético Mineiro":"Arena MRV","Atlético Tucumán":"José Fierro","Bahia":"Arena Fonte Nova",
+ "Banfield":"Florencio Sola","Barcelona":"Camp Nou","Barcelona SC":"Monumental de Guayaquil",
+ "Barracas Central":"El Claudio Tapia","Bayer Leverkusen":"BayArena","Bayern":"Allianz Arena",
+ "Bayern Munich":"Allianz Arena","Belgrano":"El Gigante de Alberdi","Benfica":"Estádio da Luz",
+ "Beşiktaş":"Estadio del Bósforo","Bodø/Glimt":"Aspmyra Stadion","Bologna":"Renato Dall'Ara",
+ "Bolívar":"Hernando Siles","Borussia Dortmund":"Signal Iduna Park","Botafogo":"Nilton Santos",
+ "Braga":"A Pedreira","Brest":"Francis-Le Blé","Celtic":"Celtic Park",
+ "Central Córdoba":"Alfredo Terrera","Cerro Porteño":"La Nueva Olla",
+ "Club Brugge":"Jan Breydel","Colo-Colo":"Monumental David Arellano",
+ "Colón":"El Cementerio de los Elefantes","Coquimbo Unido":"Sánchez Rumoroso",
+ "Criciúma":"Heriberto Hülse","Cruzeiro":"Mineirão","Danubio":"Jardines del Hipódromo",
+ "Defensa y Justicia":"Norberto Tomaghello","Defensor Sporting":"Luis Franzini",
+ "Eintracht Frankfurt":"Waldstadion","Estrella Roja":"Marakana de Belgrado",
+ "Fenerbahçe":"Şükrü Saracoğlu","Feyenoord":"De Kuip","Fluminense":"Maracaná",
+ "Fortaleza":"Arena Castelão","Galatasaray":"Ali Sami Yen","Gimnasia":"El Bosque",
+ "Girona":"Montilivi","Godoy Cruz":"Feliciano Gambarte","Grêmio":"Arena do Grêmio",
+ "Hoffenheim":"PreZero Arena","Independiente Medellín":"Atanasio Girardot",
+ "Independiente Rivadavia":"Bautista Gargantini","Independiente del Valle":"Banco Guayaquil",
+ "Instituto":"El Monumental de Alta Córdoba","Inter":"San Siro","Internacional":"Beira-Rio",
+ "Junior":"Roberto Meléndez","Juventude":"Alfredo Jaconi","Juventus":"Allianz Stadium",
+ "LDU Quito":"Rodrigo Paz Delgado","Lazio":"Olímpico de Roma","Libertad":"La Huerta",
+ "Lille":"Pierre-Mauroy","Liverpool":"Anfield","Lyon":"Parc OL","Maccabi Tel Aviv":"Bloomfield",
+ "Malmö FF":"Eleda Stadion","Manchester City":"Etihad Stadium",
+ "Manchester United":"Old Trafford","Marsella":"El Vélodrome","Milan":"San Siro",
+ "Millonarios":"El Campín","Mónaco":"Louis II","Nacional":"Gran Parque Central",
+ "Napoli":"Diego Armando Maradona","Niza":"Allianz Riviera","Olimpia":"Manuel Ferreira",
+ "Olympiacos":"Karaiskákis","PSG":"Parque de los Príncipes","PSV":"Philips Stadion",
+ "Peñarol":"Campeón del Siglo","Platense":"Ciudad de Vicente López","Porto":"Do Dragão",
+ "Quilmes":"Centenario de Quilmes","RB Bragantino":"Nabi Abi Chedid",
+ "RB Leipzig":"Red Bull Arena","Rangers":"Ibrox","Real Madrid":"Santiago Bernabéu",
+ "Real Sociedad":"Anoeta","Riyadh United":"Príncipe Faisal","Roma":"Olímpico de Roma",
+ "Santos":"Vila Belmiro","Sarmiento":"Eva Perón","Shakhtar Donetsk":"Donbass Arena",
+ "Slavia Praga":"Eden Arena","Sparta Praga":"Letná","Sporting CP":"José Alvalade",
+ "Sporting Cristal":"Alberto Gallardo","Sturm Graz":"Merkur Arena","Stuttgart":"Neckarstadion",
+ "The Strongest":"Rafael Mendoza","Tigre":"José Dellagiovanna",
+ "Tottenham":"Tottenham Hotspur Stadium","Twente":"De Grolsch Veste",
+ "Universidad de Chile":"Estadio Nacional de Chile","Universitario":"Monumental de Ate",
+ "Unión":"15 de Abril","Vasco da Gama":"São Januário","Villarreal":"La Cerámica",
+ "Vitória":"Barradão"
+};
+function estadioDe(n){
+  if(ESTADIOS[n])return ESTADIOS[n];
+  const c=club(n);
+  return {n:ESTADIOS_N[n]||("Estadio de "+n),t:[c.c[0],c.c[1]],alto:0};
+}
+/* Cancha estilo NES: cielo, tribunas con hinchada de píxeles y césped */
+function escenarioHTML(local,visita,est){
+  const E=est||estadioDe(local.n);
+  const A=E.t[0],B=E.t[1];
+  const filas=E.alto?4:3;
+  let gente="";
+  for(let f=0;f<filas;f++)for(let i=0;i<26;i++){
+    const col=(i+f)%3===0?B:(i%2?A:"#1a2230");
+    gente+='<rect x="'+(i*4)+'" y="'+(f*4)+'" width="3" height="3" fill="'+col+'" opacity="'+(0.55+0.15*f)+'"/>';
+  }
+  return '<div class="tsu-esc">'
+    +'<div class="tsu-cielo"></div>'
+    +'<svg class="tsu-trib'+(E.alto?" empinada":"")+'" viewBox="0 0 104 '+(filas*4)+'"'
+      +' preserveAspectRatio="none">'+gente+'</svg>'
+    +'<div class="tsu-pasto">'
+      +'<svg viewBox="0 0 200 60" preserveAspectRatio="none" class="tsu-lineas">'
+      +'<rect x="1" y="1" width="198" height="58" fill="none" stroke="#eaf6ea" stroke-width="1.2"/>'
+      +'<line x1="100" y1="1" x2="100" y2="59" stroke="#eaf6ea" stroke-width="1.2"/>'
+      +'<circle cx="100" cy="30" r="13" fill="none" stroke="#eaf6ea" stroke-width="1.2"/>'
+      +'<rect x="1" y="14" width="24" height="32" fill="none" stroke="#eaf6ea" stroke-width="1.2"/>'
+      +'<rect x="175" y="14" width="24" height="32" fill="none" stroke="#eaf6ea" stroke-width="1.2"/>'
+      +'<rect x="0" y="24" width="3" height="12" fill="#eaf6ea" opacity=".9"/>'
+      +'<rect x="197" y="24" width="3" height="12" fill="#eaf6ea" opacity=".9"/>'
+      +'</svg></div>'
+    +'<div class="tsu-vs">'
+      +'<div class="tsu-eq">'+camisetaSVG(local,40)+'<b>'+(local.i||"LOC")+'</b></div>'
+      +'<span class="tsu-x">VS</span>'
+      +'<div class="tsu-eq">'+camisetaSVG(visita,40)+'<b>'+(visita.i||"VIS")+'</b></div>'
+    +'</div>'
+    +'<div class="tsu-nom">'+E.n.toUpperCase()+'</div>'
+    +'</div>';
+}
+
 /* ══════ v12 · MOTOR DE JUGO ══════════════════════════════════════
    Todo Vanilla: CSS3, canvas y Web Audio. Cero librerías, cero archivos. */
 
