@@ -712,6 +712,9 @@ const CLUBES=[
  {n:"Aldosivi",lv:43,liga:"ARG",c:["#0F7A3D","#F2C500"],f:"escudo",pa:"franjas",i:"ALD"},
  {n:"Gimnasia",lv:50,liga:"ARG",c:["#FFFFFF","#12439E"],f:"escudo",pa:"franjas",i:"GLP"},
  {n:"Colón",lv:52,liga:"ARG",c:["#C8102E","#000000"],f:"escudo",pa:"franjas",i:"COL"},
+ {n:"Central Córdoba",lv:47,liga:"ARG",c:["#000000","#C8102E"],f:"escudo",pa:"franjas",i:"CCSE"},
+ {n:"Atlético Tucumán",lv:49,liga:"ARG",c:["#5EC5EC","#FFFFFF"],f:"escudo",pa:"franjas",i:"CAT"},
+ {n:"Independiente Rivadavia",lv:46,liga:"ARG",c:["#0B2C6B","#FFFFFF"],f:"escudo",pa:"banda",i:"CSIR"},
  {n:"Danubio",lv:53,liga:"URU",c:["#FFFFFF","#000000"],f:"escudo",pa:"banda",i:"DFC"},
  {n:"Argentinos Jrs",lv:56,liga:"ARG",c:["#D8232A","#FFFFFF"],f:"redondo",pa:"mitades",i:"AAAJ"},
  {n:"Lanús",lv:58,liga:"ARG",c:["#7B1E2B","#FFFFFF"],f:"escudo",pa:"solido",i:"CAL"},
@@ -760,7 +763,7 @@ const CLUBES=[
  {n:"Al-Sadd FC",lv:58,liga:"QAT",c:["#8B1A5C","#FFFFFF"],f:"rombo",pa:"mitades",i:"SAD",petro:true},
  {n:"Riyadh United",lv:62,liga:"KSA",c:["#009B4D","#FFFFFF"],f:"escudo",pa:"banda",i:"RU",petro:true}
 ];
-const club=n=> (!n||n==="Libre") ? LIBRE : (CLUBES.find(c=>c.n===n)||LIBRE);
+const club=n=> (!n||n==="Libre") ? LIBRE : (CLUBES.find(c=>c.n===n)||CLUB_VIRT[n]||LIBRE);
 
 const APELLIDOS=["Sosa","Ferreyra","Quiroga","Almirón","Vera","Ibarra","Colombo","Maidana","Recalde","Ojeda","Bustos","Zapata","Aguirre","Ledesma","Cabrera","Peralta","Villalba","Godoy","Alcaraz","Núñez","Toledo","Cardozo","Rinaldi","Basualdo","Mansilla","Gauto","Britez","Sciacca","Olmedo","Barrionuevo"];
 const NOMBRES=["Nahuel","Brian","Thiago","Lautaro","Ezequiel","Maxi","Elías","Iván","Franco","Ramiro","Tobías","Kevin","Alan","Milton","Joaquín","Gastón","Rodrigo","Facundo"];
@@ -1067,12 +1070,12 @@ const EXTRA_LIGA={
  ITA:"Juventus 84,Milan 84,Atalanta 83,Roma 80,Lazio 79,Fiorentina 78,Bologna 76,Torino 73,Udinese 71,Genoa 70,Como 69,Empoli 67,Parma 66,Cagliari 66,Lecce 64,Verona 64,Monza 63,Venezia 61",
  GER:"Leverkusen 87,Dortmund 83,RB Leipzig 82,Stuttgart 80,Eintracht 79,Freiburg 74,Wolfsburgo 73,Hoffenheim 72,Gladbach 71,Werder 70,Augsburgo 70,Mainz 69,Union Berlin 69,Heidenheim 66,Bochum 63,St. Pauli 62,Holstein Kiel 60",
  FRA:"PSG 90,Mónaco 82,Lille 79,Niza 77,Lyon 77,Lens 75,Rennes 74,Brest 72,Estrasburgo 70,Toulouse 69,Nantes 67,Reims 66,Auxerre 65,Saint-Étienne 63,Montpellier 63,Le Havre 62,Angers 61",
- POR:"Sporting 80,Porto 79,Braga 75,Vitória SC 68,Moreirense 62,Famalicão 62,Gil Vicente 60,Boavista 59,Estoril 58,Rio Ave 58,Arouca 57,Casa Pia 56,Santa Clara 55,Farense 54,Estrela 54,Nacional M. 53",
- NED:"PSV 81,Feyenoord 79,AZ 74,Twente 72,Utrecht 70,NEC 65,Go Ahead 64,Heerenveen 63,Sparta 62,Groningen 62,Zwolle 60,Fortuna 59,Waalwijk 58,Heracles 57,Willem II 57,NAC 56",
+ POR:"Sporting 80,Porto 79,Braga 75,Vitória SC 68,Moreirense 62,Famalicão 62,Gil Vicente 60,Boavista 59,Estoril 58,Rio Ave 58,Arouca 57,Casa Pia 56,Santa Clara 55,Farense 54,Estrela 54,Nacional M. 53,AVS 52",
+ NED:"PSV 81,Feyenoord 79,AZ 74,Twente 72,Utrecht 70,NEC 65,Go Ahead 64,Heerenveen 63,Sparta 62,Groningen 62,Zwolle 60,Fortuna 59,Waalwijk 58,Heracles 57,Willem II 57,NAC 56,Almere City 55",
  URU:"Peñarol 68,Liverpool FC 61,Defensor 58,Montevideo City 56,Cerro Largo 54,Boston River 53,River Plate M. 52,Wanderers 52,Plaza Colonia 51,Racing M. 50,Progreso 50,Juventud 49,Miramar 49,Cerro 48",
- BOL:"The Strongest 63,Always Ready 60,Wilstermann 55,Oriente Petrolero 54,Nacional Potosí 53,Blooming 52,Independiente P. 50,Aurora 50,San Antonio 49,Guabirá 48,Real Tomayapo 47,Real Santa Cruz 46",
- QAT:"Al-Duhail 57,Al-Rayyan 54,Al-Gharafa 53,Al-Arabi 51,Al-Wakrah 49,Umm Salal 48,Qatar SC 47,Al-Ahli D. 46",
- KSA:"Al-Hilal 76,Al-Nassr 74,Al-Ittihad 72,Al-Ahli 71,Al-Shabab 65,Al-Ettifaq 62,Al-Taawoun 60,Al-Fateh 58,Al-Khaleej 56"
+ BOL:"The Strongest 63,Always Ready 60,Wilstermann 55,Oriente Petrolero 54,Nacional Potosí 53,Blooming 52,Independiente P. 50,Aurora 50,San Antonio 49,Guabirá 48,Real Tomayapo 47,Real Santa Cruz 46,GV San José 46,Universitario 45,Real Oruro 44",
+ QAT:"Al-Duhail 57,Al-Rayyan 54,Al-Gharafa 53,Al-Arabi 51,Al-Wakrah 49,Umm Salal 48,Qatar SC 47,Al-Ahli D. 46,Al-Sailiya 45,Al-Shamal 44,Muaither 43",
+ KSA:"Al-Hilal 76,Al-Nassr 74,Al-Ittihad 72,Al-Ahli 71,Al-Shabab 65,Al-Ettifaq 62,Al-Taawoun 60,Al-Fateh 58,Al-Khaleej 56,Al-Qadsiah 57,Al-Riyadh 55,Al-Raed 54,Al-Wehda 53,Damac 52,Al-Okhdood 50,Al-Hazem 49,Al-Kholood 48"
 };
 /* Cómo se llaman las copas de cada continente */
 const COPAS={
@@ -1090,13 +1093,119 @@ function equiposDe(liga){
     if(!out.some(o=>o.n===n))out.push({n:n,lv:+t.slice(i+1)});});
   return out;
 }
+/* v10 · Los equipos que sólo vivían en la tabla ahora te los cruzás en la
+   cancha, así que necesitan escudo, colores e iniciales propias.        */
+const PAL_VIRT=[["#C8102E","#FFFFFF"],["#0B2C6B","#FFFFFF"],["#046A38","#FFFFFF"],
+  ["#000000","#FFFFFF"],["#F2C500","#000000"],["#12439E","#F2C500"],["#7B1E2B","#FFFFFF"],
+  ["#5EC5EC","#0B2C6B"],["#FF6A13","#000000"],["#4B2E83","#FFFFFF"],["#1C5BA8","#FFFFFF"],
+  ["#8B1A5C","#F2C500"]];
+const FORMAS_V=["escudo","redondo","rombo"];
+const PATR_V=["solido","franjas","banda","mitades","aros"];
+const CLUB_VIRT={};
+function clubVirtual(n,lv,liga){
+  if(CLUB_VIRT[n])return CLUB_VIRT[n];
+  const h=Math.abs(hashTexto(n));
+  const ini=n.replace(/[^0-9A-Za-zÁÉÍÓÚÑáéíóúñ ]/g," ").split(" ").filter(x=>x)
+    .map(x=>x.charAt(0)).join("").toUpperCase().slice(0,4)||"FC";
+  const c={n:n,lv:lv,liga:liga,c:PAL_VIRT[h%PAL_VIRT.length],
+    f:FORMAS_V[Math.floor(h/7)%FORMAS_V.length],
+    pa:PATR_V[Math.floor(h/53)%PATR_V.length],i:ini,virtual:true};
+  CLUB_VIRT[n]=c;return c;
+}
+(function armarVirtuales(){
+  Object.keys(EXTRA_LIGA).forEach(L=>{
+    EXTRA_LIGA[L].split(",").forEach(t=>{
+      const i=t.lastIndexOf(" "),n=t.slice(0,i);
+      if(n&&!CLUBES.some(c=>c.n===n))clubVirtual(n,+t.slice(i+1),L);
+    });
+  });
+})();
+
+/* ── v10 · DE DÓNDE SALE EL RIVAL ─────────────────────────────────────
+   Regla de oro: en torneo local se juega contra el país propio; en copa
+   continental, contra otros países de la misma confederación.          */
+function rivalDeLiga(liga,excl){
+  const ex=excl||p.club;
+  const l=equiposDe(liga).filter(t=>t.n!==ex);
+  if(!l.length)return otroRival();
+  const lv=nivelClub();
+  const cerca=l.filter(t=>Math.abs(t.lv-lv)<=14);
+  return club((cerca.length&&dado(.72)?rnd(cerca):rnd(l)).n);
+}
+function ligasDeConf(conf,excluir){
+  return Object.keys(CONF).filter(L=>CONF[L]===conf&&L!==excluir);
+}
+/* tier 1 = los pesos pesados (copa grande) · tier 2 = clase media (copa chica) */
+function rivalContinental(tier,excl){
+  const miLiga=club(p.club).liga||ligaCasa();
+  const conf=CONF[miLiga]||"sud";
+  const pool=[];
+  ligasDeConf(conf,miLiga).forEach(L=>{
+    equiposDe(L).forEach(t=>{if(t.n!==(excl||p.club))pool.push(t);});
+  });
+  if(!pool.length)return otroRival();
+  let f=pool.filter(t=>tierCont(t.n)===tier);
+  if(!f.length)f=pool;
+  return club(rnd(f).n);
+}
 const copasDe=liga=>COPAS[CONF[liga]||"sud"];
 const pais=()=>PAISES.find(x=>x.id===(p.pais||"ARG"))||PAISES[0];
 const ligaCasa=()=>(p.ligaCasa||pais().liga);
-const LIGA_NOM={ARG:"Liga Profesional",BRA:"Brasileirão",URU:"Campeonato Uruguayo",
-  ESP:"La Liga",ITA:"Serie A",ENG:"Premier League",GER:"Bundesliga",FRA:"Ligue 1",
-  POR:"Liga Portugal",NED:"Eredivisie",BOL:"Liga Boliviana",QAT:"Liga de Qatar",
-  KSA:"Liga Saudí"};
+const LIGA_NOM={ARG:"Liga Profesional",BRA:"Brasileirão Série A",URU:"Campeonato Uruguayo",
+  ESP:"LaLiga",ITA:"Serie A",ENG:"Premier League",GER:"Bundesliga",FRA:"Ligue 1",
+  POR:"Liga Portugal",NED:"Eredivisie",BOL:"División Profesional",QAT:"Qatar Stars League",
+  KSA:"Roshn Saudi League"};
+/* v10 · Copa nacional de cada país, con el nombre que figura en el trofeo.
+   Si jugás en Brasil te toca la Copa do Brasil, nunca la Copa Argentina.  */
+const COPA_NOM={ARG:"Copa Argentina",BRA:"Copa do Brasil",ESP:"Copa del Rey",
+  ITA:"Coppa Italia",ENG:"FA Cup",GER:"DFB-Pokal",FRA:"Coupe de France",
+  POR:"Taça de Portugal",NED:"KNVB Beker",URU:"Copa Uruguay",BOL:"Copa Bolivia",
+  QAT:"Amir Cup",KSA:"King Cup"};
+const SUPERCOPA_NOM={ARG:"Supercopa Argentina",BRA:"Supercopa Rei",ESP:"Supercopa de España",
+  ITA:"Supercoppa Italiana",ENG:"Community Shield",GER:"DFL-Supercup",
+  FRA:"Trophée des Champions",POR:"Supertaça Cândido de Oliveira",NED:"Johan Cruijff Schaal",
+  URU:"Supercopa Uruguaya",BOL:"Supercopa Bolivia",QAT:"Qatar Super Cup",KSA:"Saudi Super Cup"};
+const copaNom=l=>COPA_NOM[l]||"Copa Nacional";
+const superNom=l=>SUPERCOPA_NOM[l]||"Supercopa";
+
+/* v10 · FORMATO REAL DE CADA LIGA
+   eq = equipos en primera · zonas = cuántos grupos · fechas = jornadas.
+   Argentina juega dos zonas de 15; Brasil, todos contra todos a 38.     */
+const LIGA_FORMATO={
+  ARG:{eq:30,zonas:2,fechas:16,nomZona:["Zona A","Zona B"],playoff:true},
+  BRA:{eq:20,zonas:1,fechas:38,playoff:false},
+  ESP:{eq:20,zonas:1,fechas:38,playoff:false},
+  ENG:{eq:20,zonas:1,fechas:38,playoff:false},
+  ITA:{eq:20,zonas:1,fechas:38,playoff:false},
+  GER:{eq:18,zonas:1,fechas:34,playoff:false},
+  FRA:{eq:18,zonas:1,fechas:34,playoff:false},
+  POR:{eq:18,zonas:1,fechas:34,playoff:false},
+  NED:{eq:18,zonas:1,fechas:34,playoff:false},
+  URU:{eq:16,zonas:1,fechas:30,playoff:true},
+  BOL:{eq:16,zonas:1,fechas:30,playoff:false},
+  QAT:{eq:12,zonas:1,fechas:22,playoff:false},
+  KSA:{eq:18,zonas:1,fechas:34,playoff:false}
+};
+const formatoDe=l=>LIGA_FORMATO[l]||{eq:20,zonas:1,fechas:38,playoff:false};
+
+/* v10 · TIERS CONTINENTALES
+   Los pesos pesados de cada confederación van a la copa grande. La copa
+   chica (Sudamericana / Europa League) se juega contra la clase media.  */
+const GIGANTES_SUD=["Flamengo","Palmeiras","River Plate","Boca Juniors","Atlético Mineiro",
+  "São Paulo","Internacional","Grêmio","Corinthians","Botafogo","Nacional","Peñarol",
+  "Racing Club","Independiente","Fluminense","Cruzeiro","Bolívar","Estudiantes","Vélez Sarsfield"];
+const GIGANTES_EUR=["Real Madrid","Barcelona","Manchester City","Bayern","Inter","Liverpool",
+  "Atlético Madrid","PSG","Juventus","Milan","Arsenal","Chelsea","Napoli","Benfica","Ajax",
+  "Borussia Dortmund","Dortmund","Leverkusen","Porto","Sporting","Marsella","Tottenham"];
+/* Campeones europeos de verdad para la final del Mundial de Clubes */
+const CAMPEONES_EUR=["Real Madrid","Bayern","Manchester City","Liverpool","Barcelona","Inter","Milan"];
+function tierCont(n){
+  const c=club(n); if(!c||c.n==="Libre")return 2;
+  const conf=CONF[c.liga]||"sud";
+  const L=conf==="eur"?GIGANTES_EUR:GIGANTES_SUD;
+  if(L.indexOf(n)>=0)return 1;
+  return c.lv>=(conf==="eur"?84:70)?1:2;
+}
 const nombreLiga=c=>LIGA_NOM[c.liga]||("Liga "+c.liga);
 const divDe=c=>c.lv>=60?1:c.lv>=46?2:3;
 const nombreDiv=d=>d===1?"Primera División":d===2?"Primera Nacional":"Ascenso";
@@ -1760,6 +1869,9 @@ function nuevoJugador(){return{
   tier:0,gp:{pts:0,tono:"envidia"},arq:{lirico:0,rustico:0,egoista:0,creador:0},arquetipo:"",
   vestuario:0,karma:null,karmaUsado:false,sobreTemp:-99,camaTemp:-99,cama:false,feed:[],
   pais:"ARG",ligaCasa:"ARG",tabla:null,pos:0,copaHab:"",descensos:0,tribTemp:-99,
+  recopa:false,mundialClubes:false,campeonContAnio:0,zonaNom:"",
+  nucaTemp:-99,afaFavor:0,secatoallas:false,idoloTemp:-99,
+
   edadEvento:-1,evTemp:-99,locuraVistas:[],
   declaracionTemp:-99,charlaTemp:{},relGen:{},sorteoGen:null,
   rival:{nombre:"",club:"Tigre",ovr:50,techo:78,titulos:0,goles:0,a:0,pj:0,valor:0,
@@ -1992,7 +2104,8 @@ function jugarTemporada(){
   p.rol=calcRol();
   let n=p.club==="Libre"?0:({Estrella:5,Titular:4,"Rotación":3,Suplente:3,Promesa:3}[p.rol]||3);
   if(p.express)n=Math.min(n,3);
-  p.temp={mom:armarMomentos(n),i:0,goles:0,asist:0,rend:0,rojas:0,ganados:0,perdidos:0};
+  p.temp={mom:[],i:0,goles:0,asist:0,rend:0,rojas:0,ganados:0,perdidos:0};
+  p.temp.mom=armarMomentos(n);
   p.fase=-1;
   faseSiguiente();
 }
@@ -2056,26 +2169,155 @@ function otroRival(){
 /* El calendario ya no son fechas sueltas: son 5 competencias con
    nombre y peso propio. La 6ª (la final) NO viene de regalo, se gana
    con el rendimiento de las cinco anteriores.                          */
-function armarMomentos(n){
-  const lv=nivelClub(),arr=[];
-  const slot=(comp,fecha,peso,rival)=>arr.push({comp:comp,fecha:fecha,peso:peso,
-    rival:rival||otroRival(),min:ri(8,89),mk:[ri(0,2),ri(0,2)]});
-  const cl=clasicoDe(p.club);
-  slot("liga","ARRANQUE DE LIGA",1);
-  slot("copa","COPA ARGENTINA",2);
-  slot("clasico","EL CLÁSICO",2,cl?club(cl):otroRival());
-  if(lv>=68){
-    /* v6 · la copa tiene rival y escenario: brasileños o altura */
-    const copa=lv>=80?"COPA LIBERTADORES":"COPA SUDAMERICANA";
-    const gigantes=CLUBES.filter(c=>c.liga==="BRA"||c.altura);
-    const riv=(dado(.55)&&gigantes.length)?rnd(gigantes):otroRival();
-    const noche=riv.altura?"LIBERTADORES A 3.600 METROS":
-      riv.liga==="BRA"?copa+" · NOCHE EN BRASIL":copa;
-    slot("inter",noche,2,riv);
+/* ── v10 · CAMPAÑAS DE COPA ───────────────────────────────────────────
+   Si clasificaste, la copa se juega de verdad: los seis partidos de la
+   fase de grupos y, si pasás, toda la llave hasta la final.            */
+const KO_CONT=["Octavos de final","Cuartos de final","Semifinal","Final"];
+const KO_NAC=["Cuartos de final","Semifinal","Final"];
+
+function armarGrupo(hab){
+  const tier=hab==="lib"?1:2, usados=[p.club], g=[];
+  for(let i=0;i<3;i++){
+    let r=null;
+    for(let k=0;k<60;k++){r=rivalContinental(tier);if(usados.indexOf(r.n)<0)break;}
+    if(!r||usados.indexOf(r.n)>=0)r=otroRival();
+    usados.push(r.n);
+    g.push({n:r.n,lv:r.lv,pts:0,gf:0,gc:0,pj:0});
   }
-  else slot("liga","FECHA CLAVE",1);
-  slot("liga","RECTA FINAL",2);
-  if(n<5)arr.length=Math.max(2,n);      /* suplente o pibe: menos fechas */
+  g.push({n:p.club,lv:nivelClub(),pts:0,gf:0,gc:0,pj:0,yo:true});
+  return g;
+}
+function golesRapido(a,b){
+  const d=clamp((a-b)/24,-1.2,1.2);
+  return[Math.max(0,Math.round(1.15+d+(azar()*2.1-1))),
+         Math.max(0,Math.round(1.15-d+(azar()*2.1-1)))];
+}
+function anotarGrupo(G,nA,nB,ga,gb){
+  const A=G.filter(x=>x.n===nA)[0],B=G.filter(x=>x.n===nB)[0];
+  if(!A||!B)return;
+  A.pj++;B.pj++;A.gf+=ga;A.gc+=gb;B.gf+=gb;B.gc+=ga;
+  if(ga>gb)A.pts+=3;else if(gb>ga)B.pts+=3;else{A.pts++;B.pts++;}
+}
+function ordenarGrupo(G){
+  return G.slice().sort((a,b)=>b.pts-a.pts||(b.gf-b.gc)-(a.gf-a.gc)||b.gf-a.gf||b.lv-a.lv);
+}
+function tablaGrupoHTML(t,nom){
+  let h='<div class="gtab"><div class="gth">'+nom.toUpperCase()+' · TABLA DEL GRUPO</div>';
+  t.forEach((x,i)=>{
+    h+='<div class="gtr'+(x.yo?" yo":"")+(i<2?" pasa":"")+'">'
+      +'<span class="gp">'+(i+1)+'</span><span class="gn">'+x.n+'</span>'
+      +'<span class="gd">'+((x.gf-x.gc)>0?"+":"")+(x.gf-x.gc)+'</span>'
+      +'<span class="gv">'+x.pts+'</span></div>';
+  });
+  return h+'</div>';
+}
+function agregarKOCont(){
+  const T=p.temp,C=T.copa,fin=C.ko>=KO_CONT.length-1;
+  T.mom.push({comp:fin?"final":"inter",
+    fecha:C.nom.toUpperCase()+" · "+KO_CONT[C.ko].toUpperCase(),
+    peso:C.ko>=2?3:2,rival:rivalContinental(C.lib?1:2),
+    min:ri(20,89),mk:[ri(0,1),ri(0,1)],cup:"cont",kfase:C.ko});
+}
+function agregarKONac(){
+  const T=p.temp,N=T.cnac,L=club(p.club).liga||ligaCasa();
+  const fin=N.fase>=N.rondas.length-1;
+  T.mom.push({comp:fin?"final":"copa",
+    fecha:(N.nom+" · "+N.rondas[N.fase]).toUpperCase(),
+    peso:fin?3:2,rival:rivalDeLiga(L),min:ri(20,89),mk:[ri(0,1),ri(0,1)],
+    cup:"nac",kfase:N.fase});
+}
+/* El empate en llave se define por penales: carácter y jerarquía */
+function pasaPenales(m){
+  return dado(clamp(.5+(p.stats.car-55)/210+(nivelClub()-m.rival.lv)/160,.18,.82));
+}
+function copaContProgreso(m,res){
+  const T=p.temp,C=T.copa; if(!C||!C.vivo)return;
+  if(C.fase==="grupos"){
+    anotarGrupo(C.grupo,p.club,m.rival.n,m.mk[0],m.mk[1]);
+    const otros=C.grupo.filter(x=>!x.yo&&x.n!==m.rival.n);
+    if(otros.length===2){const g=golesRapido(otros[0].lv,otros[1].lv);
+      anotarGrupo(C.grupo,otros[0].n,otros[1].n,g[0],g[1]);}
+    C.fecha++;
+    if(C.fecha>=6){
+      const tabla=ordenarGrupo(C.grupo);
+      C.tabla=tabla;C.msgTabla=tablaGrupoHTML(tabla,C.nom);
+      let mi=1;tabla.forEach((x,i)=>{if(x.yo)mi=i+1;});
+      C.pos=mi;
+      if(mi<=2){C.fase="ko";C.ko=0;C.ronda=KO_CONT[0];agregarKOCont();}
+      else{C.vivo=false;C.ronda="la fase de grupos";}
+    }
+  }else{
+    let paso=res==="gano";
+    C.penales=(res==="empate");
+    if(res==="empate")paso=pasaPenales(m);
+    if(paso){
+      if(C.ko>=KO_CONT.length-1){C.vivo=false;C.campeon=true;C.ronda="CAMPEÓN";}
+      else{C.ko++;C.ronda=KO_CONT[C.ko];agregarKOCont();}
+    }else{C.vivo=false;C.ronda=KO_CONT[C.ko];}
+  }
+}
+function copaNacProgreso(m,res){
+  const T=p.temp,N=T.cnac; if(!N||!N.vivo)return;
+  let paso=res==="gano";
+  N.penales=(res==="empate");
+  if(res==="empate")paso=pasaPenales(m);
+  if(paso){
+    if(N.fase>=N.rondas.length-1){N.vivo=false;N.campeon=true;N.ronda="CAMPEÓN";}
+    else{N.fase++;N.ronda=N.rondas[N.fase];agregarKONac();}
+  }else{N.vivo=false;N.ronda=N.rondas[N.fase];}
+}
+function copaProgreso(m,res){
+  if(!p.temp||!m.cup)return;
+  if(m.cup==="cont")copaContProgreso(m,res);
+  else if(m.cup==="nac")copaNacProgreso(m,res);
+}
+
+/* El calendario ya no son fechas sueltas: es el torneo local de tu país,
+   la copa nacional de tu país y, si clasificaste, la copa continental
+   entera. Ningún rival cae de otro continente por accidente.           */
+function armarMomentos(n){
+  const arr=[],T=p.temp;
+  const L=club(p.club).liga||ligaCasa();
+  const F=formatoDe(L), nomL=nombreLiga(club(p.club)).toUpperCase();
+  const slot=(comp,fecha,peso,rival,extra)=>{
+    const m={comp:comp,fecha:fecha,peso:peso,rival:rival||rivalDeLiga(L),
+      min:ri(8,89),mk:[ri(0,2),ri(0,2)]};
+    if(extra)Object.keys(extra).forEach(k=>{m[k]=extra[k];});
+    arr.push(m);return m;
+  };
+  if(n<=0)return arr;
+
+  /* 1 · Arranque del torneo local: siempre contra tu propio país */
+  const zona=F.zonas>1?" · "+rnd(F.nomZona).toUpperCase():"";
+  slot("liga","FECHA 1 · "+nomL+zona,1);
+
+  /* 2 · La copa nacional del país donde jugás */
+  if(T){
+    T.cnac={nom:copaNom(L),vivo:true,fase:0,campeon:false,
+      rondas:nivelClub()>=60?KO_NAC.slice():["Octavos de final"].concat(KO_NAC)};
+    slot("copa",(T.cnac.nom+" · "+T.cnac.rondas[0]).toUpperCase(),2,null,{cup:"nac",kfase:0});
+  }
+
+  /* 3 · El clásico */
+  const cl=clasicoDe(p.club);
+  const rc=(cl&&club(cl).n!=="Libre")?club(cl):rivalDeLiga(L);
+  slot("clasico","EL CLÁSICO",2,rc);
+
+  /* 4 · Copa continental: se juegan las seis fechas del grupo */
+  if(T&&p.copaHab&&p.club!=="Libre"){
+    const C=copasDe(L), grande=p.copaHab==="lib";
+    T.copa={hab:p.copaHab,nom:grande?C.a:C.b,ico:grande?C.ia:C.ib,lib:grande,
+      grupo:armarGrupo(p.copaHab),fecha:0,fase:"grupos",vivo:true,campeon:false,
+      ronda:"la fase de grupos",ko:0};
+    const cn=T.copa.nom.toUpperCase();
+    for(let k=0;k<6;k++)
+      slot("inter",cn+" · FECHA "+(k+1),2,club(T.copa.grupo[k%3].n),{cup:"cont",gfecha:k});
+  }
+
+  /* 5 · Recta final del torneo local, según cuánto jugues */
+  const extras=clamp(n-2,1,3);
+  for(let k=0;k<extras;k++)
+    slot("liga",(k===extras-1?"RECTA FINAL · ":"FECHA CLAVE · ")+nomL,k===extras-1?2:1);
   return arr;
 }
 function agregarFinal(T){
@@ -2208,6 +2450,7 @@ function resolverJugada(o,dormido){
   if(m.comp==="clasico"&&res==="gano"&&p.club!=="Libre")hist(p.club).cla++;
   if(res==="gano"){T.ganados++;T.rend+=m.peso;}
   else if(res==="perdio"){T.perdidos++;T.rend-=Math.round(m.peso*0.7);}
+  copaProgreso(m,res);          /* v10 · avanza la llave de copa si toca */
 
   const tit=dormido?"TE DORMISTE":(ef.msg||(ok?"SALIÓ":"NO SALIÓ"));
   const cls=dormido?"no":(ok?"ok":"no");
@@ -2219,8 +2462,9 @@ function resolverJugada(o,dormido){
       :(ok?"Te salió. La gente se acuerda de estas.":"No salió. Mañana lo pasan en loop en la tele."))+'</p>';
   if(chips)h+='<div class="chips2">'+chips+'</div>';
   h+='</div><div class="res"><h4 class="'+(res==="gano"?"ok":res==="perdio"?"no":"")+'">'+resTxt+'</h4>'
-    +'<p>vs '+m.rival.n+' · '+m.fecha.toLowerCase()+'</p></div>'
-    +'<button class="cta" id="btn-seguir">Seguir</button></div>';
+    +'<p>vs '+m.rival.n+' · '+m.fecha.toLowerCase()+'</p>'+notaCopa(m,res)+'</div>';
+  if(m.cup==="cont"&&T.copa&&T.copa.msgTabla){h+=T.copa.msgTabla;T.copa.msgTabla=null;}
+  h+='<button class="cta" id="btn-seguir">Seguir</button></div>';
   const c=document.getElementById("cartas");c.innerHTML=h;
   const bs=document.getElementById("btn-seguir");if(bs)bs.onclick=avanzarMomento;
   calcOVR();render();
@@ -2228,6 +2472,17 @@ function resolverJugada(o,dormido){
   c.scrollIntoView({behavior:"smooth",block:"end"});
   /* El karma vuelve en el pico, nunca en un partido cualquiera */
   if(m.peso>=3&&karmaPendiente())setTimeout(()=>dispararKarma("la final",()=>{}),700);
+}
+/* v10 · qué pasó con la llave después de este partido */
+function notaCopa(m,res){
+  const T=p.temp; if(!T||!m.cup)return"";
+  const C=m.cup==="cont"?T.copa:T.cnac; if(!C)return"";
+  const pen=C.penales?" Se definió por penales.":"";
+  if(m.cup==="cont"&&C.fase==="grupos")
+    return '<p class="cnota">'+C.nom+" · fecha "+C.fecha+" de 6 jugada.</p>";
+  if(C.campeon)return '<p class="cnota oro">¡CAMPEONES DE LA '+C.nom.toUpperCase()+"!"+pen+'</p>';
+  if(!C.vivo)return '<p class="cnota mal">Eliminados en '+C.ronda.toLowerCase()+" de la "+C.nom+"."+pen+'</p>';
+  return '<p class="cnota ok">Pasaron de ronda.'+pen+" Ahora va "+C.ronda.toLowerCase()+'.</p>';
 }
 function avanzarMomento(){p.temp.i++;faseSiguiente();}
 
@@ -2454,10 +2709,24 @@ function tribFin(){
    que existen en ella. Tu aporte mueve al club, pero un Aldosivi no
    sale campeón porque vos hagas veinte goles. De la posición salen
    las copas del año siguiente y el descenso.                        */
+/* v10 · Reparto en zonas para las ligas que se juegan así (Argentina).
+   El reparto es estable dentro de la temporada y siempre te deja adentro. */
+function zonaDe(L,eq){
+  const F=formatoDe(L);
+  if(F.zonas<2)return null;
+  const orden=eq.slice().sort((a,b)=>b.lv-a.lv);
+  const Z=[[],[]];
+  orden.forEach((t,i)=>{Z[(i%4===0||i%4===3)?0:1].push(t);});  /* serpiente: zonas parejas */
+  let mi=0;Z.forEach((z,i)=>{if(z.some(t=>t.n===p.club))mi=i;});
+  p.zonaNom=F.nomZona[mi];
+  return Z[mi];
+}
 function simTabla(T,g){
   const L=club(p.club).liga||ligaCasa();
-  const eq=equiposDe(L);
+  let eq=equiposDe(L);
   if(!eq.some(c=>c.n===p.club))return null;
+  const z=zonaDe(L,eq);
+  if(z&&z.length)eq=z;
   const aporte=clamp((p.ovr-nivelClub())*0.6+(T.rend||0)*2.2+g*0.20
     +(p.rol==="Estrella"?3:p.rol==="Titular"?1:-1),-8,17);
   const tabla=eq.map(c=>{
@@ -2492,6 +2761,14 @@ function simCopa(){
   else ronda="la fase de grupos";
   return{nom:grande?C.a:C.b,ico:grande?C.ia:C.ib,ronda:ronda,gano:gano,lib:grande};
 }
+/* v10 · El resultado de la copa sale de los partidos que jugaste. Sólo
+   si no hubo campaña (sin club, sin clasificar) se cae al simulador.  */
+function resultadoCopa(T){
+  if(T&&T.copa){const C=T.copa;
+    return{nom:C.nom,ico:C.ico,lib:C.lib,gano:!!C.campeon,jugada:true,
+      pos:C.pos||0,ronda:C.campeon?"CAMPEÓN":C.ronda};}
+  return simCopa();
+}
 function cierreTemporada(){
   clearTimeout(tJug);
   document.getElementById("cartas").innerHTML="";
@@ -2499,7 +2776,8 @@ function cierreTemporada(){
   p.rol=calcRol();p.aniosEnClub++;
 
   const libre=p.club==="Libre";
-  const copa=simCopa();          /* v9 · la copa que clasificaste el año pasado */
+  const copa=resultadoCopa(T);   /* v10 · la copa que jugaste fecha por fecha */
+  const cnac=(T&&T.cnac)?T.cnac:null;
   let pj=0,g=0,a=0;
   if(!libre){
     let base=34;
@@ -2563,13 +2841,18 @@ function cierreTemporada(){
   const ganoCopa=!!(copa&&copa.gano);
   const nomCopa=copa?copa.nom:CUP.a;
   if(ganoCopa)p.vitrina.push({ico:copa.ico,n:copa.nom,y:p.anio,oro:copa.lib});
-  /* Campeón de liga o de la copa chica: Libertadores el año que viene */
-  if(ganoLiga||ganoCopa||(copa&&!copa.lib&&copa.ronda==="la Final"))claseNueva="lib";
+  /* v10 · la copa nacional de tu país (Copa Argentina, Copa do Brasil…) */
+  const ganoCopaNac=!!(cnac&&cnac.campeon);
+  if(ganoCopaNac)p.vitrina.push({ico:"🏆",n:cnac.nom,y:p.anio,oro:true});
+  /* Campeón de liga, de la copa nacional o de la copa chica: Libertadores */
+  if(ganoLiga||ganoCopa||ganoCopaNac||(copa&&!copa.lib&&copa.ronda==="la Final"))claseNueva="lib";
+  /* v10 · ganar la Libertadores desbloquea Recopa y Mundial de Clubes */
+  if(ganoCopa&&copa.lib){p.recopa=true;p.mundialClubes=true;p.campeonContAnio=p.anio;}
   if(descendio){p.descensos++;mod(p.rep,"local",-16);mod(p.stats,"mor",-12,5,100);}
   p.copaHab=libre?"":claseNueva;
 
   if(!libre){const H=hist(p.club);H.temp++;H.gol+=g;
-    if(ganoLiga)H.tit++; if(ganoCopa)H.tit++;}
+    if(ganoLiga)H.tit++; if(ganoCopa)H.tit++; if(ganoCopaNac)H.tit++;}
 
   calcOVR();
   p.ovrMax=Math.max(p.ovrMax||0,p.ovr);
@@ -2631,7 +2914,7 @@ function cierreTemporada(){
     cola.push({clase:descendio?"malo":claseNueva==="lib"?"oro":"",
       eye:nomLiga.toUpperCase(),crest:club(p.club),
       titulo:descendio?"SE FUE AL DESCENSO":"TERMINARON "+pos+"º",
-      sub:p.club+" cerró el torneo "+pos+"º de "+total+". "+donde,
+      sub:p.club+" cerró "+(p.zonaNom?"la "+p.zonaNom:"el torneo")+" "+pos+"º de "+total+". "+donde,
       stats:[["PUESTO",pos+"º",pos<=3?"up":descendio?"dn":""],
              ["DE",total,""],["PUNTOS",(p.tabla.find(x=>x.n===p.club)||{}).pts||0,""]]});
   }
@@ -2640,6 +2923,17 @@ function cierreTemporada(){
     titulo:copa.ronda==="la fase de grupos"?"QUEDARON AFUERA EN GRUPOS":"LLEGARON A "+copa.ronda.toUpperCase(),
     sub:p.club+" hizo su campaña en la "+copa.nom+" y se quedó en "+copa.ronda+".",
     stats:[["COPA",copa.lib?"GRANDE":"CHICA",""],["RONDA",copa.ronda==="la Final"?"FINAL":copa.ronda.split(" ")[0].toUpperCase(),""]]});
+  /* v10 · cómo te fue en la copa de tu país */
+  if(cnac&&!cnac.campeon)cola.push({eye:cnac.nom.toUpperCase(),crest:club(p.club),
+    titulo:"AFUERA EN "+cnac.ronda.toUpperCase(),
+    sub:p.club+" se quedó en "+cnac.ronda.toLowerCase()+" de la "+cnac.nom+". "
+      +"Otro año que la copa se mira por tele.",
+    stats:[["RONDA",cnac.ronda.split(" ")[0].toUpperCase(),"dn"]]});
+  if(ganoCopaNac)cola.push({clase:"oro",eye:"TAPA OLÉ",
+    titulo:"¡CAMPEÓN DE LA "+cnac.nom.toUpperCase()+"!",crest:club(p.club),
+    sub:p.club+" levantó la "+cnac.nom+" y con eso se metió en la "+CUP.a+" del año que viene. "
+      +"Copa nacional y pasaje al continente en la misma noche.",
+    stats:[["COPA","NACIONAL","up"],[CUP.a.toUpperCase(),"CLASIFICADO","up"]]});
   if(ganoCopa)cola.push({clase:"oro",eye:"TAPA OLÉ",
     titulo:"¡CAMPEÓN DE LA "+nomCopa.toUpperCase()+"!",crest:club(p.club),
     sub:p.club+" levantó la pesada y "+p.nombre+" estaba adentro de la cancha cuando sonó el pitazo. "
