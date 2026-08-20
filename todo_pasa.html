@@ -3496,7 +3496,7 @@ function faseSiguiente(){
   }
   if(p.fase===1){
     const T=p.temp;
-    if(T.i>=T.mom.length&&!T.finalDada&&T.rend>=2&&p.club!=="Libre")agregarFinal(T);
+    if(T.i>=T.mom.length)abrirPlayoffLiga();   /* v12 · bloque 4 */
     if(T.i<T.mom.length)return momento();
     p.fase=2;
   }
@@ -3808,6 +3808,50 @@ function copaProgreso(m,res){
 /* El calendario ya no son fechas sueltas: es el torneo local de tu país,
    la copa nacional de tu país y, si clasificaste, la copa continental
    entera. Ningún rival cae de otro continente por accidente.           */
+/* ══════ v12 · EL AÑO EN CINCO BLOQUES ══════════════════════════════
+   1 · Liga regular (la tabla se mueve fecha a fecha)
+   2 · Copa nacional (eliminatorias)
+   3 · Fase de grupos internacional
+   4 · Playoff de la liga local (si clasificaste)
+   5 · Eliminación directa continental                                */
+const KO_LIGA=["Cuartos de final","Semifinal","Final"];
+function cuposPlayoff(){
+  const n=(p.tabla&&p.tabla.length)?p.tabla.length:15;
+  return Math.max(4,Math.round(n*0.53));
+}
+function agregarPlayoffLiga(){
+  const T=p.temp,P=T.playoff,L=club(p.club).liga||ligaCasa();
+  const nomL=nombreLiga(club(p.club)).toUpperCase();
+  const fin=P.fase>=KO_LIGA.length-1;
+  T.mom.push({comp:fin?"final":"liga",
+    fecha:("PLAYOFF "+nomL+" · "+KO_LIGA[P.fase]).toUpperCase(),
+    peso:fin?3:2,rival:rivalDeLiga(L),min:ri(20,89),mk:[ri(0,1),ri(0,1)],
+    cup:"pliga",kfase:P.fase});
+}
+function playoffLigaProgreso(m,res){
+  const T=p.temp,P=T.playoff; if(!P||!P.vivo)return;
+  let paso=res==="gano";
+  P.penales=(res==="empate");
+  if(res==="empate")paso=pasaPenales(m);
+  if(paso){
+    if(P.fase>=KO_LIGA.length-1){P.vivo=false;P.campeon=true;P.ronda="CAMPEÓN";}
+    else{P.fase++;P.ronda=KO_LIGA[P.fase];agregarPlayoffLiga();}
+  }else{P.vivo=false;P.ronda=KO_LIGA[P.fase];}
+}
+/* Se llama cuando se terminaron las fechas: completa el torneo y, si
+   quedaste en zona, abre la llave por el título.                     */
+function abrirPlayoffLiga(){
+  const T=p.temp; if(!T||T.playoffDado)return false;
+  T.playoffDado=true;
+  if(p.club==="Libre")return false;
+  const L=club(p.club).liga||ligaCasa();
+  if(!formatoDe(L).playoff)return false;
+  completarLiga();
+  if(!p.posLiga||p.posLiga>cuposPlayoff())return false;
+  T.playoff={vivo:true,fase:0,campeon:false,ronda:KO_LIGA[0]};
+  agregarPlayoffLiga();
+  return true;
+}
 function armarMomentos(n){
   const arr=[],T=p.temp;
   const L=club(p.club).liga||ligaCasa();
@@ -3819,55 +3863,39 @@ function armarMomentos(n){
     arr.push(m);return m;
   };
   if(n<=0)return arr;
+  iniciarTablaLiga();
 
-  /* 1 · Arranque del torneo local: siempre contra tu propio país */
-  const zona=F.zonas>1?" · "+rnd(F.nomZona).toUpperCase():"";
-  slot("liga","FECHA 1 · "+nomL+zona,1);
+  /* ── BLOQUE 1 · LIGA REGULAR ── */
+  const zona=F.zonas>1?" · "+(p.zonaNom||"").toUpperCase():"";
+  const cl=clasicoDe(p.club);
+  const rc=(cl&&club(cl).n!=="Libre")?club(cl):rivalDeLiga(L);
+  const fechas=clamp(n,2,4);
+  for(let k=0;k<fechas;k++){
+    if(k===2&&fechas>=3)slot("clasico","EL CLÁSICO · "+nomL,2,rc,{liga:1});
+    else slot("liga","FECHA "+(k+1)+" · "+nomL+zona,1,null,{liga:1});
+  }
 
-  /* 2 · La copa nacional del país donde jugás */
+  /* ── BLOQUE 2 · COPA NACIONAL ── */
   if(T){
-    T.cnac={nom:copaNom(L),vivo:true,fase:0,campeon:false,
-      rondas:nivelClub()>=60?KO_NAC.slice():["Octavos de final"].concat(KO_NAC)};
+    T.cnac={nom:copaNom(L),vivo:true,fase:0,campeon:false,rondas:KO_NAC.slice()};
     slot("copa",(T.cnac.nom+" · "+T.cnac.rondas[0]).toUpperCase(),2,null,{cup:"nac",kfase:0});
   }
 
-  /* 3 · El clásico */
-  const cl=clasicoDe(p.club);
-  const rc=(cl&&club(cl).n!=="Libre")?club(cl):rivalDeLiga(L);
-  slot("clasico","EL CLÁSICO",2,rc);
-
-  /* 4 · Copa continental: se juegan las seis fechas del grupo */
+  /* ── BLOQUE 3 · FASE DE GRUPOS INTERNACIONAL ── */
   if(T&&p.copaHab&&p.club!=="Libre"){
     const C=copasDe(L), grande=p.copaHab==="lib";
     T.copa={hab:p.copaHab,nom:grande?C.a:C.b,ico:grande?C.ia:C.ib,lib:grande,
       grupo:armarGrupo(p.copaHab),fecha:0,fase:"grupos",vivo:true,campeon:false,
       ronda:"la fase de grupos",ko:0};
     const cn=T.copa.nom.toUpperCase();
-    /* v10 · carrera completa: se juegan las seis fechas a mano.
-       Carrera exprés: se clickean el debut y la definitoria, y las otras
-       cuatro se resuelven solas. La campaña se disputa entera igual.   */
     const inter=p.express?[0,5]:[0,1,2,3,4,5];
     T.copa.interactivas=inter;
     inter.forEach(k=>{
       slot("inter",cn+" · FECHA "+(k+1),2,club(T.copa.grupo[k%3].n),{cup:"cont",gfecha:k});
     });
   }
-
-  /* 5 · Recta final del torneo local, según cuánto jugues */
-  const extras=clamp(n-2,1,3);
-  for(let k=0;k<extras;k++)
-    slot("liga",(k===extras-1?"RECTA FINAL · ":"FECHA CLAVE · ")+nomL,k===extras-1?2:1);
+  /* Los bloques 4 y 5 se agregan solos según cómo te vaya */
   return arr;
-}
-/* v10 · La final que te ganaste con el rendimiento es del torneo de tu
-   país, con el nombre oficial y contra un equipo de tu propia liga.   */
-function agregarFinal(T){
-  const L=club(p.club).liga||ligaCasa();
-  const F=formatoDe(L), nomL=(LIGA_NOM[L]||"torneo local").toUpperCase();
-  T.finalDada=true;
-  T.mom.push({comp:"final",peso:3,
-    fecha:(F.playoff?"FINAL DEL PLAYOFF · ":"DEFINICIÓN DEL ")+nomL,
-    rival:rivalDeLiga(L),min:ri(55,89),mk:[ri(0,1),ri(0,1)]});
 }
 /* Los de la generación que comparten cancha con vos aparecen por
    nombre en las cartas: {COMPA} un compañero, {ELLOS} un rival.        */
@@ -4029,6 +4057,8 @@ function resolverJugada(o,dormido){
   if(res==="gano"){T.ganados++;T.rend+=m.peso;}
   else if(res==="perdio"){T.perdidos++;T.rend-=Math.round(m.peso*0.7);}
   copaProgreso(m,res);          /* v10 · avanza la llave de copa si toca */
+  if(m.liga)avanzarFechaLiga(m.mk[0],m.mk[1]);   /* v12 · tabla en vivo */
+  if(m.cup==="pliga")playoffLigaProgreso(m,res);
 
   const tit=dormido?"TE DORMISTE":tokens(ef.msg||(ok?"SALIÓ":"NO SALIÓ"));
   const cls=dormido?"no":(ok?"ok":"no");
@@ -4072,8 +4102,20 @@ function subCompetencia(m){
   return "";
 }
 function notaCopa(m,res){
-  const T=p.temp; if(!T||!m.cup)return"";
-  const C=m.cup==="cont"?T.copa:T.cnac; if(!C)return"";
+  const T=p.temp; if(!T)return"";
+  if(m.liga&&p.tabla&&p.tabla.length){
+    const mi=p.tabla.filter(x=>x.yo)[0];
+    if(mi)return '<p class="cnota">'+mi.pos+"º en la tabla · "+mi.pts+" pts en "
+      +mi.pj+" fecha"+(mi.pj===1?"":"s")+'.</p>';
+  }
+  if(!m.cup)return"";
+  const C=m.cup==="cont"?T.copa:m.cup==="pliga"?T.playoff:T.cnac; if(!C)return"";
+  if(m.cup==="pliga"){
+    const pen=C.penales?" Se definió por penales.":"";
+    if(C.campeon)return '<p class="cnota oro">¡CAMPEONES DEL TORNEO!'+pen+'</p>';
+    if(!C.vivo)return '<p class="cnota mal">Afuera del playoff en '+C.ronda.toLowerCase()+"."+pen+'</p>';
+    return '<p class="cnota ok">Pasaron.'+pen+" Ahora va "+C.ronda.toLowerCase()+'.</p>';
+  }
   const pen=C.penales?" Se definió por penales.":"";
   if(m.cup==="cont"&&C.fase==="grupos")
     return '<p class="cnota">'+C.nom+" · fecha "+C.fecha+" de 6 jugada.</p>";
@@ -4510,7 +4552,10 @@ function cierreTemporada(){
     else if(pos&&pos<=cupos.lib+cupos.sud)claseNueva="sud";
     descendio=pos>0&&pos>total-cupos.desc;
   }
-  const ganoLiga=pos===1;
+  /* v12 · Donde hay playoff, campeón es el que gana la final */
+  const FL=formatoDe(club(p.club).liga||ligaCasa());
+  const pl=(T&&T.playoff)?T.playoff:null;
+  const ganoLiga=FL.playoff?!!(pl&&pl.campeon):(pos===1);
   if(ganoLiga)p.vitrina.push({ico:"🥇",n:nomLiga,y:p.anio,cl:p.club});
   const ganoCopa=!!(copa&&copa.gano);
   const nomCopa=copa?copa.nom:CUP.a;
