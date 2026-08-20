@@ -158,6 +158,8 @@
 .vitnote::before{content:'\203A';position:absolute;left:0;top:4px;color:#F5C542}
 
 /* ══════ v10 · VITRINA REDISEÑADA · oscuro y dorado ══════════════ */
+/* El contenedor traía la grilla de copitas de la v8: ahora es flujo normal */
+#vitrina{display:block}
 .vt-hero{position:relative;overflow:hidden;border-radius:18px;margin-bottom:14px;
   padding:20px 16px 18px;border:1px solid #4a3c18;
   background:radial-gradient(120% 140% at 50% -20%,rgba(249,212,35,.16),transparent 60%),
@@ -3521,6 +3523,7 @@ function armarGrupo(hab){
   for(let i=0;i<3;i++){
     let r=null;
     for(let k=0;k<60;k++){r=rivalContinental(tier);if(usados.indexOf(r.n)<0)break;}
+    if(!r||usados.indexOf(r.n)>=0)r=rivalContinental(tier===1?2:1);
     if(!r||usados.indexOf(r.n)>=0)r=otroRival();
     usados.push(r.n);
     g.push({n:r.n,lv:r.lv,pts:0,gf:0,gc:0,pj:0});
@@ -3661,12 +3664,15 @@ function armarMomentos(n){
     slot("liga",(k===extras-1?"RECTA FINAL · ":"FECHA CLAVE · ")+nomL,k===extras-1?2:1);
   return arr;
 }
+/* v10 · La final que te ganaste con el rendimiento es del torneo de tu
+   país, con el nombre oficial y contra un equipo de tu propia liga.   */
 function agregarFinal(T){
-  const lv=nivelClub();
+  const L=club(p.club).liga||ligaCasa();
+  const F=formatoDe(L), nomL=(LIGA_NOM[L]||"torneo local").toUpperCase();
   T.finalDada=true;
   T.mom.push({comp:"final",peso:3,
-    fecha:lv>=78?"FINAL DE LA LIBERTADORES":lv>=70?"FINAL DE COPA":"LA FINAL DEL TORNEO",
-    rival:otroRival(),min:ri(55,89),mk:[ri(0,1),ri(0,1)]});
+    fecha:(F.playoff?"FINAL DEL PLAYOFF · ":"DEFINICIÓN DEL ")+nomL,
+    rival:rivalDeLiga(L),min:ri(55,89),mk:[ri(0,1),ri(0,1)]});
 }
 /* Los de la generación que comparten cancha con vos aparecen por
    nombre en las cartas: {COMPA} un compañero, {ELLOS} un rival.        */
@@ -3734,7 +3740,7 @@ function momento(){
   if(m.peso>=2){const gr=pool.filter(j=>j.peso>=2);if(gr.length&&dado(.65))cand=gr;}
   const j=rnd(cand);marcar(j.id);nuevosTokens();
   T.jug=j;T.m=m;
-  carta({eye:"TEMPORADA "+p.anio,comp:m.comp,compTxt:m.fecha,
+  carta({eye:"TEMPORADA "+p.anio,comp:m.comp,compTxt:m.fecha,compSub:subCompetencia(m),
     titulo:tokens(j.t),texto:tokens(j.x),seg:SEG(j.seg),mk:m,prog:[T.i,T.mom.length],ciego:1,
     opts:seis(j.o,"jugada").map(o=>({b:tokens(o.b),s:o.s,fijo:o.fijo,cb:()=>resolverJugada(o,false)})),
     onTimeout:()=>resolverJugada(null,true)});
@@ -3840,6 +3846,25 @@ function resolverJugada(o,dormido){
   if(m.peso>=3&&karmaPendiente())setTimeout(()=>dispararKarma("la final",()=>{}),700);
 }
 /* v10 · qué pasó con la llave después de este partido */
+/* v10 · La bajada del cartel dice en qué instancia estás, no repite el
+   nombre del torneo que ya se lee arriba.                             */
+const CONF_NOM={sud:"conmebol",eur:"uefa",asi:"afc"};
+function subCompetencia(m){
+  const T=p.temp,L=club(p.club).liga||ligaCasa();
+  const cf=CONF_NOM[CONF[L]||"sud"]||"confederación";
+  if(m.cup==="cont"){
+    const C=T&&T.copa;
+    if(m.gfecha!==undefined)
+      return "fase de grupos · fecha "+(m.gfecha+1)+" de 6 · "+cf;
+    return "eliminación directa · el que pierde se vuelve a casa";
+  }
+  if(m.cup==="nac")return "copa nacional · eliminación directa";
+  if(m.comp==="clasico")return "clásico · "+(LIGA_NOM[L]||"torneo local").toLowerCase();
+  if(m.comp==="final")return "partido único · se define hoy";
+  if(m.comp==="liga")return (LIGA_NOM[L]||"torneo local").toLowerCase()
+    +(p.zonaNom?" · "+p.zonaNom.toLowerCase():"");
+  return "";
+}
 function notaCopa(m,res){
   const T=p.temp; if(!T||!m.cup)return"";
   const C=m.cup==="cont"?T.copa:T.cnac; if(!C)return"";
@@ -7675,7 +7700,7 @@ function carta(o){
     const SUB={liga:(LIGA_NOM[L]||"torneo local").toLowerCase(),
       copa:copaNom(L).toLowerCase(),
       clasico:"clásico · "+(LIGA_NOM[L]||"torneo local").toLowerCase(),
-      inter:((CU&&CU.a)||"copa continental").toLowerCase()+" · conmebol/uefa",
+      inter:((CU&&CU.a)||"copa continental").toLowerCase()+" · "+(CONF_NOM[CONF[L]||"sud"]||""),
       final:"partido único · se define hoy"};
     h+='<div class="comp '+o.comp+'"><i>'+(IC[o.comp]||"⚽")+'</i><div>'
       +'<div class="cn">'+(o.compTxt||SUB[o.comp]||"partido")+'</div>'
