@@ -12,62 +12,73 @@ van empotradas adentro del archivo, y ese proceso las agranda un 33%. Por eso
 
 ---
 
-## PARTE 1 · Contestá esto antes de dibujar
+## PARTE 1 · Lo que la herramienta puede y lo que no
 
-Necesito saber qué podés hacer y qué no. Contestá una por una, con sinceridad.
-Si algo no lo podés hacer, decilo y buscamos otra forma.
+Ya está preguntado y contestado. Este es el resultado:
 
-1. ¿Podés exportar **PNG con canal alfa**, es decir con fondo transparente de
-   verdad, no un damero gris ni un fondo blanco?
+| Puede | No puede |
+|-------|----------|
+| PNG con canal alfa transparente de verdad | Entregar en la medida final chica |
+| Hojas de sprites con grilla ordenada | Paleta indexada de 16 colores |
+| Mosaicos que repiten sin costura | Salida sin anti-aliasing |
+| Mantener el estilo entre entregas | Pasar de 1024 píxeles de lado |
+| Trabajar desde fotos de referencia | |
+| Varias versiones por pedido | |
 
-2. ¿Podés entregar en una **medida exacta** que yo te pida (por ejemplo
-   128 × 160 píxeles), o solamente entregás cuadrados de 1024 × 1024?
+Los tres "no puede" se resuelven todos en el mismo paso de postproducción,
+que hace el autor en Photopea:
 
-3. ¿Podés limitar la imagen a una **paleta de 16 colores** como máximo?
+```
+Imagen → Tamaño de imagen → medida final, Nearest Neighbor
+Imagen → Modo → Color indexado → 16 colores
+Archivo → Exportar como → PNG
+```
 
-4. ¿Podés entregar **sin anti-aliasing**, con los bordes duros de un píxel,
-   sin difuminado ni degradés suaves?
-
-5. ¿Podés armar una **hoja de sprites con grilla exacta**: por ejemplo 5
-   columnas por 2 filas, con todas las casillas del mismo tamaño y cada figura
-   centrada y sin tocarse entre sí?
-
-6. ¿Podés hacer un **mosaico que repita sin costura** (seamless tile), donde
-   el borde izquierdo encaje con el derecho al repetirlo?
-
-7. ¿Podés mantener **el mismo personaje y el mismo estilo** a lo largo de
-   varias imágenes distintas, o cada pedido te sale diferente?
-
-8. ¿Podés trabajar **a partir de una foto o un dibujo de referencia** que te
-   doy, o sólo generás desde cero con texto?
-
-9. ¿Cuál es la **resolución máxima** que entregás?
-
-10. ¿En qué **formatos** entregás? ¿PNG, JPG, WebP?
-
-11. ¿Podés entregar la misma imagen **en varias versiones** de una sola vez,
-    para elegir la mejor?
-
-**Importante:** si la respuesta a las preguntas 2, 3 y 4 es que no, no hay
-drama. Entregá grande y con los colores que salgan: el autor la baja después
-a la grilla exacta con Photopea usando interpolación Nearest Neighbor. Lo que
-sí necesito sí o sí es la 1 (fondo transparente) donde el listado lo pida, y
-la 5 (grilla ordenada) en las hojas.
+Ese paso arregla la medida, la paleta y el anti-aliasing de una sola vez.
 
 ---
 
-## PARTE 2 · Las piezas que hacen falta
+## PARTE 2 · El límite de 1024 y cómo se reparte
 
-| # | Pieza | Medida final | Fondo | Colores | Peso objetivo |
-|---|-------|--------------|-------|---------|---------------|
-| 1 | Pantalla de título | 256 × 257 | negro puro | 32 | 18 KB |
-| 2 | Retratos de jugadores | hoja 1024 × 160 (8 casillas de 128 × 160) | transparente | 16 | 30 KB |
-| 3 | Jugador en la cancha | hoja 160 × 96 (5 × 2 casillas de 32 × 48) | transparente | 16 | 4 KB |
-| 4 | Arquero | hoja 128 × 48 (4 casillas de 32 × 48) | transparente | 16 | 2 KB |
-| 5 | Estadios | hoja 640 × 80 (5 casillas de 128 × 80) | negro puro | 16 | 20 KB |
-| 6 | Mosaicos de tribuna | hoja 320 × 32 (5 casillas de 64 × 32) | sin transparencia | 16 | 8 KB |
-| 7 | Trofeos | hoja 384 × 64 (6 casillas de 64 × 64) | transparente | 16 | 5 KB |
-| | **TOTAL** | | | | **87 KB** |
+La herramienta entrega como máximo 1024 píxeles de lado. Eso obliga a **no
+pedir hojas largas y chatas**, porque desperdician el lienzo: en una hoja de
+1024 × 160 con ocho casillas, cada figura queda con 128 píxeles para dibujar,
+que es la medida final, y sale borrosa.
+
+**Regla: cuanto más cuadrada la hoja, mejor rinde.** Las piezas que necesitan
+detalle se piden de a una.
+
+| Pieza | Lienzo a pedir | Medida final | Reducción |
+|-------|----------------|--------------|-----------|
+| Un retrato, de a uno | 819 × 1024 | 128 × 160 | 8× |
+| Jugador, hoja de 5 × 2 | 1024 × 614 | 160 × 96 | 6,4× |
+| Arquero, hoja de 2 × 2 | 683 × 1024 | 64 × 96 | 16× |
+| Un estadio, de a uno | 1024 × 640 | 128 × 80 | 8× |
+| Un mosaico de tribuna, de a uno | 1024 × 512 | 64 × 32 | 16× |
+| Trofeos, hoja de 3 × 2 | 1024 × 683 | 192 × 128 | 5,3× |
+
+Son veinte pedidos en total: ocho retratos, cinco estadios, cinco tribunas,
+una hoja de jugador, una de arquero y una de trofeos.
+
+**Los ocho retratos van en la misma conversación, uno atrás del otro**, y en
+cada uno hay que decir "mismo estilo y mismo trazo que el anterior, pero con
+el pelo así". Si se abre una charla nueva por cada cara, salen de ocho juegos
+distintos.
+
+---
+
+## PARTE 2B · Las piezas, una por una
+
+| # | Pieza | Medida final | Fondo | Peso objetivo |
+|---|-------|--------------|-------|---------------|
+| 1 | Pantalla de título | 256 × 257 | negro puro | 18 KB · **ya está hecha** |
+| 2 | 8 retratos | 128 × 160 cada uno | transparente | 30 KB |
+| 3 | Jugador, 10 cuadros | hoja 160 × 96 | transparente | 4 KB |
+| 4 | Arquero, 4 cuadros | hoja 64 × 96 | transparente | 2 KB |
+| 5 | 5 estadios | 128 × 80 cada uno | negro puro | 20 KB |
+| 6 | 5 mosaicos de tribuna | 64 × 32 cada uno | sin transparencia | 8 KB |
+| 7 | 6 trofeos | hoja 192 × 128 | transparente | 5 KB |
+| | **TOTAL** | | | **87 KB** |
 
 ### Qué va en cada casilla
 
@@ -76,7 +87,7 @@ de los hombros para abajo tiene que quedar transparente.** Sin camiseta y sin
 ropa, porque el color de cada club se lo pone el juego por encima.
 
 **3 · Jugador** — Un futbolista de perfil mirando a la derecha, cuerpo entero,
-diez poses en este orden exacto:
+diez poses en este orden exacto, grilla de 5 columnas por 2 filas:
 
 ```
 Fila 1:  corriendo 1 · corriendo 2 · corriendo 3 · corriendo 4 · parado
@@ -87,19 +98,25 @@ Fila 2:  pateando · saltando de cabeza · barriéndose · caído · festejando
 números ni escudos.** El juego los tiñe después con los colores de cada club.
 Si van pintados de un color, el sprite sirve para un solo equipo en vez de 134.
 
-**4 · Arquero** — En este orden: parado · volando arriba · volando abajo ·
-atrapando la pelota.
+**4 · Arquero** — Grilla de 2 columnas por 2 filas, en este orden:
+
+```
+Fila 1:  parado · volando arriba
+Fila 2:  volando abajo · atrapando la pelota
+```
 
 **5 · Estadios** — Cinco canchas vistas desde afuera, de noche, con las luces
-encendidas. Siluetas simples, reconocibles de lejos, cielo negro.
+encendidas. Siluetas simples, reconocibles de lejos, cielo negro. Una por
+pedido.
 
 **6 · Tribunas** — Cinco fragmentos de tribuna llena de gente, vistos de frente
 y de lejos, cada uno con una combinación de colores distinta. **Tienen que
 repetir sin costura a lo ancho.** Adelante va una baranda de barrotes blancos
-verticales.
+verticales. Una por pedido.
 
-**7 · Trofeos** — Seis copas de fútbol distintas entre sí, cada una centrada
-en su casilla, con un brillo blanco del lado izquierdo.
+**7 · Trofeos** — Seis copas de fútbol distintas entre sí, grilla de 3 columnas
+por 2 filas, cada una centrada en su casilla, con un brillo blanco del lado
+izquierdo.
 
 ---
 
@@ -120,10 +137,10 @@ en su casilla, con un brillo blanco del lado izquierdo.
 textos los escribe el juego con su propia tipografía de píxeles, así se pueden
 cambiar el año, los nombres y los carteles sin volver a dibujar nada.
 
-**Sobre las medidas:** si no podés entregar en la medida exacta, entregá grande
-(1024 o lo que puedas) y el autor la baja. Pero mantené **la proporción** de la
-casilla: si la pieza es de 128 × 160, entregala en una proporción 4:5, no en un
-cuadrado, porque al bajarla se deforma.
+**Sobre las medidas:** entregá siempre en el lienzo que pide la tabla de la
+Parte 2, con el lado más largo en 1024. La **proporción tiene que ser exacta**:
+si se entrega un cuadrado cuando la pieza es 4:5, al bajarla se deforma y hay
+que rehacerla.
 
 ---
 
@@ -145,13 +162,18 @@ Nombrá los archivos así:
 
 ```
 titulo.png
-retratos.png
+retrato_1.png ... retrato_8.png
 jugador.png
 arquero.png
-estadios.png
-tribunas.png
+estadio_bombonera.png  estadio_monumental.png  estadio_cilindro.png
+estadio_gasometro.png  estadio_libertadores.png
+tribuna_1.png ... tribuna_5.png
 trofeos.png
 ```
+
+Las piezas que van de a una se pueden mandar sueltas: el autor las junta
+después en Photopea, o las manda sueltas y se juntan del otro lado. Juntarlas
+en una hoja ahorra unos kilobytes, pero no es obligatorio.
 
 ---
 
