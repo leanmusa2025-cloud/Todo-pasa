@@ -4397,11 +4397,15 @@ function bonusRelacion(){
   let t=0;G.forEach(q=>{t+=rel(q.ap);});
   return clamp(Math.round(t/G.length/12),-8,8);
 }
+/* v15 · Los grandes no se juegan solos: primero elegís cómo jugarlos.
+   Semifinal y final de copa, y todo el Mundial.                      */
 function momento(){
   const T=p.temp,m=T.mom[T.i];
-  /* v14 · Los grandes no se juegan con una carta: se juegan a duelo.
-     Semifinal y final de copa, y todo el Mundial.                    */
-  if(esPartidoGrande(m)&&!m.duelHecho){m.duelHecho=1;return duelIniciar(m,avanzarMomento);}
+  if(esPartidoGrande(m)&&!m.duelHecho){m.duelHecho=1;return elegirModo(m);}
+  return momentoTexto();
+}
+function momentoTexto(){
+  const T=p.temp,m=T.mom[T.i];
   let pool=disponibles(JUGADAS,j=>j.pos.indexOf(p.pos)>=0&&(!j.comp||j.comp.indexOf(m.comp)>=0));
   if(!pool.length)pool=disponibles(JUGADAS,j=>j.pos.indexOf(p.pos)>=0);
   let cand=pool;
@@ -8963,7 +8967,9 @@ function esPartidoGrande(m){
 }
 
 /* ── 1 · PALETA Y FUENTE DE PÍXELES ─────────────────────────────── */
-const SKY=24,TRIBA=24,PISO=48;
+/* Las cuatro franjas de la pantalla, como en el cartucho:
+   barra de arriba, cielo, tribuna, cancha y panel de abajo.  */
+const BARRA=14,CIELO1=44,PISO=64,ACCION=134;
 const PAL={cielo:"#5C94FC",cielo2:"#9CD0FC",nube:"#FCFCFC",
   pasto:"#00A844",pasto2:"#009038",pastoOsc:"#00702C",
   linea:"#FCFCFC",tribOsc:"#181828",trib:"#242438",
@@ -8999,7 +9005,7 @@ function tsuTextoC(s,y,e,col,sombra){
 }
 
 /* ── 2 · EL MOTOR: un canvas, un reloj y una cola de escenas ─────── */
-const TSU={cv:null,g:null,W:224,H:132,veloc:1,raf:0,esc:null,cola:[],fin:null,
+const TSU={cv:null,g:null,W:256,H:224,veloc:1,zonas:[],raf:0,esc:null,cola:[],fin:null,
   shake:0,flash:0,flashCol:"#FCFCFC",cam:0,vivo:false,mundo:520,skip:0};
 function P(x,y,w,h,c){const g=TSU.g;if(!g)return;g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function tsuArranca(){
@@ -9007,11 +9013,25 @@ function tsuArranca(){
   if(!cv)return false;
   TSU.cv=cv;TSU.g=cv.getContext("2d");TSU.g.imageSmoothingEnabled=false;
   TSU.vivo=true;TSU.cola=[];TSU.esc=null;TSU.shake=0;TSU.flash=0;
-  cv.onclick=()=>{TSU.skip=1;};
+  cv.onclick=ev=>tsuToque(cv,ev);
   cancelAnimationFrame(TSU.raf);TSU.raf=requestAnimationFrame(tsuFrame);
   return true;
 }
-function tsuPara(){TSU.vivo=false;cancelAnimationFrame(TSU.raf);TSU.esc=null;TSU.cola=[];}
+/* Un toque en la pantalla: si hay un comando debajo del dedo lo elige,
+   y si no, adelanta la jugada que se está viendo.                    */
+function tsuToque(cv,ev){
+  const r=cv.getBoundingClientRect();
+  const lx=(ev.clientX-r.left)/r.width*TSU.W;
+  const ly=(ev.clientY-r.top)/r.height*TSU.H;
+  const z=(TSU.zonas||[]).filter(q=>lx>=q.x&&lx<=q.x+q.w&&ly>=q.y&&ly<=q.y+q.h)[0];
+  if(z&&z.cb){
+    TSU.sel=z.i;TSU.selT=performance.now();
+    TSU.zonas=[];buzz(12);sonTic();
+    const f=z.cb;setTimeout(f,170);return;
+  }
+  TSU.skip=1;
+}
+function tsuPara(){TSU.vivo=false;cancelAnimationFrame(TSU.raf);TSU.esc=null;TSU.cola=[];menuCerrar();}
 function tsuFrame(now){
   if(!TSU.vivo)return;
   /* si la ficha tapa la pantalla el partido se pausa, no se muere */
@@ -9023,7 +9043,7 @@ function tsuFrame(now){
     TSU.raf=requestAnimationFrame(tsuFrame);return;
   }
   if(cv!==TSU.cv){TSU.cv=cv;TSU.g=cv.getContext("2d");TSU.g.imageSmoothingEnabled=false;
-    cv.onclick=()=>{TSU.skip=1;};}
+    cv.onclick=e=>tsuToque(cv,e);}
   TSU.faltas=0;
   const e=TSU.esc;
   if(TSU.pausa){if(e&&e.t0)e.t0+=now-TSU.pausa;TSU.pausa=0;}
@@ -9053,52 +9073,38 @@ function tsuCola(lista,fin){TSU.cola=lista.slice();TSU.fin=fin;tsuSigue();}
 function chispazo(c,f){TSU.flashCol=c||"#FCFCFC";TSU.flash=f||1;}
 function temblor(n){TSU.shake=n||4;}
 
-/* ── 3 · SPRITES: gente de píxeles hecha con rectángulos ─────────── */
-/* Un jugador entra en 14 de ancho por 21 de alto. Cabeza, camiseta con
-   el patrón real del club, short, piernas que corren y sombra abajo.  */
-function dibJugador(x,y,kit,pose,f,dir,esc,sinSombra){
-  const s=esc||1, g=TSU.g;
+/* ── 3 · SPRITES · dibujados una vez, cacheados y con contorno negro ─
+   Cada jugador se pinta en un lienzo aparte de 20x32, se le calcula el
+   contorno de un píxel como en los sprites del cartucho y queda guardado.
+   Después se estampa escalado: sale barato y se ve nítido.            */
+const _spr={};
+function _cuerpo(g,kit,pose,f){
   const A=kit.c[0],B=kit.c[1],pa=kit.pa||"solido";
   const sh=lum(A)>0.6?"#1C1C2C":"#F0F0F8";
-  const d=dir<0?-1:1;
-  g.save();g.translate(Math.round(x),Math.round(y));g.scale(d*s,s);
-  const R=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(a,b,w,h);};
+  const R=(a,b,w,h,c)=>{g.fillStyle=c;g.fillRect(a+1,b+1,w,h);};
   const tumbado=(pose==="barrida"||pose==="caido");
-  if(!sinSombra&&pose!=="salta"&&pose!=="vuela"){
-    g.fillStyle=PAL.sombra;g.fillRect(2,26,13,2);}
   let cab=0,tor=9;
   if(tumbado){cab=11;tor=15;}
   else if(pose==="salta"){cab=-3;tor=6;}
-  /* ── piernas ── */
   const pie=(ax,ay,w,h)=>R(ax,ay,w,h,PAL.piel);
   const bota=(ax,ay,w)=>R(ax,ay,w||5,2,PAL.neg);
-  if(tumbado){
-    pie(9,20,8,3);bota(16,20,4);
-    pie(8,23,6,2);bota(13,23,4);
-  }else if(pose==="patea"){
-    pie(4,22,3,5);bota(3,26);
-    pie(10,18,6,3);bota(15,17,4);
-  }else if(pose==="salta"){
-    pie(4,20,3,5);bota(3,24);
-    pie(9,20,3,4);bota(9,23);
-  }else if(pose==="corre"){
-    const k=f&3;
+  if(tumbado){pie(9,20,8,3);bota(16,20,4);pie(8,23,6,2);bota(13,23,4);}
+  else if(pose==="patea"){pie(4,22,3,5);bota(3,26);pie(10,18,6,3);bota(15,17,4);}
+  else if(pose==="salta"){pie(4,20,3,5);bota(3,24);pie(9,20,3,4);bota(9,23);}
+  else if(pose==="corre"){const k=f&3;
     if(k===0){pie(3,22,3,5);bota(2,26);pie(10,22,3,5);bota(10,26);}
     else if(k===1){pie(5,22,3,5);bota(4,26);pie(9,20,5,3);bota(12,22,4);}
     else if(k===2){pie(6,22,3,5);bota(5,26);pie(8,22,3,5);bota(8,26);}
-    else{pie(2,20,5,3);bota(1,22,4);pie(9,22,3,5);bota(9,26);}
-  }else{pie(5,22,3,5);bota(4,26);pie(9,22,3,5);bota(9,26);}
-  /* ── short ── */
+    else{pie(2,20,5,3);bota(1,22,4);pie(9,22,3,5);bota(9,26);}}
+  else{pie(5,22,3,5);bota(4,26);pie(9,22,3,5);bota(9,26);}
   R(3,tor+9,10,3,sh);
   R(7,tor+9,2,3,lum(sh)>0.6?"#C8C8D8":"#2A2A3E");
-  /* ── camiseta ── */
   R(3,tor,10,10,A);
   if(pa==="franjas"){R(5,tor,2,10,B);R(9,tor,2,10,B);}
   else if(pa==="aros"){R(3,tor+2,10,2,B);R(3,tor+6,10,2,B);}
   else if(pa==="banda"){R(3,tor+6,4,2,B);R(6,tor+4,4,2,B);R(9,tor+1,4,3,B);}
   else if(pa==="mitades"){R(8,tor,5,10,B);}
   R(3,tor,10,1,lum(A)>0.6?"rgba(0,0,0,.22)":"rgba(255,255,255,.22)");
-  /* ── brazos ── */
   const br=(ax,ay,h)=>{R(ax,ay,3,h,A);R(ax,ay+h,3,2,PAL.piel);};
   if(pose==="salta"||pose==="vuela"){br(0,tor-4,5);br(13,tor-4,5);}
   else if(pose==="patea"){br(0,tor+1,5);br(13,tor-1,4);}
@@ -9106,7 +9112,6 @@ function dibJugador(x,y,kit,pose,f,dir,esc,sinSombra){
   else if(pose==="corre"){const k=f&3;
     if(k===1||k===2){br(0,tor,6);br(13,tor+3,5);}else{br(0,tor+3,5);br(13,tor,6);}}
   else{br(0,tor+2,6);br(13,tor+2,6);}
-  /* ── cabeza ── */
   R(4,cab,9,4,PAL.pelo);
   R(5,cab+3,7,5,PAL.piel);
   R(4,cab+3,3,3,PAL.pelo);
@@ -9114,25 +9119,49 @@ function dibJugador(x,y,kit,pose,f,dir,esc,sinSombra){
   R(10,cab+5,1,2,PAL.neg);
   R(5,cab+7,7,1,PAL.piel2);
   R(7,cab+8,3,1,PAL.piel2);
+}
+function sprite(kit,pose,f){
+  const key=kit.c[0]+kit.c[1]+(kit.pa||"s")+pose+f;
+  if(_spr[key])return _spr[key];
+  const W=18,H=32;
+  const cu=document.createElement("canvas");cu.width=W;cu.height=H;
+  _cuerpo(cu.getContext("2d"),kit,pose,f);
+  const si=document.createElement("canvas");si.width=W;si.height=H;
+  const sg=si.getContext("2d");
+  sg.drawImage(cu,0,0);sg.globalCompositeOperation="source-in";
+  sg.fillStyle="#0A0A10";sg.fillRect(0,0,W,H);
+  const out=document.createElement("canvas");out.width=W;out.height=H;
+  const og=out.getContext("2d");
+  [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]].forEach(d=>og.drawImage(si,d[0],d[1]));
+  og.drawImage(cu,0,0);
+  _spr[key]=out;return out;
+}
+function dibJugador(x,y,kit,pose,f,dir,esc,sinSombra){
+  const s=esc||1,g=TSU.g;
+  const cv=sprite(kit,pose,(pose==="corre"?(f&3):0));
+  if(!sinSombra&&pose!=="salta"&&pose!=="vuela"){
+    g.fillStyle=PAL.sombra;
+    g.beginPath();g.ellipse(x+9*s,y+30*s,8*s,2.2*s,0,0,6.284);g.fill();}
+  g.save();g.translate(Math.round(x),Math.round(y));
+  if(dir<0){g.translate(18*s,0);g.scale(-1,1);}
+  g.drawImage(cv,0,0,18*s,32*s);
   g.restore();
 }
-/* El arquero es igual pero de amarillo, con guantes y en vuelo se tumba */
+/* El arquero: de amarillo, con guantes, y cuando vuela se tumba de verdad */
 function dibArquero(x,y,pose,f,dir,esc){
   const kit={c:["#F2C500","#1A1A28"],pa:"solido"};
   const s=esc||1,g=TSU.g,vuela=(pose==="vuela");
   g.save();
   if(vuela){
-    g.translate(Math.round(x+8*s),Math.round(y+14*s));
-    g.rotate((dir<0?-1:1)*0.98);
-    g.translate(-8*s,-14*s);
+    g.translate(Math.round(x+9*s),Math.round(y+15*s));
+    g.rotate((dir<0?-1:1)*1.0);
+    g.translate(-9*s,-15*s);
     dibJugador(0,0,kit,"salta",f,dir,s,1);
-    g.fillStyle="#FCFCFC";
-    g.fillRect((dir<0?-3:13)*s,1*s,5*s,4*s);
+    g.fillStyle="#FCFCFC";g.fillRect((dir<0?-3:14)*s,2*s,5*s,4*s);
   }else{
     dibJugador(x,y,kit,"quieto",f,dir,s,1);
     g.fillStyle="#FCFCFC";
-    g.fillRect(x-3*s,y+10*s,4*s,4*s);
-    g.fillRect(x+15*s,y+10*s,4*s,4*s);
+    g.fillRect(x-2*s,y+11*s,4*s,4*s);g.fillRect(x+16*s,y+11*s,4*s,4*s);
   }
   g.restore();
 }
@@ -9140,6 +9169,11 @@ function dibPelota(x,y,r){
   const g=TSU.g;
   r=Math.max(1,Math.round(r));
   const cx=Math.round(x),cy=Math.round(y);
+  g.fillStyle="#0A0A10";
+  for(let dy=-r-1;dy<=r+1;dy++){
+    const w=Math.round(Math.sqrt(Math.max(0,(r+1)*(r+1)-dy*dy)));
+    if(w>0)g.fillRect(cx-w,cy+dy,w*2,1);
+  }
   g.fillStyle=PAL.blanco;
   for(let dy=-r;dy<=r;dy++){
     const w=Math.round(Math.sqrt(Math.max(0,r*r-dy*dy)));
@@ -9158,356 +9192,594 @@ function estelaPelota(x,y,r,dx,dy,n){
   }
   g.globalAlpha=1;
 }
+/* La caja con borde blanco y las esquinas comidas, igual a las del cartucho */
+function caja(x,y,w,h,fondo){
+  P(x,y,w,h,PAL.blanco);
+  P(x+1,y+1,w-2,h-2,fondo||"#000208");
+  const n="#000208";
+  P(x,y,2,1,n);P(x,y,1,2,n);
+  P(x+w-2,y,2,1,n);P(x+w-1,y,1,2,n);
+  P(x,y+h-1,2,1,n);P(x,y+h-2,1,2,n);
+  P(x+w-2,y+h-1,2,1,n);P(x+w-1,y+h-2,1,2,n);
+}
 
-/* ── 4 · EL ESCENARIO: cielo, tribuna que se mueve y cancha ──────── */
-function dibCielo(now,est){
+/* ── 4 · EL ESCENARIO · visto de costado, como en el cartucho ─────── */
+function dibCielo(now){
   const g=TSU.g;
-  const gr=g.createLinearGradient(0,0,0,SKY);
+  const gr=g.createLinearGradient(0,BARRA,0,CIELO1);
   gr.addColorStop(0,PAL.cielo);gr.addColorStop(1,PAL.cielo2);
-  g.fillStyle=gr;g.fillRect(0,0,TSU.W,SKY);
-  const nx=(now/70)%(TSU.W+60)-60;
-  P(nx,5,22,4,PAL.nube);P(nx+7,3,12,3,PAL.nube);
-  P(nx+64,11,16,3,PAL.nube);
+  g.fillStyle=gr;g.fillRect(0,BARRA,TSU.W,CIELO1-BARRA);
+  const nube=(nx,ny,e)=>{P(nx,ny,14*e,3*e,PAL.nube);P(nx+4*e,ny-2*e,8*e,2*e,PAL.nube);
+    P(nx+2*e,ny+3*e,10*e,2*e,PAL.nube);};
+  const d=(now/90);
+  nube(((d)%(TSU.W+70))-70,BARRA+8,1);
+  nube(((d*0.7+140)%(TSU.W+70))-70,BARRA+17,1);
+  nube(((d*1.3+60)%(TSU.W+70))-70,BARRA+5,1);
 }
-function dibTribuna(now,est,y0,alto){
-  const A=est.t[0],B=est.t[1];
+/* Tribuna con gente y el enrejado blanco de la baranda */
+function dibTribuna(now,est){
+  const A=est.t[0],B=est.t[1],y0=CIELO1,alto=PISO-CIELO1;
   P(0,y0,TSU.W,alto,PAL.tribOsc);
-  const filas=Math.floor(alto/4);
-  const on=Math.floor(now/110);
-  for(let f=0;f<filas;f++){
-    const yy=y0+f*4;
-    for(let i=0;i<TSU.W/4+1;i++){
-      const k=(i+f*3);
-      let c=(k%3===0)?B:(k%2?A:PAL.trib);
-      /* la ola: cada tanto se levanta una franja de gente */
-      const salto=((k+on)%17===0)?-1:0;
-      P(i*4,yy+salto,3,3,c);
-    }
+  const on=Math.floor(now/120);
+  for(let f=0;f<3;f++)for(let i=0;i<TSU.W/4+1;i++){
+    const k=i+f*3;
+    const c=(k%3===0)?B:(k%2?A:PAL.trib);
+    P(i*4,y0+1+f*4+((((k+on)%15)===0)?-1:0),3,3,c);
   }
-  P(0,y0+alto-2,TSU.W,2,"#0C0C14");   /* baranda */
+  /* la baranda: barrotes blancos y dos travesaños */
+  const yb=y0+alto-8;
+  P(0,yb,TSU.W,1,"#E8ECF4");
+  P(0,yb+6,TSU.W,2,"#9AA6BC");
+  for(let i=0;i<TSU.W;i+=4)P(i,yb,1,6,"#E8ECF4");
+  P(0,y0,TSU.W,1,"#0C0C14");
 }
-/* La cancha se dibuja en coordenadas de mundo y la cámara la recorre */
 function mx(wx){return wx-TSU.cam;}
+/* La cancha de costado: rayas horizontales, líneas y los dos arcos */
 function dibCancha(now,est,cam){
-  const W=TSU.W,H=TSU.H,MU=TSU.mundo;
-  dibCielo(now,est);
-  dibTribuna(now,est,SKY,TRIBA);
-  /* pasto en franjas verticales que se mueven con la cámara */
-  P(0,PISO,W,H-PISO,PAL.pasto);
-  for(let i=0;i<MU/16+2;i++){
-    const x=mx(i*16);
-    if(x>-16&&x<W)P(x,PISO,8,H-PISO,PAL.pasto2);
-  }
-  P(0,PISO,W,2,PAL.pastoOsc);
+  const W=TSU.W,MU=TSU.mundo,H1=PISO,H2=ACCION;
+  dibCielo(now);
+  dibTribuna(now,est);
+  const alto=H2-H1;
+  P(0,H1,W,alto,PAL.pasto);
+  for(let i=0;i<alto/8+1;i++)P(0,H1+i*8,W,4,PAL.pasto2);
+  P(0,H1,W,1,PAL.pastoOsc);
   const g=TSU.g;
   const L=(x,y,w,h)=>{const xx=mx(x);if(xx>-w-4&&xx<W+4)P(xx,y,w,h,PAL.linea);};
-  /* líneas: laterales, mitad, círculo central y áreas */
-  L(6,PISO+4,MU-12,2);L(6,H-18,MU-12,2);
-  L(6,PISO+4,2,H-PISO-22);L(MU-8,PISO+4,2,H-PISO-22);
-  L(MU/2-1,PISO+4,2,H-PISO-22);
+  L(6,H1+3,MU-12,2);L(6,H2-3,MU-12,2);
+  L(MU/2-1,H1+3,2,alto-6);
   g.strokeStyle=PAL.linea;g.lineWidth=2;
-  g.beginPath();g.arc(mx(MU/2),(PISO+4+H-18)/2,18,0,6.284);g.stroke();
+  g.beginPath();g.ellipse(mx(MU/2),H1+alto/2,26,alto*0.34,0,0,6.284);g.stroke();
   [[6,1],[MU-8,-1]].forEach(a=>{
     const bx=a[0],d=a[1];
-    L(bx+(d>0?0:-52),PISO+12,2,H-PISO-38);
-    L(bx+(d>0?0:-52),PISO+12,52,2);
-    L(bx+(d>0?0:-52),H-26,52,2);
+    L(bx+(d>0?46:-48),H1+8,2,alto-16);
+    L(bx+(d>0?0:-48),H1+8,48,2);
+    L(bx+(d>0?0:-48),H2-10,48,2);
   });
-  /* los dos arcos, de perfil, con red de cuadrícula */
   dibArco(6,1);dibArco(MU-8,-1);
 }
 function dibArco(wx,d){
-  const x=mx(wx),H=TSU.H;
-  if(x<-40||x>TSU.W+40)return;
+  const x=mx(wx),H1=PISO,H2=ACCION;
+  if(x<-46||x>TSU.W+46)return;
   const g=TSU.g;
-  const y0=PISO+14,y1=H-30;
-  P(x,y0,2,y1-y0,PAL.blanco);
-  P(x-(d>0?14:0),y0,14,2,PAL.blanco);
-  P(x-(d>0?14:0),y1,14,2,PAL.blanco);
-  P(x-(d>0?14:-12),y0,2,y1-y0,PAL.blanco);
-  g.globalAlpha=.5;g.fillStyle=PAL.red;
-  for(let i=1;i<7;i++)g.fillRect(x-(d>0?i*2:-i*2),y0,1,y1-y0);
-  for(let j=y0+4;j<y1;j+=4)g.fillRect(x-(d>0?13:0),j,13,1);
+  const y0=H1+6,y1=H2-8, an=16;
+  g.globalAlpha=.55;g.fillStyle=PAL.red;
+  for(let i=1;i<8;i++)g.fillRect(x-(d>0?i*2:-i*2),y0,1,y1-y0);
+  for(let j=y0+4;j<y1;j+=4)g.fillRect(x-(d>0?an:0),j,an,1);
   g.globalAlpha=1;
+  P(x,y0,2,y1-y0,PAL.blanco);
+  P(x-(d>0?an:0),y0,an,2,PAL.blanco);
+  P(x-(d>0?an:0),y1,an,2,PAL.blanco);
+  P(x-(d>0?an:-an+2),y0,2,y1-y0,PAL.blanco);
 }
-/* El pasto de la cancha en coordenadas de partido: 0 es tu arco, 100 el de ellos */
-function wxDe(pos){return 20+(pos/100)*(TSU.mundo-40);}
+
+/* De 0 a 100: 0 es tu arco y 100 el de ellos. La cámara sigue la pelota */
+function wxDe(pos){return 24+(pos/100)*(TSU.mundo-48);}
 function camA(wx,suave){
   const meta=clamp(wx-TSU.W/2,0,TSU.mundo-TSU.W);
   TSU.cam=suave?TSU.cam+(meta-TSU.cam)*0.18:meta;
 }
 
-/* ── 5 · EL HUD DIBUJADO: marcador y reloj en píxeles ────────────── */
+/* ── 5 · EL PANEL DE ABAJO · reloj, marcador y radar ──────────────── */
+/* El radar es la canchita de arriba con los once de cada lado */
+/* Si el color del club es muy oscuro lo aclaro para que se vea en el radar */
+function aclarar(c,k){
+  const h2=c.replace("#","");
+  const r=parseInt(h2.slice(0,2),16),g2=parseInt(h2.slice(2,4),16),b=parseInt(h2.slice(4,6),16);
+  const m=v=>Math.round(v+(255-v)*k).toString(16).padStart(2,"0");
+  return "#"+m(r)+m(g2)+m(b);
+}
+function colRadar(c){return lum(c)<0.34?aclarar(c,0.5):c;}
+function dibRadar(D,x,y,w,h){
+  P(x,y,w,h,"#0A5228");
+  for(let i=0;i<w;i+=10)P(x+i,y,5,h,"#0E5E2E");
+  const g=TSU.g;
+  const L=(a,b,c,d)=>P(x+a,y+b,c,d,"#DFF0E4");
+  L(2,2,w-4,1);L(2,h-3,w-4,1);L(2,2,1,h-4);L(w-3,2,1,h-4);
+  L(Math.round(w/2),2,1,h-4);
+  g.strokeStyle="#DFF0E4";g.lineWidth=1;
+  g.beginPath();g.arc(x+w/2,y+h/2,Math.min(w,h)*0.16,0,6.284);g.stroke();
+  L(2,Math.round(h*0.22),Math.round(w*0.13),1);
+  L(2,Math.round(h*0.78),Math.round(w*0.13),1);
+  L(Math.round(w*0.13),Math.round(h*0.22),1,Math.round(h*0.56));
+  L(w-3-Math.round(w*0.13),Math.round(h*0.22),Math.round(w*0.13),1);
+  L(w-3-Math.round(w*0.13),Math.round(h*0.78),Math.round(w*0.13),1);
+  L(w-3-Math.round(w*0.13),Math.round(h*0.22),1,Math.round(h*0.56));
+  const des=(D.pos-50)*0.42;
+  const punto=(px,py,col)=>{
+    const ax=Math.round(x+3+clamp((px+des)/100,0,1)*(w-8));
+    const ay=Math.round(y+3+(py/100)*(h-8));
+    P(ax-1,ay,4,2,"#0A0A10");P(ax,ay-1,2,4,"#0A0A10");
+    P(ax,ay,2,2,col);
+  };
+  const cA="#4FB4FF", cB="#FF6060";
+  (D.formB||[]).forEach(q=>punto(q.x,q.y,cB));
+  (D.formA||[]).forEach(q=>punto(q.x,q.y,cA));
+  const bx=x+3+clamp(D.pos/100,0,1)*(w-8);
+  P(bx-1,y+3+(h-8)*0.5-1,4,4,"#0A0A10");P(bx,y+3+(h-8)*0.5,3,3,"#FCFCFC");
+}
 function dibHud(D){
   const g=TSU.g,W=TSU.W;
-  P(0,0,W,13,"#080A12");P(0,13,W,1,"#1C2030");
-  tsuTexto(D.loc.i||"LOC",4,4,1,PAL.blanco);
-  const marc=D.gol+"-"+D.golRival;
-  tsuTexto(marc,Math.round(W/2-anchoTxt(marc,1)/2),4,1,PAL.amar);
-  const iv=D.vis.i||"VIS";
-  tsuTexto(iv,W-6-anchoTxt(iv,1),4,1,PAL.blanco);
-  const mn=D.min+"'";
-  tsuTexto(mn,Math.round(W/2+18),4,1,PAL.gris);
-  /* Guts: barra abajo con fondo propio, siempre legible */
-  P(0,TSU.H-12,W,12,"#080A12");P(0,TSU.H-13,W,1,"#1C2030");
-  tsuTexto("GUTS",4,TSU.H-8,1,PAL.amar);
-  const pc=clamp(D.guts/D.gmax,0,1), an=W-48;
-  P(24,TSU.H-9,an,6,"#1A1A26");
-  P(25,TSU.H-8,(an-2)*pc,4,pc>.55?"#3DDC97":pc>.25?"#F9D423":"#FF2D55");
-  const gn=Math.round(D.guts)+"";
-  tsuTexto(gn,W-8-anchoTxt(gn,1),TSU.H-8,1,PAL.blanco);
+  /* barra de arriba: quién la tiene y cuánto aguante le queda */
+  P(0,0,W,BARRA,"#000208");P(0,BARRA-1,W,1,"#2A3048");
+  const nom=(p&&p.nombre?p.nombre:"VOS").toUpperCase();
+  tsuTexto(nom,5,4,1,PAL.blanco);
+  const gl="GUTS "+Math.round(D.guts*8);
+  tsuTexto(gl,W-5-anchoTxt(gl,1),4,1,PAL.amar);
+  /* panel de abajo */
+  P(0,ACCION,W,TSU.H-ACCION,"#000208");
+  caja(4,ACCION+4,66,26);
+  tsuTexto(D.min<=45?"1ER T":"2DO T",10,ACCION+8,1,PAL.gris);
+  const rel=(D.min<10?"0":"")+D.min+":00";
+  tsuTexto(rel,10,ACCION+18,1,PAL.blanco);
+  caja(4,ACCION+34,66,48);
+  const ia=(D.loc.i||"LOC").slice(0,4), ib=(D.vis.i||"VIS").slice(0,4);
+  tsuTexto(ia,10,ACCION+40,1,PAL.blanco);
+  tsuTexto(D.gol+"",60-anchoTxt(D.gol+"",1),ACCION+40,1,PAL.amar);
+  tsuTexto(ib,10,ACCION+56,1,PAL.blanco);
+  tsuTexto(D.golRival+"",60-anchoTxt(D.golRival+"",1),ACCION+56,1,PAL.amar);
+  tsuTexto(D.mia?"ATACAS":"DEFENDES",10,ACCION+70,1,D.mia?"#3DDC97":"#FF8A3D");
+  if(!TSU.menu||!TSU.menu.items.length){
+    caja(74,ACCION+4,W-78,78);
+    dibRadar(D,78,ACCION+8,W-86,70);
+  }
 }
-/* ── 6 · ESCENAS ────────────────────────────────────────────────── */
-/* 6a · Salida al campo: la cámara pasea por el estadio */
+
+/* ── LA CARA DEL CUT-IN · curvas primero, píxeles después ────────────
+   Dibujar caras con rectángulos las deja cuadradas. Acá se dibuja con
+   curvas en un lienzo cuatro veces más grande, se baja a 38x62 y recién
+   ahí se aplasta contra una paleta corta. Salen los bordes redondos del
+   dibujito japonés pero con el grano de un cartucho.                  */
+const _car={};
+/* El borde se endurece para que no quede halo contra el fondo, pero los
+   colores se dejan como salieron: el degradé es lo que da el aire de anime. */
+function _bordeDuro(g,W,H){
+  const d=g.getImageData(0,0,W,H), a=d.data;
+  for(let i=0;i<a.length;i+=4)a[i+3]=a[i+3]<108?0:255;
+  g.putImageData(d,0,0);
+}
+/* el óvalo de la cara, en una sola función para poder rellenar y contornear */
+function caraRuta(g){
+  g.beginPath();
+  g.moveTo(7,24);
+  g.quadraticCurveTo(7,11,19,11);
+  g.quadraticCurveTo(31,11,31,24);
+  g.quadraticCurveTo(31,34,19,41);
+  g.quadraticCurveTo(7,34,7,24);
+  g.closePath();
+}
+/* el ojo: una almendra con el párpado grueso arriba */
+function _ojo(g,cx,cy,w,h,esp){
+  const N="#0A0A10";
+  g.beginPath();
+  g.moveTo(cx-w/2,cy+h*0.08);
+  g.quadraticCurveTo(cx-w*0.18,cy-h*0.62,cx+w/2,cy-h*0.30);
+  g.quadraticCurveTo(cx+w*0.10,cy+h*0.62,cx-w/2,cy+h*0.08);
+  g.closePath();
+  g.save();g.clip();
+  g.fillStyle="#FCFCFC";g.fillRect(cx-w,cy-h,w*2,h*2);
+  g.fillStyle=N;
+  g.beginPath();g.arc(cx+w*0.06,cy-h*0.02,h*0.50,0,6.284);g.fill();
+  g.fillStyle=esp;
+  g.beginPath();g.arc(cx+w*0.06,cy+h*0.02,h*0.30,0,6.284);g.fill();
+  g.fillStyle="#FCFCFC";
+  g.beginPath();g.arc(cx-w*0.10,cy-h*0.26,h*0.17,0,6.284);g.fill();
+  g.restore();
+  g.strokeStyle=N;g.lineWidth=1.0;g.stroke();
+  g.beginPath();
+  g.moveTo(cx-w/2,cy+h*0.08);
+  g.quadraticCurveTo(cx-w*0.18,cy-h*0.62,cx+w/2,cy-h*0.30);
+  g.lineWidth=1.6;g.stroke();
+}
+function _pintarCara(g,kit,bravo){
+  const N="#0A0A10", PE="#3A2410", PE2="#6B4A22", PI="#F8C49A", PS="#D89468";
+  g.lineJoin="round";g.lineCap="round";
+  /* hombros y camiseta */
+  g.fillStyle=kit.c[0];
+  g.beginPath();
+  g.moveTo(2,62);g.quadraticCurveTo(4,50,14,47);
+  g.lineTo(24,47);g.quadraticCurveTo(34,50,36,62);g.closePath();
+  g.save();g.clip();
+  g.fillRect(0,44,38,20);
+  const pa=kit.pa||"solido";
+  g.fillStyle=kit.c[1];
+  if(pa==="franjas"){[5,14,23,31].forEach(x=>g.fillRect(x,44,4,20));}
+  else if(pa==="aros"){g.fillRect(0,50,38,5);}
+  else if(pa==="banda"){g.beginPath();g.moveTo(0,62);g.lineTo(20,44);
+    g.lineTo(29,44);g.lineTo(9,62);g.closePath();g.fill();}
+  else if(pa==="mitades")g.fillRect(19,44,19,20);
+  g.restore();
+  g.strokeStyle=N;g.lineWidth=1.1;g.stroke();
+  /* cuello */
+  g.fillStyle=PS;
+  g.beginPath();g.moveTo(15,38);g.lineTo(23,38);g.lineTo(24,48);g.lineTo(14,48);
+  g.closePath();g.fill();g.lineWidth=1.0;g.stroke();
+  /* pelo de atrás: la masa con las puntas */
+  g.fillStyle=PE;
+  g.beginPath();
+  g.moveTo(4,30);
+  g.quadraticCurveTo(1,12,11,5.5);
+  g.lineTo(9,1.5);
+  g.quadraticCurveTo(15,2.5,17,5);
+  g.lineTo(19,0.5);
+  g.quadraticCurveTo(24,2,26,5.5);
+  g.lineTo(29,2);
+  g.quadraticCurveTo(34,8,35,21);
+  g.lineTo(34,32);
+  g.quadraticCurveTo(32,21,28,16);
+  g.lineTo(30,10);
+  g.quadraticCurveTo(20,6,10,12);
+  g.closePath();g.fill();
+  g.strokeStyle=N;g.lineWidth=1.1;g.stroke();
+  /* la cara: óvalo con el mentón en punta */
+  g.fillStyle=PI;
+  caraRuta(g);g.fill();
+  g.save();g.clip();
+  g.fillStyle=PS;                       /* el lado en sombra */
+  g.beginPath();g.moveTo(25,9);g.quadraticCurveTo(30,26,21,42);
+  g.lineTo(35,42);g.lineTo(35,9);g.closePath();g.fill();
+  g.restore();
+  caraRuta(g);                          /* vuelvo a trazar la cara para el contorno */
+  g.strokeStyle=N;g.lineWidth=1.1;g.stroke();
+  /* orejas */
+  g.fillStyle=PI;
+  [[6.5,26],[31.5,26]].forEach(o=>{g.beginPath();
+    g.ellipse(o[0],o[1],1.8,3.2,0,0,6.284);g.fill();g.lineWidth=0.9;g.stroke();});
+  /* flequillo por delante, con puntas */
+  g.fillStyle=PE;
+  g.beginPath();
+  g.moveTo(6,23);
+  g.quadraticCurveTo(5,11,19,8);
+  g.quadraticCurveTo(33,11,32,23);
+  g.lineTo(29,15);
+  g.lineTo(26,21);
+  g.lineTo(23,13);
+  g.lineTo(19,20);
+  g.lineTo(15,12);
+  g.lineTo(11,19);
+  g.closePath();g.fill();
+  g.strokeStyle=N;g.lineWidth=1.0;g.stroke();
+  g.fillStyle=PE2;                      /* el brillo del pelo */
+  g.beginPath();g.moveTo(10,12);g.quadraticCurveTo(19,7,27,11);
+  g.quadraticCurveTo(19,10,11,15);g.closePath();g.fill();
+  /* ojos */
+  const iris=bravo?"#1B54B4":"#6B4A22";
+  _ojo(g,13.5,25.6,9.4,7.6,iris);
+  _ojo(g,24.5,25.6,9.4,7.6,iris);
+  /* cejas: finas y fruncidas para adentro */
+  g.strokeStyle=N;g.lineCap="round";
+  g.lineWidth=bravo?1.7:1.2;
+  g.beginPath();g.moveTo(8.6,bravo?21.2:20.4);g.lineTo(16.8,bravo?19.0:19.2);g.stroke();
+  g.beginPath();g.moveTo(29.4,bravo?21.2:20.4);g.lineTo(21.2,bravo?19.0:19.2);g.stroke();
+  /* nariz */
+  g.fillStyle=PS;
+  g.beginPath();g.moveTo(19.6,29.4);g.lineTo(21,32.6);g.lineTo(17.6,32.6);
+  g.closePath();g.fill();
+  g.strokeStyle=N;g.lineWidth=0.9;
+  g.beginPath();g.moveTo(17.8,32.7);g.lineTo(20.8,32.7);g.stroke();
+  /* boca: gritando */
+  if(bravo){
+    g.fillStyle="#8A1828";
+    g.beginPath();g.moveTo(14.2,35.4);g.quadraticCurveTo(19,33.9,23.8,35.4);
+    g.quadraticCurveTo(19,39.4,14.2,35.4);g.closePath();g.fill();
+    g.strokeStyle=N;g.lineWidth=1.1;g.stroke();
+    g.fillStyle="#FCFCFC";
+    g.beginPath();g.moveTo(14.8,35.4);g.quadraticCurveTo(19,34.4,23.2,35.4);
+    g.lineTo(22.8,36.2);g.quadraticCurveTo(19,35.4,15.2,36.2);g.closePath();g.fill();
+    g.fillStyle="#D4586C";
+    g.beginPath();g.ellipse(19,37.5,2.4,0.9,0,0,6.284);g.fill();
+  }else{
+    g.strokeStyle=N;g.lineWidth=1.2;
+    g.beginPath();g.moveTo(15.5,35.8);g.quadraticCurveTo(19,37.0,22.5,35.8);g.stroke();
+  }
+}
+/* El retrato va al doble de resolución que el resto: en la pantalla ocupa
+   lo mismo, pero le entra el detalle de una cara y no queda un ladrillo. */
+const CARA_RES=2, CARA_W=38*CARA_RES, CARA_H=64*CARA_RES;
+function caraSprite(kit,bravo){
+  const key=kit.c[0]+kit.c[1]+(kit.pa||"s")+(bravo?"1":"0");
+  if(_car[key])return _car[key];
+  const S=3;
+  const big=document.createElement("canvas");
+  big.width=CARA_W*S;big.height=CARA_H*S;
+  const bg=big.getContext("2d");bg.scale(S*CARA_RES,S*CARA_RES);bg.translate(0,1);
+  _pintarCara(bg,kit,bravo);
+  const out=document.createElement("canvas");out.width=CARA_W;out.height=CARA_H;
+  const og=out.getContext("2d");
+  og.imageSmoothingEnabled=true;og.imageSmoothingQuality="high";
+  og.drawImage(big,0,0,CARA_W,CARA_H);
+  try{_bordeDuro(og,CARA_W,CARA_H);}catch(e){}
+  _car[key]=out;return out;
+}
+function dibCara(x,y,e,kit,bravo,dir){
+  const g=TSU.g, cv=caraSprite(kit,bravo?1:0);
+  const an=38*e, al=64*e;
+  g.save();g.translate(Math.round(x),Math.round(y));
+  if(dir<0){g.translate(an,0);g.scale(-1,1);}
+  g.imageSmoothingEnabled=false;
+  g.drawImage(cv,0,0,an,al);
+  g.restore();
+}
+/* Fondo de rayas diagonales que corren, como en el manga */
+function fondoRayas(now,colA,colB){
+  const g=TSU.g,W=TSU.W,H=TSU.H;
+  P(0,0,W,H,colA);
+  g.save();g.translate(-(now/22)%36,0);
+  for(let i=-2;i<W/18+4;i++){
+    g.fillStyle=i%2?colB:"rgba(255,255,255,.07)";
+    g.beginPath();g.moveTo(i*18,0);g.lineTo(i*18+9,0);
+    g.lineTo(i*18+9-46,H);g.lineTo(i*18-46,H);g.closePath();g.fill();
+  }
+  g.restore();
+}
+
+/* ── 7 · ESCENAS ─────────────────────────────────────────────────── */
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+const ESC_J=1.7;                    /* cuánto se agranda cada jugador */
 function escPresentacion(D){
-  return {dur:2800,draw:(t,now)=>{
+  return {dur:3000,draw:(t,now)=>{
     TSU.cam=(TSU.mundo-TSU.W)*ease(t);
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/110);
-    for(let i=0;i<7;i++)dibJugador(mx(54+i*56),52+((i*37)%36),D.loc,"corre",f+i,1);
-    for(let i=0;i<7;i++)dibJugador(mx(84+i*54),56+((i*41)%34),D.vis,"corre",f+i*2,-1);
+    for(let i=0;i<6;i++)dibJugador(mx(60+i*86),60+((i*37)%20),D.loc,"corre",f+i,1,ESC_J);
+    for(let i=0;i<6;i++)dibJugador(mx(104+i*84),80-((i*41)%18),D.vis,"corre",f+i*2,-1,ESC_J);
     const a=t<.14?t/.14:t>.88?(1-t)/.12:1;
     TSU.g.globalAlpha=Math.max(0,a);
-    P(0,50,TSU.W,34,"rgba(8,10,18,.80)");
-    tsuTextoC(D.est.n,55,2,PAL.amar,"#7A5C00");
-    tsuTextoC(D.loc.n+" - "+D.vis.n,70,1,PAL.blanco);
+    caja(14,PISO+8,TSU.W-28,40);
+    tsuTextoC(D.est.n,PISO+14,2,PAL.amar,"#7A5C00");
+    tsuTextoC(D.loc.n+" - "+D.vis.n,PISO+32,1,PAL.blanco);
     TSU.g.globalAlpha=1;
-  }};
-}
-/* 6b · Avance: corrés con la pelota y la cámara te sigue */
-function escAvance(D,desde,hasta,mio){
-  const dir=mio?1:-1;
-  return {dur:1250,draw:(t,now)=>{
-    const wx=wxDe(desde+(hasta-desde)*ease(t));
-    camA(wx,false);
-    dibCancha(now,D.est,TSU.cam);
-    const f=Math.floor(now/70), yy=70;
-    const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
-    dibJugador(mx(wx-56*dir),52,kit,"corre",f+1,dir);
-    dibJugador(mx(wx-34*dir),86,kit,"corre",f+3,dir);
-    dibJugador(mx(wx+60*dir),56,kit2,"corre",f+2,-dir);
-    dibJugador(mx(wx+88*dir),84,kit2,"corre",f,-dir);
-    dibJugador(mx(wx),yy,kit,"corre",f,dir);
-    dibPelota(mx(wx)+(dir>0?19:-3),yy+24+Math.abs(Math.sin(now/85))*3,3);
     dibHud(D);
   }};
 }
-/* 6c · El cruce cara a cara, con líneas de velocidad y el VS del medio */
-function escCutIn(D,mio,titulo){
-  const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
-  return {dur:1250,draw:(t,now)=>{
-    const g=TSU.g,W=TSU.W,H=TSU.H;
-    const fondo=g.createLinearGradient(0,0,0,H);
-    fondo.addColorStop(0,mio?"#14224A":"#3A1020");
-    fondo.addColorStop(1,"#080A12");
-    g.fillStyle=fondo;g.fillRect(0,0,W,H);
-    g.save();g.translate(W/2,H/2);
-    for(let i=0;i<30;i++){
-      const a=i*0.2094+now/500;
-      const l=52+((i*41+now/5)%130);
-      g.strokeStyle=i%3?"rgba(255,255,255,.13)":"rgba(252,216,0,.26)";
-      g.lineWidth=1+(i%3);
-      g.beginPath();g.moveTo(Math.cos(a)*14,Math.sin(a)*9);
-      g.lineTo(Math.cos(a)*l,Math.sin(a)*l*0.66);g.stroke();
-    }
-    g.restore();
-    const e=ease(Math.min(1,t*1.7));
-    const es=2.3, an=16*es;
-    const fA=24, fB=W-24-an;
-    const x1=-an-30+e*(fA+an+30), x2=W+30-e*(W+30-fB);
-    const yy=30;
-    g.fillStyle="rgba(0,0,0,.35)";
-    g.beginPath();g.ellipse(x1+18,yy+66,22,5,0,0,6.284);g.fill();
-    g.beginPath();g.ellipse(x2+18,yy+66,22,5,0,0,6.284);g.fill();
-    dibJugador(x1,yy,kit,"quieto",Math.floor(now/170),1,es,1);
-    dibJugador(x2,yy,kit2,"quieto",Math.floor(now/160),-1,es,1);
-    if(t>.5){
-      const bl=Math.floor(now/120)%2;
-      tsuTextoC("VS",H/2-8,3,bl?PAL.amar:PAL.naranja,"#7A5C00");
-      P(0,H-30,W,17,"rgba(8,10,18,.88)");
-      tsuTextoC(titulo,H-26,2,PAL.amar,"#7A5C00");
-      P(0,14,W,11,"rgba(8,10,18,.82)");
-      tsuTextoC(mio?(D.loc.n+" ATACA"):(D.vis.n+" AL ATAQUE"),17,1,PAL.blanco);
-    }
-    if(t>.47&&t<.53)chispazo("#FCFCFC",.55);
+function escAvance(D,desde,hasta,mio){
+  const dir=mio?1:-1;
+  return {dur:1300,draw:(t,now)=>{
+    const wx=wxDe(desde+(hasta-desde)*ease(t));
+    camA(wx,false);
+    dibCancha(now,D.est,TSU.cam);
+    const f=Math.floor(now/70), yy=72;
+    const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
+    dibJugador(mx(wx-96*dir),60,kit,"corre",f+1,dir,ESC_J);
+    dibJugador(mx(wx-54*dir),82,kit,"corre",f+3,dir,ESC_J);
+    dibJugador(mx(wx+74*dir),60,kit2,"corre",f+2,-dir,ESC_J);
+    dibJugador(mx(wx+118*dir),82,kit2,"corre",f,-dir,ESC_J);
+    dibJugador(mx(wx),yy,kit,"corre",f,dir,ESC_J);
+    dibPelota(mx(wx)+(dir>0?32:-2),yy+48+Math.abs(Math.sin(now/85))*3,4);
+    dibHud(D);
   }};
 }
-/* 6d · Espera con el menú abierto: los dos se miden y la flecha late */
+/* El cruce: dos caras, líneas de velocidad y el nombre del duelo */
+function escCutIn(D,mio,titulo){
+  const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
+  return {dur:1500,draw:(t,now)=>{
+    const W=TSU.W,H=TSU.H;
+    fondoRayas(now,mio?"#123268":"#5A1024",mio?"#1E4A96":"#8C1A34");
+    const e=ease(Math.min(1,t*1.6));
+    const es=2.6;
+    const x1=-120+e*(120-6), x2=W+30-e*(30+164);
+    dibCara(x2,40,es*0.92,kit2,1,-1);
+    dibCara(x1,32,es,kit,1,1);
+
+    if(t>.5){
+      caja(8,H-52,W-16,30);
+      tsuTextoC(titulo,H-44,2,PAL.amar,"#7A5C00");
+      caja(8,12,W-16,20);
+      tsuTextoC(mio?(D.loc.n+" ATACA"):(D.vis.n+" AL ATAQUE"),19,1,PAL.blanco);
+    }
+    if(t>.40&&t<.46)chispazo("#FCFCFC",.5);
+  }};
+}
+/* La espera con el menú: la cancha sigue viva atrás */
 function escEspera(D,mio){
   const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
   return {dur:1400,loop:true,draw:(t,now)=>{
     const wx=wxDe(D.pos);camA(wx,true);
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/230), dir=mio?1:-1;
-    dibJugador(mx(wx)+(mio?34:-34),66,kit2,"quieto",f+1,-dir);
-    dibJugador(mx(wx),72,kit,"quieto",f,dir);
-    dibPelota(mx(wx)+(dir>0?19:-3),97+Math.sin(now/230)*1.5,3);
-    const s=Math.sin(now/170)>0?0:1;
-    P(mx(wx)+4,56+s,8,2,PAL.amar);P(mx(wx)+5,58+s,6,2,PAL.amar);
-    P(mx(wx)+6,60+s,4,2,PAL.amar);P(mx(wx)+7,62+s,2,2,PAL.amar);
+    dibJugador(mx(wx)+(mio?44:-44),66,kit2,"quieto",f+1,-dir,ESC_J);
+    dibJugador(mx(wx),72,kit,"quieto",f,dir,ESC_J);
+    dibPelota(mx(wx)+(dir>0?32:-2),120+Math.sin(now/230)*1.5,4);
     dibHud(D);
+    dibMenu(D,now);
   }};
 }
-/* 6e · Resolución del duelo de campo: gambeta, barrida, caño */
 function escDuelo(D,mio,ok,esp){
   const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
   const dir=mio?1:-1, gana=mio?ok:!ok;
-  return {dur:1600,draw:(t,now)=>{
+  return {dur:1700,draw:(t,now)=>{
     const wx=wxDe(D.pos);camA(wx,true);
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/60);
     const av=t<.45?0:(t-.45)/.55;
-    let xA=mx(wx), xB=mx(wx)+34*dir;
-    if(gana===mio)xA+=av*52*dir; else xB-=av*44*dir;
-    const perdiVos=(mio&&!ok)||(!mio&&!ok);
-    const poseA=perdiVos?(t>.5?"caido":"corre"):"corre";
+    let xA=mx(wx), xB=mx(wx)+44*dir;
+    if(gana===mio)xA+=av*62*dir; else xB-=av*52*dir;
+    const poseA=!ok?(t>.5?"caido":"corre"):"corre";
     const poseB=(gana===mio)?(t>.5?"barrida":"corre"):"corre";
-    if(t>.36&&t<.43){temblor(3);chispazo("#FCD800",.32);}
-    dibJugador(xB,poseB==="barrida"?78:66,kit2,poseB,f+2,-dir);
-    dibJugador(xA,poseA==="caido"?80:72,kit,poseA,f,dir);
-    const bx=(gana===mio?xA:xB)+(dir>0?19:-3);
-    dibPelota(bx,96+Math.abs(Math.sin(now/70))*4,3);
+    if(t>.36&&t<.43){temblor(3);chispazo("#FCD800",.30);}
+    dibJugador(xB,poseB==="barrida"?80:66,kit2,poseB,f+2,-dir,ESC_J);
+    dibJugador(xA,poseA==="caido"?82:72,kit,poseA,f,dir,ESC_J);
+    dibPelota((gana===mio?xA:xB)+(dir>0?32:-2),118+Math.abs(Math.sin(now/70))*4,4);
     if(t>.43&&esp){
       TSU.g.globalAlpha=Math.max(0,1-(t-.43)*1.8);
-      P(0,44,TSU.W,16,"rgba(8,10,18,.78)");
-      tsuTextoC(esp,47,2,PAL.amar,"#7A5C00");TSU.g.globalAlpha=1;
+      caja(12,PISO-16,TSU.W-24,22);
+      tsuTextoC(esp,PISO-10,2,PAL.amar,"#7A5C00");TSU.g.globalAlpha=1;
     }
     dibHud(D);
   }};
 }
-/* 6f · EL REMATE · el arco de frente, el arquero volando y la pelota que crece */
+/* EL REMATE · el arco de frente, el arquero volando y la pelota que crece */
 function escRemate(D,ok,nombre,mio){
   const kitT=mio?D.loc:D.vis, est=D.est;
-  return {dur:2700,draw:(t,now)=>{
-    const g=TSU.g,W=TSU.W,H=TSU.H;
-    /* tribuna de fondo, bien alta, como cuando la cámara se pone atrás del arco */
-    P(0,0,W,42,PAL.tribOsc);
-    for(let f=0;f<10;f++)for(let i=0;i<W/4+1;i++){
-      const k=i+f*3,on=Math.floor(now/90);
-      P(i*4,f*4+((((k+on)%13)===0)?-1:0),3,3,(k%3===0)?est.t[1]:(k%2?est.t[0]:PAL.trib));
+  return {dur:2900,draw:(t,now)=>{
+    const g=TSU.g,W=TSU.W;
+    P(0,BARRA,W,PISO-BARRA,PAL.tribOsc);
+    const on=Math.floor(now/90);
+    for(let f=0;f<Math.floor((PISO-BARRA)/4);f++)for(let i=0;i<W/4+1;i++){
+      const k=i+f*3;
+      P(i*4,BARRA+f*4+((((k+on)%13)===0)?-1:0),3,3,(k%3===0)?est.t[1]:(k%2?est.t[0]:PAL.trib));
     }
-    P(0,40,W,4,"#0C0C14");
-    P(0,44,W,H-44,PAL.pasto);
-    for(let i=0;i<9;i++)P(i*28,44,14,H-44,PAL.pasto2);
-    P(0,44,W,2,PAL.pastoOsc);
-    /* el arco, creciendo mientras la pelota viaja */
-    const z=0.6+ease(Math.min(1,t*1.3))*0.4;
-    const aw=Math.round(150*z), ah=Math.round(60*z);
-    const ax=Math.round(W/2-aw/2), ay=Math.round(52-ah*0.12);
+    P(0,PISO-4,W,4,"#0C0C14");
+    P(0,PISO,W,ACCION-PISO,PAL.pasto);
+    for(let i=0;i<(ACCION-PISO)/8+1;i++)P(0,PISO+i*8,W,4,PAL.pasto2);
+    const z=0.62+ease(Math.min(1,t*1.3))*0.38;
+    const aw=Math.round(178*z), ah=Math.round(64*z);
+    const ax=Math.round(W/2-aw/2), ay=Math.round(PISO-8-ah*0.55);
     g.globalAlpha=.5;g.fillStyle=PAL.red;
-    for(let i=0;i<=12;i++)g.fillRect(ax+Math.round(i*aw/12),ay,1,ah);
-    for(let j=0;j<=6;j++)g.fillRect(ax,ay+Math.round(j*ah/6),aw,1);
+    for(let i=0;i<=20;i++)g.fillRect(ax+Math.round(i*aw/20),ay,1,ah);
+    for(let j=0;j<=9;j++)g.fillRect(ax,ay+Math.round(j*ah/9),aw,1);
     g.globalAlpha=1;
     P(ax-3,ay-3,3,ah+6,PAL.blanco);P(ax+aw,ay-3,3,ah+6,PAL.blanco);
     P(ax-3,ay-3,aw+6,3,PAL.blanco);
-    /* el arquero: parado, después el vuelo */
     const lado=(D.ladoTiro||1);
     const tv=clamp((t-.30)/.38,0,1);
-    const ez=1.25*z;
-    const kx=ax+aw/2-8*ez+(ok?-lado*10:lado*(26+34*tv))*z;
-    const ky=ay+ah-30*ez-(ok?0:14*tv*z);
+    const ez=1.5*z;
+    const kx=ax+aw/2-9*ez+(ok?-lado*12:lado*(30+40*tv))*z;
+    const ky=ay+ah-30*ez-(ok?0:16*tv*z);
     dibArquero(kx,ky,tv>.12?"vuela":"quieto",Math.floor(now/90),lado>0?1:-1,ez);
-    /* el que remata, de espaldas, abajo */
-    if(t<.44)dibJugador(W/2-14,H-38,kitT,t<.20?"corre":"patea",Math.floor(now/60),1,1.8,0);
-    /* la pelota: chica abajo, grande arriba */
+    if(t<.40)dibJugador(W/2-16,ACCION-56,kitT,t<.20?"corre":"patea",Math.floor(now/60),1,1.9,0);
     const bt=clamp((t-.16)/.52,0,1), be=bt*bt;
-    const bx0=W/2, by0=H-22;
+    const bx0=W/2, by0=ACCION-14;
     const bx1=ax+aw/2+lado*(ok?aw*0.34:aw*0.30);
     const by1=ay+ah*(ok?0.26:0.44);
-    const bx=bx0+(bx1-bx0)*be, by=by0+(by1-by0)*be, br=2+be*7;
+    const bx=bx0+(bx1-bx0)*be, by=by0+(by1-by0)*be, br=2+be*8;
     if(bt>0&&bt<1){
       g.strokeStyle="rgba(252,216,0,.45)";g.lineWidth=1;
       for(let i=0;i<5;i++){g.beginPath();
-        g.moveTo(bx0+(i-2)*8,by0);g.lineTo(bx+(i-2)*3,by+br);g.stroke();}
+        g.moveTo(bx0+(i-2)*9,by0);g.lineTo(bx+(i-2)*3,by+br);g.stroke();}
       estelaPelota(bx,by,br,(bx1-bx0)/40,(by1-by0)/40,5);
     }
     if(bt>=1&&!ok){
       const rt=clamp((t-.68)/.32,0,1);
-      dibPelota(bx+lado*rt*80,by-rt*44+rt*rt*34,Math.max(2,7-rt*4));
+      dibPelota(bx+lado*rt*90,by-rt*46+rt*rt*36,Math.max(2,8-rt*5));
     }else if(bt>0)dibPelota(bx,by,br);
     if(t>.64&&t<.70){temblor(6);chispazo(ok?"#FCFCFC":"#5C94FC",.85);}
-    if(t<.34){P(0,15,W,18,"rgba(6,8,14,.92)");P(0,32,W,1,PAL.amar);
-      tsuTextoC(nombre,19,2,PAL.amar,"#7A5C00");}
+    if(t<.32){caja(10,ACCION-30,W-20,24);
+      tsuTextoC(nombre,ACCION-24,2,PAL.amar,"#7A5C00");}
     if(t>.70){
-      /* el cartel va abajo: la jugada no se tapa nunca */
-      const bl=Math.floor(now/110)%2, txt=ok?"¡¡GOL!!":"¡LA SACO!";
-      const an=anchoTxt(txt,3)+16, bx2=Math.round((W-an)/2);
-      P(bx2,H-36,an,22,"rgba(6,8,14,.93)");
-      P(bx2,H-37,an,1,ok?PAL.amar:PAL.naranja);
-      P(bx2,H-15,an,1,ok?PAL.amar:PAL.naranja);
-      tsuTextoC(txt,H-31,3,ok?(bl?PAL.amar:PAL.blanco):PAL.naranja,"#7A5C00");
+      const bl=Math.floor(now/110)%2;
+      caja(26,ACCION-40,W-52,32);
+      tsuTextoC(ok?"¡¡GOL!!":"¡LA SACO!",ACCION-33,3,
+        ok?(bl?PAL.amar:PAL.blanco):PAL.naranja,"#7A5C00");
     }
     dibHud(D);
   }};
 }
-/* 6g · Gol: papelitos, la tribuna encendida y el equipo corriendo */
 function escFestejo(D,mio){
   const kit=mio?D.loc:D.vis;
-  return {dur:2300,draw:(t,now)=>{
-    camA(wxDe(mio?92:8),false);
+  return {dur:2400,draw:(t,now)=>{
+    const wc=wxDe(mio?92:8);camA(wc,false);
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/80);
     for(let i=0;i<5;i++)
-      dibJugador(mx(wxDe(mio?92:8)-46+i*24),56+((i*29)%32),kit,i===2?"salta":"corre",f+i,mio?1:-1);
-    for(let i=0;i<46;i++){
-      const px=(i*53+now/6)%TSU.W, py=((i*91)+now/3.2)%(TSU.H-46)+22;
+      dibJugador(mx(wc-80+i*40),60+((i*29)%22),kit,i===2?"salta":"corre",f+i,mio?1:-1,ESC_J);
+    for(let i=0;i<52;i++){
+      const px=(i*53+now/6)%TSU.W, py=((i*91)+now/3.2)%(ACCION-BARRA)+BARRA;
       P(px,py,2,3,[PAL.amar,PAL.blanco,PAL.naranja,"#3DDC97"][i%4]);
     }
     const bl=Math.floor(now/130)%2;
-    P(0,15,TSU.W,24,"rgba(6,8,14,.90)");P(0,39,TSU.W,1,mio?PAL.amar:PAL.naranja);
-    tsuTextoC(mio?"¡¡GOL!!":"GOL DE ELLOS",20,3,
-      mio?(bl?PAL.amar:PAL.blanco):PAL.naranja,"#7A5C00");
+    caja(24,62,TSU.W-48,34);
+    tsuTextoC(mio?"¡¡GOL!!":"GOL DE ELLOS",70,3,bl?PAL.amar:PAL.blanco,"#7A5C00");
     dibHud(D);
   }};
 }
-/* 6h · Pitazo final */
 function escFinal(D,res){
-  return {dur:2600,draw:(t,now)=>{
+  return {dur:2800,draw:(t,now)=>{
     TSU.cam=(TSU.mundo-TSU.W)*(0.5+0.42*Math.sin(now/2400));
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/130);
     const kit=res==="perdio"?D.vis:D.loc;
     for(let i=0;i<6;i++)
-      dibJugador(mx(50+i*60),54+((i*33)%34),kit,res==="empate"?"quieto":"salta",f+i,1);
-    if(res!=="perdio")for(let i=0;i<40;i++){
-      const px=(i*61+now/7)%TSU.W, py=((i*83)+now/3.6)%(TSU.H-46)+22;
+      dibJugador(mx(46+i*84),60+((i*33)%20),kit,res==="empate"?"quieto":"salta",f+i,1,ESC_J);
+    if(res!=="perdio")for(let i=0;i<44;i++){
+      const px=(i*61+now/7)%TSU.W, py=((i*83)+now/3.6)%(ACCION-BARRA)+BARRA;
       P(px,py,2,3,[PAL.amar,PAL.blanco,"#3DDC97"][i%3]);
     }
-    P(0,15,TSU.W,38,"rgba(6,8,14,.90)");P(0,53,TSU.W,1,PAL.amar);
-    tsuTextoC(res==="gano"?"GANAMOS":res==="perdio"?"PERDIMOS":"EMPATE",19,3,
+    caja(20,56,TSU.W-40,46);
+    tsuTextoC(res==="gano"?"GANAMOS":res==="perdio"?"PERDIMOS":"EMPATE",62,3,
       res==="gano"?PAL.amar:res==="perdio"?PAL.naranja:PAL.blanco,"#7A5C00");
-    tsuTextoC(D.gol+" - "+D.golRival,39,2,PAL.blanco);
+    tsuTextoC(D.gol+" - "+D.golRival,84,2,PAL.blanco);
+    dibHud(D);
   }};
 }
-function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+
+/* ── 8 · EL MENÚ DE COMANDOS · adentro de la pantalla, como el cartucho ─ */
+const MX=74,MW=TSU_W_MENU();
+function TSU_W_MENU(){return 256-78;}
+function dibMenu(D,now){
+  const M=TSU.menu; if(!M||!M.items.length)return;
+  const x=MX,y=ACCION+4,w=MW,alto=78;
+  caja(x,y,w,alto);
+  tsuTexto(M.tit,x+7,y+4,1,PAL.gris);
+  const paso=Math.floor((alto-14)/Math.max(1,M.items.length));
+  M.items.forEach((it,i)=>{
+    const fy=y+12+i*paso;
+    const sel=(TSU.sel===i);
+    const enc=(now-(TSU.selT||0))<170&&sel;
+    if(enc)P(x+3,fy-2,w-6,paso,"#2A3A64");
+    const bl=Math.floor(now/230)%2;
+    if(sel&&bl){P(x+6,fy+1,2,6,PAL.amar);P(x+8,fy+3,2,2,PAL.amar);}
+    const col=it.no?"#5A6070":sel?PAL.amar:PAL.blanco;
+    tsuTexto(it.t,x+12,fy+1,1,col);
+    if(it.g){const gt=(it.g*8)+"";
+      tsuTexto(gt,x+w-8-anchoTxt(gt,1),fy+1,1,it.no?"#5A6070":"#8C93A8");}
+  });
+}
+function menuAbrir(D,tit,items){
+  TSU.menu={tit:tit,items:items};
+  TSU.sel=0;
+  const paso=Math.floor(64/Math.max(1,items.length));
+  TSU.zonas=items.map((it,i)=>({x:MX,y:ACCION+10+i*paso,w:MW,h:paso,i:i,cb:it.cb}));
+}
+function menuCerrar(){TSU.menu=null;TSU.zonas=[];TSU.sel=-1;}
+
 /* ── 7 · LAS CARTAS · lo que se puede hacer con la pelota ────────── */
 /* Armado de jugada: sirven para llegar hasta el área de ellos */
 const CARTAS_ATAQUE=[
- {id:"gambeta",n:"Gambeta corta",d:"Sacártelo de encima",st:"tec",g:14,base:54},
- {id:"pared",n:"Pared con {COMPA}",d:"Dos toques y adentro",st:"tec",g:16,base:58},
- {id:"filtrado",n:"Pase filtrado",d:"Romper la línea",st:"tec",g:16,base:50},
- {id:"cano",n:"Caño y a correr",d:"Humillación fina",st:"tec",g:20,base:42,esp:"¡CAÑO!"},
- {id:"pique",n:"Pique largo por afuera",d:"Ganarle la espalda",st:"fis",g:18,base:52},
- {id:"sombrero",n:"Sombrero y de frente",d:"Riesgo puro",st:"tec",g:22,base:40,esp:"¡SOMBRERO!"},
- {id:"aguante",n:"Aguantarla de espaldas",d:"Esperar la ayuda",st:"fis",g:12,base:60}
+ {id:"gambeta",gr:"GAMBETA",n:"Gambeta corta",d:"Sacártelo de encima",st:"tec",g:14,base:54},
+ {id:"pared",gr:"PASE",n:"Pared con {COMPA}",d:"Dos toques y adentro",st:"tec",g:16,base:58},
+ {id:"filtrado",gr:"PASE",n:"Pase filtrado",d:"Romper la línea",st:"tec",g:16,base:50},
+ {id:"cano",gr:"GAMBETA",n:"Caño y a correr",d:"Humillación fina",st:"tec",g:20,base:42,esp:"¡CAÑO!"},
+ {id:"pique",gr:"CORRER",n:"Pique largo por afuera",d:"Ganarle la espalda",st:"fis",g:18,base:52},
+ {id:"sombrero",gr:"GAMBETA",n:"Sombrero y de frente",d:"Riesgo puro",st:"tec",g:22,base:40,esp:"¡SOMBRERO!"},
+ {id:"aguante",gr:"CORRER",n:"Aguantarla de espaldas",d:"Esperar la ayuda",st:"fis",g:12,base:60}
 ];
 /* Definición: sólo aparecen cuando estás metido en el área */
 const CARTAS_TIRO=[
- {id:"bombazo",n:"Bombazo de Fiorito",d:"Tiro especial",st:"fis",g:32,base:49,esp:"¡BOMBAZO DE FIORITO!"},
- {id:"rosca",n:"Rosca al segundo palo",d:"Tiro especial",st:"tec",g:28,base:53,esp:"¡ROSCA AL SEGUNDO PALO!"},
- {id:"tijera",n:"Tijera de espaldas",d:"Tiro especial",st:"fis",g:34,base:43,esp:"¡TIJERA!"},
- {id:"palomita",n:"Palomita en el área",d:"Meter la cabeza",st:"fis",g:20,base:59},
- {id:"vaselina",n:"Vaselina sobre el arquero",d:"Fina y cruel",st:"tec",g:24,base:53},
- {id:"cruzado",n:"Zurdazo cruzado abajo",d:"Al palo de la mano",st:"tec",g:18,base:63}
+ {id:"bombazo",gr:"TIRO",n:"Bombazo de Fiorito",d:"Tiro especial",st:"fis",g:32,base:49,esp:"¡BOMBAZO DE FIORITO!"},
+ {id:"rosca",gr:"TIRO",n:"Rosca al segundo palo",d:"Tiro especial",st:"tec",g:28,base:53,esp:"¡ROSCA AL SEGUNDO PALO!"},
+ {id:"tijera",gr:"TIRO",n:"Tijera de espaldas",d:"Tiro especial",st:"fis",g:34,base:43,esp:"¡TIJERA!"},
+ {id:"palomita",gr:"TIRO",n:"Palomita en el área",d:"Meter la cabeza",st:"fis",g:20,base:59},
+ {id:"vaselina",gr:"TIRO",n:"Vaselina sobre el arquero",d:"Fina y cruel",st:"tec",g:24,base:53},
+ {id:"cruzado",gr:"TIRO",n:"Zurdazo cruzado abajo",d:"Al palo de la mano",st:"tec",g:18,base:63}
 ];
 /* Marca: para cortarles el avance en mitad de cancha */
 const CARTAS_DEFENSA=[
- {id:"barrida",n:"Barrida a fondo",d:"Todo o nada",st:"fis",g:22,base:50},
- {id:"bloqueo",n:"Bloqueo con el cuerpo",d:"Poner la pierna",st:"fis",g:16,base:56},
- {id:"achique",n:"Achicar el espacio",d:"Cerrarle el camino",st:"car",g:12,base:58},
- {id:"anticipo",n:"Anticipar el pase",d:"Leerle la jugada",st:"tec",g:18,base:48},
- {id:"marca",n:"Marca personal",d:"No despegarte",st:"car",g:14,base:54},
- {id:"tactica",n:"Falta táctica",d:"Cortar como sea",st:"car",g:10,base:62}
+ {id:"barrida",gr:"QUITAR",n:"Barrida a fondo",d:"Todo o nada",st:"fis",g:22,base:50},
+ {id:"bloqueo",gr:"BLOQUEAR",n:"Bloqueo con el cuerpo",d:"Poner la pierna",st:"fis",g:16,base:56},
+ {id:"achique",gr:"BLOQUEAR",n:"Achicar el espacio",d:"Cerrarle el camino",st:"car",g:12,base:58},
+ {id:"anticipo",gr:"QUITAR",n:"Anticipar el pase",d:"Leerle la jugada",st:"tec",g:18,base:48},
+ {id:"marca",gr:"BLOQUEAR",n:"Marca personal",d:"No despegarte",st:"car",g:14,base:54},
+ {id:"tactica",gr:"FALTA",n:"Falta táctica",d:"Cortar como sea",st:"car",g:10,base:62}
 ];
 /* Último hombre: te llegaron al área y sos lo único que queda */
 const CARTAS_ULTIMA=[
@@ -9536,11 +9808,18 @@ function estadioNeutral(){
 
 /* ── 9 · LA PANTALLA · el canvas arriba y las cartas abajo ───────── */
 let _du=null;
+/* Los once de cada equipo, para que el radar muestre una cancha de verdad */
+const FORM_BASE=[[5,50],[20,18],[18,40],[18,60],[20,82],[38,28],[36,50],[38,72],
+  [58,22],[60,50],[58,78]];
+function armarFormaciones(D){
+  D.formA=FORM_BASE.map(q=>({x:q[0]+ri(-2,2),y:q[1]+ri(-3,3)}));
+  D.formB=FORM_BASE.map(q=>({x:100-q[0]+ri(-2,2),y:q[1]+ri(-3,3)}));
+}
 function duelPantalla(){
   const D=_du;
   let h='<div class="card duelo">'
     +'<div class="eyebrow"><span>'+(D.eye||D.inst)+'</span><em>'+(p.anio||"")+'</em></div>'
-    +'<div class="tsuwrap"><canvas id="tsucv" class="tsucv" width="224" height="132"></canvas>'
+    +'<div class="tsuwrap"><canvas id="tsucv" class="tsucv" width="256" height="224"></canvas>'
     +'</div><div class="tsubar"><button id="du-vel" class="minib">'
     +(p.duVel?'▶▶ RÁPIDO':'▶ NORMAL')+'</button>'
     +'<span class="tsuhint">tocá la pantalla para adelantar la jugada</span></div>'
@@ -9568,7 +9847,7 @@ function duelOpts(mazo,tipo){
     h+='<button class="opt'+(puede?"":" singuts")+'" id="d'+i+'">'
       +'<span class="n">0'+(i+1)+'</span>'
       +'<span class="t"><b>'+tokens(k.n)+'</b><small>'+k.d+'</small></span>'
-      +'<span class="cost">'+k.g+' G</span></button>';
+      +'<span class="cost">'+(k.g*8)+' G</span></button>';
   });
   e.innerHTML=h;
   mazo.forEach((k,i)=>{const el=document.getElementById("d"+i);
@@ -9592,6 +9871,7 @@ function duelIniciar(m,cb,op){
     est:op.est||(m.comp==="final"?estadioNeutral():estadioDe(p.club)),
     loc:op.loc||club(p.club),vis:op.vis||club(m.rival.n),
     inst:op.inst||m.fecha||"PARTIDO GRANDE",eye:op.eye||""};
+  armarFormaciones(_du);
   duelPantalla();
   duelTexto("SALEN A LA CANCHA","Se juega en "+_du.est.n+". "
     +"Cada carta te cuesta Guts: si te quedás en cero no ganás una pelota. "
@@ -9599,6 +9879,21 @@ function duelIniciar(m,cb,op){
   if(!tsuArranca()){silbato();return duelTurno();}   /* sin canvas, se juega igual */
   silbato();
   tsuEscena(escPresentacion(_du),()=>duelTurno());
+}
+/* Antes de cada partido grande: ¿lo jugás vos o lo mirás en texto? */
+function elegirModo(m){
+  const T=p.temp;
+  const inst=(m.fecha||"PARTIDO GRANDE");
+  const irCancha=()=>{m.modoTsu=1;duelIniciar(m,avanzarMomento);};
+  const irTexto=()=>{m.modoTsu=0;momentoTexto();};
+  carta({eye:"PARTIDO GRANDE",comp:m.comp,compTxt:inst,compSub:"vos elegís cómo se juega",
+    titulo:"¿CÓMO LA JUGÁS?",ciego:1,
+    texto:"Enfrente está "+m.rival.n+" y esto no es una fecha más. Podés bajar a la cancha "
+      +"y jugarla vos, comando por comando, o mirarla desde afuera como toda la vida.",
+    opts:[
+      {b:"Bajar a la cancha",s:"Modo cartucho · vos manejás",ico:"🎮",cb:irCancha},
+      {b:"Jugarla como siempre",s:"Una jugada y el resultado",ico:"📝",cb:irTexto}
+    ]});
 }
 function duelTurno(){
   const D=_du;
@@ -9617,16 +9912,17 @@ function duelTurno(){
     duelMenu();
   });
 }
+/* Primero elegís qué hacés con la pelota y después con qué la jugás,
+   igual que en el cartucho: CORRER / PASE / TIRO y recién ahí el remate. */
+const CMD_AT=[["CORRER","Ganar metros"],["PASE","Buscar un compa"],
+  ["GAMBETA","Encararlo"],["TIRO","Definir"]];
+const CMD_DEF=[["QUITAR","Ir a la pelota"],["BLOQUEAR","Poner el cuerpo"],
+  ["FALTA","Cortarla como sea"]];
 function duelMenu(){
   const D=_du;
-  let tipo,mazo;
-  if(D.mia){
-    tipo=D.pos>=66?"tiro":"ataque";
-    mazo=baraja((tipo==="tiro"?CARTAS_TIRO:CARTAS_ATAQUE).slice()).slice(0,5);
-  }else{
-    tipo=D.pos<=26?"ultima":"defensa";
-    mazo=baraja((tipo==="ultima"?CARTAS_ULTIMA:CARTAS_DEFENSA).slice()).slice(0,tipo==="ultima"?4:5);
-  }
+  let tipo;
+  if(D.mia)tipo=D.pos>=66?"tiro":"ataque";
+  else tipo=D.pos<=26?"ultima":"defensa";
   nuevosTokens();
   const T={
     tiro:["ESTÁS DE FRENTE AL ARCO","Te quedaste solo contra el arquero de "+D.riv.n
@@ -9640,7 +9936,43 @@ function duelMenu(){
   }[tipo];
   duelTexto(T[0],T[1],tipo==="tiro"?"ok":tipo==="ultima"?"no":"");
   tsuEscena(escEspera(D,D.mia));
-  duelOpts(mazo,tipo);
+  /* sin lienzo se juega con los botones de siempre */
+  if(!TSU.vivo){
+    const mz=baraja(mazoDe(tipo).slice()).slice(0,5);
+    return duelOpts(mz,tipo);
+  }
+  duelOpts([]);
+  if(tipo==="ultima")return menuCartas(D,"ULTIMO HOMBRE",CARTAS_ULTIMA.slice(),tipo);
+  menuNivel1(D,tipo);
+}
+function mazoDe(tipo){
+  return tipo==="tiro"?CARTAS_TIRO:tipo==="ataque"?CARTAS_ATAQUE
+    :tipo==="ultima"?CARTAS_ULTIMA:CARTAS_DEFENSA;
+}
+function menuNivel1(D,tipo){
+  const ataca=(tipo==="ataque"||tipo==="tiro");
+  /* TIRO sólo aparece cuando estás metido en el área, y aparece primero */
+  let cmds;
+  if(!ataca)cmds=CMD_DEF;
+  else if(tipo==="tiro")cmds=[CMD_AT[3]].concat(CMD_AT.slice(0,3));
+  else cmds=CMD_AT.slice(0,3);
+  const items=cmds.map(c=>{
+    const nom=c[0];
+    const grupo=(ataca?CARTAS_ATAQUE.concat(CARTAS_TIRO):CARTAS_DEFENSA)
+      .filter(k=>k.gr===nom);
+    return {t:nom,g:0,
+      cb:()=>menuCartas(D,nom,grupo,tipo,()=>menuNivel1(D,tipo))};
+  });
+  menuAbrir(D,ataca?(tipo==="tiro"?"¡ESTAS EN EL AREA!":"¿QUE HACES?"):"¿COMO LO PARAS?",items);
+}
+function menuCartas(D,tit,grupo,tipo,volver){
+  const mz=baraja(grupo.slice()).slice(0,volver?3:4);
+  const items=mz.map(k=>({t:tokens(k.n).toUpperCase().slice(0,28),g:k.g,no:D.guts<k.g,
+    cb:()=>{menuCerrar();
+      const modo=k.gr==="TIRO"?"tiro":tipo==="ultima"?"ultima":(D.mia?"ataque":"defensa");
+      duelResolver(k,modo);}}));
+  if(volver)items.push({t:"VOLVER",g:0,cb:()=>volver()});
+  menuAbrir(D,tit,items);
 }
 function duelProb(k){
   const D=_du;
