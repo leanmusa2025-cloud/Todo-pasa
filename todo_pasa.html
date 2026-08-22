@@ -196,6 +196,34 @@
 .duelo-h em{font-style:normal;font-family:var(--mono);font-size:9px;color:var(--dim)}
 .opt .cost{flex-shrink:0;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
   color:#F5C542;background:#1a1509;border:1px solid #3a2f18;border-radius:999px;padding:2px 7px}
+/* ══ v16 · LA TAPA DEL DIARIO ══════════════════════════════════════ */
+.card.tapa{background:#0B0D12;border-color:#232838}
+.tcab{display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:3px solid #F5C542;padding-bottom:7px;margin-bottom:12px}
+.tnom{font-family:var(--disp);font-size:30px;letter-spacing:-.02em;color:#F5C542;
+  text-shadow:0 2px 0 #7A5C00;line-height:1}
+.tfec{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--dim)}
+.ttit{font-family:var(--disp);font-size:34px;line-height:.95;letter-spacing:-.02em;
+  color:#FCFCFC;margin:0 0 8px;text-transform:uppercase}
+.tbaja{font-family:var(--body);font-size:14px;color:#A9B4C8;line-height:1.5;margin-bottom:12px}
+.tfoto{display:flex;justify-content:center;margin:0 0 14px}
+.tgrilla{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.tcaja{background:#12161F;border:1px solid #232838;border-radius:9px;padding:9px 11px}
+.tcaja small{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.14em;
+  color:var(--dim);margin-bottom:3px}
+.tcaja b{font-family:var(--cond);font-weight:700;font-size:15px;color:#FCFCFC;line-height:1.15}
+.tcaja b.oro{color:#F5C542}
+.tsec{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:#F5C542;
+  border-top:1px solid #232838;padding-top:9px;margin:0 0 8px}
+.tlista{margin:0 0 12px;padding-left:16px}
+.tlista li{font-family:var(--body);font-size:13px;color:#A9B4C8;line-height:1.55;margin-bottom:4px}
+.tcams{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.tcam{background:#12161F;border-left:3px solid #3DDC97;border-radius:0 8px 8px 0;padding:7px 11px}
+.tcam.mal{border-left-color:#FF6060}
+.tcam b{display:block;font-family:var(--cond);font-weight:700;font-size:14px;color:#FCFCFC}
+.tcam span{font-family:var(--body);font-size:12px;color:var(--dim)}
+.tpie{font-family:var(--body);font-style:italic;font-size:12.5px;color:#7C8698;
+  border-top:1px solid #232838;padding-top:10px;margin-bottom:12px}
 /* v16 · El nombre futbolero de la estadística que usa cada opción */
 .stn{flex-shrink:0;font-family:var(--mono);font-size:8px;letter-spacing:.1em;
   color:#7BE8B8;background:rgba(61,220,151,.10);border:1px solid rgba(61,220,151,.28);
@@ -5151,6 +5179,113 @@ function resultadoCopa(T){
       pos:C.pos||0,ronda:C.campeon?"CAMPEÓN":C.ronda};}
   return simCopa();
 }
+/* ══ v16 · LA TAPA DEL DIARIO ════════════════════════════════════════
+   Antes el cierre de temporada te encolaba cinco placas y las pasabas
+   una atrás de la otra. Ahora todo el año entra en una sola tapa: cómo
+   te fue, quién salió campeón, quién ganó las copas de tu continente
+   y qué hicieron los pibes de tu camada. Las placas doradas de campeón
+   quedan aparte, que para eso son el premio.                          */
+const DIARIO="EL POTRERO";
+/* Nueves de relleno, para cuando el campeón no tiene ídolo cargado */
+const NOM_GOLEADOR=["Nicolás Fabbri","Emiliano Costa","Bruno Salvatierra","Tomás Aguirregaray",
+ "Iván Machado","Facundo Peralta","Julián Ferreyra","Matías Ocampo","Rodrigo Barbieri",
+ "Santiago Quiroga","Damián Ledesma","Gonzalo Vidal"];
+/* Quién ganó la copa continental de tu confederación, sin inventar
+   cruces raros: siempre un grande del continente que corresponde.     */
+function campeonContinental(conf,cual,excl){
+  let pool;
+  if(conf==="eur")pool=(cual==="a"?EQUIPOS_CHAMPIONS:EQUIPOS_EUROPA_LEAGUE).slice();
+  else if(conf==="sud")pool=(cual==="a"?EQUIPOS_LIBERTADORES:EQUIPOS_SUDAMERICANA).slice();
+  else pool=[{n:"Al-Hilal",lv:74},{n:"Al-Ahli",lv:70},{n:"Urawa Reds",lv:66},
+             {n:"Al-Sadd FC",lv:64},{n:"Ulsan HD",lv:63}];
+  pool=pool.filter(c=>c.n!==excl);
+  if(!pool.length)return "—";
+  /* la copa la levanta un grande: el tercio de arriba se lleva casi todo */
+  pool.sort((x,y)=>(y.lv||60)-(x.lv||60));
+  const corte=Math.max(3,Math.ceil(pool.length/3));
+  const sub=dado(.78)?pool.slice(0,corte):pool.slice(corte);
+  return rnd(sub.length?sub:pool).n;
+}
+/* El goleador del torneo: o sos vos, o es alguien de tu camada, o un 9
+   del club que salió campeón.                                          */
+function goleadorTorneo(g){
+  if(g>=18&&dado(.55))return {n:p.nombre,g:g,yo:1};
+  const gen=todosLosDeLaGeneracion().filter(q=>q.pos==="DEL"&&q.club&&q.club!=="Libre");
+  if(gen.length&&dado(.45)){const q=rnd(gen);return {n:q.nombre,g:clamp(g+ri(2,9),12,34)};}
+  const camp=(p.tabla&&p.tabla.length)?p.tabla[0].n:p.club;
+  const L=IDOLOS_CLUBES[camp];
+  if(L&&L.length)return {n:rnd(L),g:clamp(Math.max(g,14)+ri(1,8),13,32)};
+  return {n:rnd(NOM_GOLEADOR)+" ("+camp+")",g:clamp(Math.max(g,14)+ri(1,8),13,32)};
+}
+function tapaCuadro(rot,val,cls){
+  return '<div class="tcaja"><small>'+rot+'</small><b class="'+(cls||"")+'">'+val+'</b></div>';
+}
+function tapaDiario(D,sigue){
+  const L=club(p.club).liga||ligaCasa();
+  const conf=CONF[L]||"sud", CU=copasDe(L);
+  const campLiga=(p.tabla&&p.tabla.length)?p.tabla[0].n:"—";
+  const cA=campeonContinental(conf,"a",""), cB=campeonContinental(conf,"b",cA);
+  const gol=goleadorTorneo(D.g);
+  /* cómo les fue a los de tu camada */
+  const gen=todosLosDeLaGeneracion().slice(0,3).map(q=>{
+    const bien=q.ovr>=p.ovr;
+    return '<div class="tcam'+(bien?" mal":"")+'"><b>'+q.nombre+'</b><span>'
+      +(bien?"la rompió en "+q.club:"año flojo en "+q.club)+' · media '+q.ovr+'</span></div>';
+  }).join("");
+  /* el titular gigante, según lo que definió tu año */
+  let tit,baja;
+  if(D.titulos>0){tit="AÑO DE VUELTA OLÍMPICA";baja=p.nombre+" levantó una copa con "+p.club+".";}
+  else if(D.descendio){tit="SE FUE AL BARRO";baja=p.club+" perdió la categoría y no hay a quién echarle la culpa.";}
+  else if(D.g>=18){tit="LA ROMPIÓ TODA";baja=p.nombre+" metió "+D.g+" goles y no lo paró nadie.";}
+  else if(D.pos&&D.pos<=3){tit="ESTUVIERON AHÍ";baja=p.club+" peleó hasta el final y se quedó con las ganas.";}
+  else if(D.libre){tit="OTRO AÑO SIN CLUB";baja="El teléfono no sonó una sola vez.";}
+  else if(D.rend<=-3){tit="AÑO PARA OLVIDAR";baja="Ni el más fanático se acuerda de este.";}
+  else {tit="UN AÑO MÁS";baja=p.nombre+" cumplió y punto. De esos no se escriben libros.";}
+  const escNom=conf==="eur"?"UEFA":conf==="sud"?"CONMEBOL":"AFC";
+  let h='<div class="card tapa">'
+    +'<div class="tcab"><span class="tnom">'+DIARIO+'</span>'
+      +'<span class="tfec">TEMPORADA '+p.anio+'</span></div>'
+    +'<div class="ttit">'+tit+'</div>'
+    +'<div class="tbaja">'+baja+'</div>'
+    +'<div class="tfoto">'+escudo(club(p.club==="Libre"?campLiga:p.club),58)+'</div>'
+    +'<div class="tgrilla">'
+      +tapaCuadro(nombreLiga(club(p.club)).toUpperCase(),campLiga,"")
+      +tapaCuadro(CU.a.toUpperCase(),cA,"")
+      +tapaCuadro(CU.b.toUpperCase(),cB,"")
+      +tapaCuadro("GOLEADOR "+escNom,gol.n+" · "+gol.g,gol.yo?"oro":"")
+    +'</div>'
+    +'<div class="tsec">TU AÑO</div>'
+    +'<div class="tgrilla">'
+      +tapaCuadro("PARTIDOS",D.pj,"")
+      +tapaCuadro("GOLES",D.g,D.g>=15?"oro":"")
+      +tapaCuadro("ASISTENCIAS",D.a,"")
+      +tapaCuadro("MEDIA",p.ovr,"")
+    +'</div>';
+  const lineas=[];
+  if(!D.libre&&D.pos)lineas.push(p.club+" terminó "+D.pos+"º de "+D.total
+    +(D.puntos?" con "+D.puntos+" puntos":"")+".");
+  if(D.copaTxt)lineas.push(D.copaTxt);
+  if(D.cnacTxt)lineas.push(D.cnacTxt);
+  if(D.rolTxt)lineas.push(D.rolTxt);
+  if(lineas.length)h+='<div class="tsec">EL RESTO DEL AÑO</div><ul class="tlista"><li>'
+    +lineas.join("</li><li>")+'</li></ul>';
+  if(gen)h+='<div class="tsec">LA CAMADA</div><div class="tcams">'+gen+'</div>';
+  h+='<div class="tpie">'+rnd(PIE_TAPA)+'</div>'
+    +'<button class="cta" id="btn-seguir">Cerrar el año</button></div>';
+  const c=document.getElementById("cartas");c.dataset.ficha="0";c.innerHTML=h;
+  const b=document.getElementById("btn-seguir");if(b)b.onclick=sigue;
+  c.scrollIntoView({behavior:"smooth",block:"start"});
+}
+/* La frase del pie, que siempre la firma alguno de los de siempre */
+const PIE_TAPA=[
+ "«Este equipo no tiene alma y el nueve tampoco.» — Flavio Azzaro",
+ "«Que no me vengan con que fue un buen año, por favor.» — Flavio Azzaro",
+ "«En este país se festeja cualquier cosa.» — Flavio Azzaro",
+ "«Yo lo dije en enero y nadie me escuchó.» — Flavio Azzaro",
+ "«El fútbol argentino está roto y esto lo confirma.» — Flavio Azzaro",
+ "«Hay que bancarlo, muchachos, el pibe puso el cuerpo todo el año.» — el relator de la radio",
+ "«Nos vemos el año que viene, si Dios y la AFA quieren.» — la contratapa"
+];
 function cierreTemporada(){
   clearTimeout(tJug);
   document.getElementById("cartas").innerHTML="";
@@ -5282,22 +5417,7 @@ function cierreTemporada(){
   if(camaEv)cola.push(camaEv);
   if(idoloEv)cola.push(idoloEv);
   if(p.eventoGen){cola.push(p.eventoGen);p.eventoGen=null;}
-  if(!libre)cola.push({eye:"TEMPORADA "+p.anio,titulo:tituloTemp(g,pj,T),crest:club(p.club),
-    sub:pj+" partidos, "+g+" goles y "+a+" asistencias con "+p.club+". Rol: "+p.rol.toLowerCase()+".",
-    stats:[["PJ",pj,""],["GOLES",g,""],["MEDIA",p.ovr,""]]});
-  else cola.push({clase:"malo",eye:"TEMPORADA "+p.anio,titulo:"AÑO EN BLANCO",
-    sub:"Otro año sin club. Las deudas aprietan y el teléfono sigue mudo.",
-    stats:[["PJ","0","dn"],["MEDIA",p.ovr,"dn"]]});
-
-  /* comparación con el rival: sólo cada 5 temporadas */
-  const r=p.rival;
-  if(p.temporadas>0&&p.temporadas%5===0){
-    const arriba=r.ovr>p.ovr;
-    cola.push({clase:arriba?"malo":"",eye:"BALANCE DE LA GENERACIÓN",
-      titulo:arriba?"TE ESTÁ PASANDO EL TRAPO":"LE VAS GANANDO LA CARRERA",
-      sub:r.nombre+" va "+r.ovr+" de media en "+r.club+", con "+r.titulos+" títulos y "+r.goles+" goles. Vos vas "+p.ovr+" y "+p.vitrina.length+" títulos.",
-      stats:[["ÉL",r.ovr,arriba?"up":"dn"],["VOS",p.ovr,arriba?"dn":"up"]]});
-  }
+  /* v16 · el resumen del año ya no son cinco placas: es la tapa del diario */
   if(les)cola.push({clase:"malo",eye:"PARTE MÉDICO",titulo:"TE ROMPISTE",
     sub:les.nombre.charAt(0).toUpperCase()+les.nombre.slice(1)+". Reposo absoluto. Las gambas no aguantan el bardo.",
     stats:[[ZONAS[les.zona].n.toUpperCase(),Math.round(p.salud[les.zona])+"%","dn"]]});
@@ -5319,28 +5439,15 @@ function cierreTemporada(){
   }
   /* v8 · la placa grita el nombre de la copa y nada más */
   /* v9 · dónde terminaste y a qué clasificaste */
-  if(pos&&!ganoLiga){
-    const donde=claseNueva==="lib"?"Clasificaste a la "+CUP.a+"."
-      :claseNueva==="sud"?"Te alcanzó para la "+CUP.b+"."
-      :descendio?"Te fuiste al descenso con el club.":"Sin copas: el año que viene es todo liga.";
-    cola.push({clase:descendio?"malo":claseNueva==="lib"?"oro":"",
-      eye:nomLiga.toUpperCase(),crest:club(p.club),
-      titulo:descendio?"SE FUE AL DESCENSO":"TERMINARON "+pos+"º",
-      sub:p.club+" cerró "+(p.zonaNom?"la "+p.zonaNom:"el torneo")+" "+pos+"º de "+total+". "+donde,
-      stats:[["PUESTO",pos+"º",pos<=3?"up":descendio?"dn":""],
-             ["DE",total,""],["PUNTOS",(p.tabla.find(x=>x.n===p.club)||{}).pts||0,""]]});
-  }
-  /* v9 · hasta dónde llegaste en la copa */
-  if(copa&&!copa.gano)cola.push({eye:copa.nom.toUpperCase(),crest:club(p.club),
-    titulo:copa.ronda==="la fase de grupos"?"QUEDARON AFUERA EN GRUPOS":"LLEGARON A "+copa.ronda.toUpperCase(),
-    sub:p.club+" hizo su campaña en la "+copa.nom+" y se quedó en "+copa.ronda+".",
-    stats:[["COPA",copa.lib?"GRANDE":"CHICA",""],["RONDA",copa.ronda==="la Final"?"FINAL":copa.ronda.split(" ")[0].toUpperCase(),""]]});
-  /* v10 · cómo te fue en la copa de tu país */
-  if(cnac&&!cnac.campeon)cola.push({eye:cnac.nom.toUpperCase(),crest:club(p.club),
-    titulo:"AFUERA EN "+cnac.ronda.toUpperCase(),
-    sub:p.club+" se quedó en "+cnac.ronda.toLowerCase()+" de la "+cnac.nom+". "
-      +"Otro año que la copa se mira por tele.",
-    stats:[["RONDA",cnac.ronda.split(" ")[0].toUpperCase(),"dn"]]});
+  /* v16 · el puesto en la liga y las copas perdidas van en la tapa */
+  const _tapa={pj:pj,g:g,a:a,libre:libre,rend:T.rend||0,
+    pos:(pos&&!ganoLiga)?pos:0,total:total,
+    puntos:(p.tabla&&p.tabla.find)?((p.tabla.find(x=>x.n===p.club)||{}).pts||0):0,
+    descendio:!!descendio,titulos:(ganoLiga?1:0)+(ganoCopa?1:0)+(ganoCopaNac?1:0),
+    copaTxt:(copa&&!copa.gano)?(p.club+" se quedó en "+copa.ronda+" de la "+copa.nom+"."):"",
+    cnacTxt:(cnac&&!cnac.campeon)?(p.club+" quedó afuera de la "+cnac.nom
+      +" en "+cnac.ronda.toLowerCase()+"."):"",
+    rolTxt:libre?"Sin club en todo el año.":("Jugaste de "+p.rol.toLowerCase()+" en "+p.club+".")};
   if(ganoCopaNac)cola.push({clase:"oro",eye:"TAPA OLÉ",
     titulo:"¡CAMPEÓN DE LA "+cnac.nom.toUpperCase()+"!",crest:club(p.club),
     sub:p.club+" levantó la "+cnac.nom+" y con eso se metió en la "+CUP.a+" del año que viene. "
@@ -5377,11 +5484,13 @@ function cierreTemporada(){
   const fin=p.edad>36||saludProm()<=12;
   const mundial=p.anio%4===2&&p.edad>=M().selEdad;
   const ofertas=buscarOfertas();
+  tapaDiario(_tapa,()=>{
   mostrarCola(cola,()=>{
     if(fin)return retiro();
     if(mundial)return cartaMundial(ofertas);
     if(ofertas.length)return cartaOferta(ofertas);
     finTurno();
+  });
   });
 }
 
