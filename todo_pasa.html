@@ -4290,7 +4290,57 @@ function cartaMundialClubes(){
 }
 
 /* ── FASE 1 · PRETEMPORADA ── */
+/* ══ v16 · EL BOLSÍN DEL BRUJO ═══════════════════════════════════════
+   La plata que juntabas no tenía dónde gastarse. Antes de cada temporada
+   podés dejar unos dólares en cábalas que te suben el aguante o alguna
+   estadística durante todo el año.                                    */
+const BOLSIN=[
+ {id:"b_estampita",n:"Estampita del Gauchito",d:"La llevás en el bolsín todo el año",
+  precio:60,agt:10,car:4},
+ {id:"b_medias",n:"Las medias de la final",d:"Sin lavar desde aquel día",
+  precio:90,agt:16,fis:3},
+ {id:"b_pulsera",n:"Pulsera roja del brujo",d:"Te la ató una señora en Liniers",
+  precio:140,agt:22,car:6},
+ {id:"b_botines",n:"Botines viejos remendados",d:"Los de siempre, cosidos otra vez",
+  precio:110,agt:12,tec:6},
+ {id:"b_termo",n:"Termo y mate del vestuario",d:"El ritual antes de cada partido",
+  precio:70,agt:18},
+ {id:"b_rosario",n:"Rosario de tu abuela",d:"Lo besás en el túnel",
+  precio:180,agt:26,car:5,fis:3}
+];
+function cabalaComprada(){
+  if(!p.bolsin)return null;
+  return BOLSIN.filter(c=>c.id===p.bolsin)[0]||null;
+}
+function tiendaBolsin(sigue){
+  const ya=cabalaComprada();
+  const lista=BOLSIN.filter(c=>c.precio<=p.plata&&c.id!==(p.bolsin||""));
+  if(!lista.length)return sigue();
+  const opts=baraja(lista).slice(0,4).map(c=>({
+    b:c.n,s:c.d+" · U$D "+c.precio+"k",ico:"🕯",
+    cb:()=>{
+      p.plata=Math.max(0,p.plata-c.precio);p.bolsin=c.id;
+      if(c.tec)subir("tec",c.tec); if(c.fis)subir("fis",c.fis); if(c.car)subir("car",c.car);
+      calcOVR();render();
+      placa({eye:"EL BOLSÍN",titulo:"TE LLEVASTE "+c.n.toUpperCase(),
+        sub:c.d+". Te va a acompañar todo el año, en el bolsín, donde no lo ve nadie.",
+        stats:[["U$D","−"+c.precio+"k","dn"],["AGUANTE","+"+(c.agt*8),"up"]],
+        onClose:sigue});}
+  }));
+  opts.push({b:"No gastar un peso",s:ya?"Te quedás con lo que ya tenés":"Sin cábalas este año",
+    ico:"🚫",cb:()=>sigue()});
+  carta({eye:"PRETEMPORADA "+p.anio,titulo:"EL BOLSÍN",ciego:1,
+    texto:"Antes de que arranque todo pasás por lo del brujo del barrio. "
+      +"Tenés U$D "+Math.round(p.plata)+"k en el bolsillo"
+      +(ya?" y en el bolsín todavía llevás "+ya.n.toLowerCase()+".":". "
+        +"Dicen que sin cábala no se juega en este país."),
+    opts:opts});
+}
 function cartaPretemporada(){
+  if(p.bolsinVisto!==p.temporadas){
+    p.bolsinVisto=p.temporadas;
+    return tiendaBolsin(()=>cartaPretemporada());
+  }
   const c=rnd(disponibles(PRETEMP));marcar(c.id);nuevosTokens();
   c.__o=seis(c.o,"pretemp");
   carta({eye:"PRETEMPORADA "+p.anio,titulo:tokens(c.t),texto:tokens(c.x),ciego:1,
@@ -4624,6 +4674,9 @@ function bonusRelacion(){
    Semifinal y final de copa, y todo el Mundial.                      */
 function momento(){
   const T=p.temp,m=T.mom[T.i];
+  /* v16 · antes de los que valen, el barra te manda el audio */
+  if(m&&!m.apuestaVista){m.apuestaVista=1;
+    if(tocaApuesta(m))return cartaApuesta(m,()=>momento());}
   if(esPartidoGrande(m)&&!m.duelHecho){m.duelHecho=1;return elegirModo(m);}
   return momentoTexto();
 }
@@ -4757,6 +4810,7 @@ function resolverJugada(o,dormido){
   if(res==="gano"){T.ganados++;T.rend+=m.peso;}
   else if(res==="perdio"){T.perdidos++;T.rend-=Math.round(m.peso*0.7);}
   copaProgreso(m,res);          /* v10 · avanza la llave de copa si toca */
+  if(p.apuesta)setTimeout(()=>cobrarApuesta(res),60);
   if(m.liga)avanzarFechaLiga(m.mk[0],m.mk[1]);   /* v12 · tabla en vivo */
   if(m.cup==="pliga")playoffLigaProgreso(m,res);
 
@@ -5185,6 +5239,110 @@ function resultadoCopa(T){
    te fue, quién salió campeón, quién ganó las copas de tu continente
    y qué hicieron los pibes de tu camada. Las placas doradas de campeón
    quedan aparte, que para eso son el premio.                          */
+/* ══ v16 · EL MENSAJE DEL BARRA ══════════════════════════════════════
+   En los clásicos y en los partidos que valen, el que maneja la popular
+   te escribe. No te pide que ganes: te pide una jugada puntual porque
+   tiene guita puesta. Pagan en efectivo y nadie firma nada. El día que
+   te agarran, se te viene el mundo abajo.                             */
+const APUESTAS=[
+ {id:"ap_amar",t:"que te saquen amarilla antes del entretiempo",
+  cumple:"amarilla",pago:[80,180],riesgo:.16},
+ {id:"ap_gol",t:"que la metas vos y no otro",cumple:"gol",pago:[150,320],riesgo:.10},
+ {id:"ap_falta",t:"que le pegues fuerte al 10 de ellos, una sola",
+  cumple:"falta",pago:[120,240],riesgo:.22},
+ {id:"ap_corner",t:"que la tires al córner apenas puedas",
+  cumple:"corner",pago:[70,150],riesgo:.14},
+ {id:"ap_lento",t:"que el partido se juegue lento, sin apuro",
+  cumple:"lento",pago:[90,190],riesgo:.12},
+ {id:"ap_penal",t:"que te tires en el área si tenés la chance",
+  cumple:"penal",pago:[200,420],riesgo:.28}
+];
+const BARRA_FRASE=[
+ "Ojo que hay guita puesta, eh. No me hagas quedar mal.",
+ "Es un favor entre nosotros. Después arreglamos.",
+ "Nadie se entera. Vos jugá tranquilo.",
+ "Ya está todo hablado con los muchachos. Vos hacé lo tuyo.",
+ "Mirá que la popu te banca desde que llegaste. Devolvé la gauchada.",
+ "No te hagás el boludo que sabés cómo es esto."
+];
+/* Sólo en partidos que importan y no todos los años */
+function tocaApuesta(m){
+  if(!m||p.club==="Libre")return false;
+  if(p.banderas&&banderaViva("sancionApuesta"))return false;
+  const grande=(m.comp==="clasico"||m.comp==="final"||(m.peso||0)>=2);
+  if(!grande)return false;
+  return dado(m.comp==="clasico"?.30:.16);
+}
+function cartaApuesta(m,sigue){
+  const b=barraDe(p.club), ap=rnd(disponibles(APUESTAS));
+  const plata=ri(ap.pago[0],ap.pago[1]);
+  marcar(ap.id);
+  const cerrar=()=>{p.evTemp=p.temporadas;sigue();};
+  celuBarra(b,rnd(BARRA_FRASE));
+  carta({eye:"MENSAJE DE "+b.toUpperCase(),comp:m.comp,compTxt:m.fecha,
+    compSub:"llegó un audio a las tres de la mañana",ciego:1,
+    titulo:"TE ESCRIBIÓ "+b.toUpperCase(),
+    texto:"«Che, para el partido de mañana necesito "+ap.t+". Hay U$D "+plata
+      +" para vos en efectivo, del otro lado del túnel. Vos sabés que conmigo "
+      +"no hay problema si sale bien.»",
+    opts:[
+      {b:"Aceptar y hacer lo que pide",s:"U$D +"+plata+" · si te agarran, sos boleta",
+       ico:"💵",cb:()=>{
+         p.apuesta={id:ap.id,plata:plata,riesgo:ap.riesgo,barra:b};
+         toastTxt("Arreglaste con "+b);cerrar();}},
+      {b:"Decirle que no y bancártela",s:"La popular no perdona",ico:"🚫",cb:()=>{
+         mod(p.rep,"local",-10);mod(p.stats,"car",4,10,100);
+         ponerBandera("barraEnojada",2);
+         placa({clase:"malo",eye:"MENSAJE DE "+b.toUpperCase(),titulo:"LE DIJISTE QUE NO",
+           sub:"«Vos sabés lo que estás haciendo, pibe.» No contestó más. "
+             +"El domingo la popular te silbó desde que salió el equipo.",
+           stats:[["HINCHADA","−10","dn"],["CARÁCTER","+4","up"]],onClose:cerrar});}},
+      {b:"Mandarle la captura al club",s:"Hacer las cosas bien",ico:"📄",cb:()=>{
+         mod(p.rep,"mundo",14);mod(p.rep,"local",-22);p.escandalos=Math.max(0,p.escandalos+1);
+         ponerBandera("barraEnojada",4);
+         placa({clase:"malo",eye:"ESCÁNDALO",titulo:"LO DENUNCIASTE",
+           sub:"El club hizo la denuncia y tu nombre salió en todos lados. "
+             +"Afuera te aplauden. Adentro de la cancha, tu propia hinchada te putea.",
+           stats:[["MUNDO","+14","up"],["HINCHADA","−22","dn"],["ESCÁNDALO","+1","dn"]],
+           onClose:cerrar});}},
+      {b:"No contestar el mensaje",s:"Hacerse el dormido",ico:"😶",cb:()=>{
+         mod(p.rep,"local",-4);toastTxt("Lo dejaste en visto");cerrar();}}
+    ]});
+}
+function celuBarra(quien,txt){
+  try{
+    const old=document.querySelector(".celu"); if(old)old.remove();
+    const d=document.createElement("div"); d.className="celu";
+    d.innerHTML='<span style="font-size:18px;line-height:1">💬</span>'
+      +'<div style="flex:1;min-width:0"><div class="cn2">'+quien+'</div>'
+      +'<div class="ct">'+txt+'</div></div>';
+    document.body.appendChild(d);
+    clearTimeout(_celuT);_celuT=setTimeout(()=>d.remove(),3400);
+  }catch(e){}
+}
+/* Al cierre del partido se cobra o se pudre todo */
+function cobrarApuesta(res){
+  const A=p.apuesta; if(!A)return;
+  p.apuesta=null;
+  if(dado(A.riesgo)){
+    /* te agarraron */
+    p.plata=Math.max(0,p.plata-A.plata*2);
+    p.escandalos+=2;
+    mod(p.rep,"mundo",-26);mod(p.rep,"nac",-20);mod(p.rep,"local",-12);
+    mod(p.stats,"mor",-18,5,100);
+    ponerBandera("sancionApuesta",4);
+    feedDe("escandalo");
+    return placa({clase:"malo",eye:"CAUSA ABIERTA",titulo:"TE AGARRARON",
+      sub:"Le pincharon el teléfono a "+A.barra+" y apareció tu nombre. "
+        +"Multa, cuatro fechas de suspensión y una causa que va a tardar años. "
+        +"En la tele lo pasan en loop.",
+      stats:[["U$D","−"+(A.plata*2)+"k","dn"],["MUNDO","−26","dn"],["ESCÁNDALO","+2","dn"]]});
+  }
+  p.plata+=A.plata;
+  mod(p.rep,"local",6);
+  toastTxt("Cobraste U$D "+A.plata+"k del otro lado del túnel");
+}
+
 const DIARIO="EL POTRERO";
 /* Nueves de relleno, para cuando el campeón no tiene ídolo cargado */
 const NOM_GOLEADOR=["Nicolás Fabbri","Emiliano Costa","Bruno Salvatierra","Tomás Aguirregaray",
@@ -10179,7 +10337,8 @@ function duelBoton(txt,cb){
 function duelIniciar(m,cb,op){
   clearTimeout(tJug);clearInterval(_agT);   /* nada de relojes viejos encima */
   op=op||{};
-  const aguante=clamp(104+Math.round((p.stats.fis-55)*0.40),88,132);
+  const _bol=cabalaComprada();
+  const aguante=clamp(104+Math.round((p.stats.fis-55)*0.40)+(_bol?_bol.agt:0),88,158);
   _du={m:m,cb:cb,cierre:op.cierre||null,
     guts:aguante,gmax:aguante,turno:0,total:op.total||7,
     gol:0,golRival:0,pos:50,mia:true,min:1,ladoTiro:1,hist:[],
@@ -10211,9 +10370,96 @@ function elegirModo(m){
       {b:"Jugarla como siempre",s:"Una jugada y el resultado",ico:"📝",cb:irTexto}
     ]});
 }
+/* ══ v16 · EL ENTRETIEMPO ════════════════════════════════════════════
+   No es un peaje en cada partido: sale sólo cuando hay algo que contar
+   —vas perdiendo, es clásico o final, venís con la forma por el piso o
+   una zona del cuerpo en rojo—. Y sirve para algo: en el vestuario se
+   recupera aguante, que es lo que te falta en el segundo tiempo.     */
+const VESTUARIO=[
+ {id:"v_dt",t:"EL DT TE AGARRA EN EL TÚNEL",
+  x:"Te frena antes de entrar al vestuario. Tiene la cara colorada y no está para chistes.",
+  o:[{b:"Bancarle la mirada",s:"Carácter",st:"car",base:60,agt:26,
+      ok:{car:3,forma:8,msg:"Te bancó la mirada y te dejó en cancha"},
+      mal:{mor:-10,forma:-6,msg:"Te sacó al minuto del segundo tiempo"}},
+     {b:"Pedirle disculpas y escuchar",s:"Bajar el copete",st:"car",base:88,agt:34,fijo:1,
+      ok:{forma:6,mor:4,msg:"Saliste con las ideas claras"}},
+     {b:"Contestarle delante de todos",s:"Se pudre el vestuario",st:"car",base:38,agt:18,
+      ok:{car:5,local:10,msg:"El vestuario se puso de tu lado"},
+      mal:{mor:-16,vinculoOdio:"DT",msg:"Te mandó al banco por tres fechas"}}]},
+ {id:"v_agua",t:"CINCO MINUTOS Y UNA BOTELLA",
+  x:"Estás fundido. Te sentás, te tiran una botella de agua fría y alguien grita algo desde el fondo.",
+  o:[{b:"Hielo en el isquiotibial",s:"Cuidar el cuerpo",st:"car",base:92,agt:42,fijo:1,
+      ok:{salud:["isqR",8],msg:"Volviste entero al segundo tiempo"}},
+     {b:"Sobre de sal y a la cancha",s:"Recargar todo",st:"fis",base:68,agt:56,
+      ok:{forma:8,msg:"Volviste enchufado"},
+      mal:{salud:["pubis",-8],msg:"Te agarró un calambre a los sesenta"}},
+     {b:"Quedarte callado mirando el piso",s:"Cabeza fría",st:"car",base:86,agt:32,fijo:1,
+      ok:{mor:6,car:2,msg:"Saliste con la cabeza en su lugar"}}]},
+ {id:"v_roce",t:"SE PUDRIÓ CON UN COMPAÑERO",
+  x:"{COMPA} te reclama a los gritos que no la soltás nunca. Están todos mirando.",
+  o:[{b:"Pedirle perdón adelante de todos",s:"El grupo primero",st:"car",base:84,agt:32,
+      ok:{relSube:2,mor:6,msg:"Quedó ahí y salieron juntos"},
+      mal:{mor:-6,msg:"Se quedó con la bronca igual"}},
+     {b:"Empujarlo y que se arme",s:"A los gritos",st:"car",base:42,agt:24,
+      ok:{car:4,forma:10,msg:"Se dijeron todo y salieron a matar"},
+      mal:{relBaja:3,mor:-14,escandalo:1,msg:"Se filtró el video y salió en todos lados"}},
+     {b:"Ignorarlo y atarte los botines",s:"Silencio",st:"car",base:90,agt:36,fijo:1,
+      ok:{car:2,msg:"Ni lo miraste"}}]},
+ {id:"v_perdiendo",t:"VAS PERDIENDO Y SE VIENE LA NOCHE",
+  x:"El marcador está en contra, la popular canta cosas feas y quedan cuarenta y cinco minutos.",
+  o:[{b:"Hablar vos y levantar a todos",s:"Liderazgo",st:"car",base:54,agt:30,
+      ok:{car:5,forma:14,local:10,capitan:1,msg:"Salieron otros al segundo tiempo"},
+      mal:{mor:-10,msg:"Nadie te dio bola"}},
+     {b:"Romper algo contra la pared",s:"Descargar",st:"fis",base:50,agt:48,
+      ok:{forma:12,car:3,msg:"Saliste con los ojos rojos"},
+      mal:{salud:["tobL",-12],mor:-8,msg:"Te lastimaste la mano contra el locker"}},
+     {b:"Escuchar la pizarra y nada más",s:"Profesional",st:"car",base:88,agt:34,fijo:1,
+      ok:{forma:6,msg:"Ordenado y sin ruido"}}]}
+];
+function tocaVestuario(D){
+  if(!D||D.vestHecho)return false;
+  if(D.turno!==Math.floor(D.total/2))return false;
+  const salud=Math.min.apply(null,Object.values(p.salud));
+  return D.golRival>D.gol || D.m.comp==="clasico" || D.m.comp==="final"
+    || p.stats.forma<=42 || salud<45;
+}
+function duelVestuario(D,sigue){
+  D.vestHecho=1;
+  const pool=(D.golRival>D.gol)
+    ? VESTUARIO.filter(c=>c.id==="v_perdiendo").concat(VESTUARIO)
+    : VESTUARIO;
+  const c=rnd(pool); nuevosTokens();
+  menuCerrar();
+  tsuEscena(escEspera(D,D.mia));
+  duelTexto("ENTRETIEMPO · "+tokens(c.t),
+    "Se van al vestuario "+D.gol+"-"+D.golRival+". "+tokens(c.x),"");
+  const e=document.getElementById("du-opts"); if(!e)return sigue();
+  e.innerHTML="";
+  c.o.forEach((o,i)=>{
+    const bt=document.createElement("button");bt.className="opt";
+    bt.innerHTML='<span class="n">0'+(i+1)+'</span><span class="t"><b>'
+      +tokens(o.b)+'</b><small>'+(o.s||"")+'</small></span>'
+      +'<span class="cost">+'+((o.agt||30)*8)+' AGT</span>';
+    bt.onclick=()=>{
+      buzz(12);sonTic();e.innerHTML="";
+      const ok=o.fijo?true:dado(clamp(o.base+((p.stats[o.st]||55)-58)*0.6,10,95)/100);
+      const ef=ok?o.ok:(o.mal||{msg:"No pasó nada"});
+      aplicar(ef);
+      D.guts=clamp(D.guts+(o.agt||30),0,D.gmax);
+      calcOVR();render();
+      duelTexto(ok?"SEGUNDO TIEMPO":"ARRANCÓ TORCIDO",
+        tokens(ef.msg||"")+". Volvés al campo con "+Math.round(D.guts*8)+" de aguante.",
+        ok?"ok":"no");
+      duelBoton("Salir al segundo tiempo",sigue);
+    };
+    e.appendChild(bt);
+  });
+}
 function duelTurno(){
   const D=_du;
   if(!D)return;
+  duelOpts([]);   /* v16 · limpio los botones: si quedan, se re-dispara el turno */
+  if(tocaVestuario(D))return duelVestuario(D,()=>duelTurno());
   if(D.turno>=D.total)return duelFinal();
   D.min=clamp(Math.round(4+D.turno*(86/D.total))+ri(0,3),1,94);
   if(D.turno)D.guts=clamp(D.guts+11,0,D.gmax);      /* aire entre jugada y jugada */
@@ -10443,6 +10689,7 @@ function duelCierre(res){
   if(m.comp==="clasico"&&res==="gano"&&p.club!=="Libre")hist(p.club).cla++;
   copaProgreso(m,res);
   if(m.cup==="pliga")playoffLigaProgreso(m,res);
+  if(p.apuesta)setTimeout(()=>cobrarApuesta(res),60);
   duelTexto((res==="gano"?"GANARON ":res==="perdio"?"PERDIERON ":"EMPATE ")+D.gol+"-"+D.golRival,
     "Ganaste "+ganados+" de "+D.hist.length+" duelos en "+D.est.n+". "
     +(notaCopa(m,res)||"").replace(/<[^>]+>/g,""),res==="gano"?"ok":res==="perdio"?"no":"");
