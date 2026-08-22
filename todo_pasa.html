@@ -179,7 +179,7 @@
 .tsu-nom{position:absolute;left:0;right:0;bottom:0;text-align:center;
   font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:#cfe6ff;
   background:linear-gradient(transparent,rgba(6,10,16,.92));padding:8px 6px 5px}
-/* Barra de Guts */
+/* Barra de aguante */
 .guts{display:flex;align-items:center;gap:8px;margin:0 0 10px}
 .guts .gl{font-family:var(--mono);font-size:9px;letter-spacing:.22em;color:#F5C542}
 .guts .gbar{flex:1;height:12px;border:2px solid #3a2f18;border-radius:3px;background:#120f08;
@@ -196,6 +196,10 @@
 .duelo-h em{font-style:normal;font-family:var(--mono);font-size:9px;color:var(--dim)}
 .opt .cost{flex-shrink:0;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
   color:#F5C542;background:#1a1509;border:1px solid #3a2f18;border-radius:999px;padding:2px 7px}
+/* v16 · El nombre futbolero de la estadística que usa cada opción */
+.stn{flex-shrink:0;font-family:var(--mono);font-size:8px;letter-spacing:.1em;
+  color:#7BE8B8;background:rgba(61,220,151,.10);border:1px solid rgba(61,220,151,.28);
+  border-radius:999px;padding:3px 7px;align-self:center}
 .opt.singuts{opacity:.5}
 .opt.singuts .cost{color:#FF8A9B;border-color:#5a2030}
 /* La pantalla del partido: canvas de 256x144 escalado sin suavizar */
@@ -204,6 +208,11 @@
 canvas.tsucv{display:block;width:100%;height:auto;image-rendering:crisp-edges;
   image-rendering:pixelated;cursor:pointer;touch-action:manipulation}
 .tsubar{display:flex;justify-content:space-between;align-items:center;margin:-6px 0 9px}
+/* Selector de velocidad: dos botones grandes, se ve cuál está puesto */
+.velsel{display:flex;border:2px solid #2A3550;border-radius:8px;overflow:hidden}
+.velsel button{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  padding:9px 15px;background:#0C1220;color:#6B7690;border:0;cursor:pointer}
+.velsel button.on{background:#1E67C8;color:#fff}
 .tsuhint{font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--dim);opacity:.7}
 .minib{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:#F5C542;
   background:#1a1509;border:1px solid #3a2f18;border-radius:999px;padding:3px 9px;cursor:pointer}
@@ -1922,7 +1931,178 @@ const JUGADAS=[
  o:[{b:"Ir a apurarlo de frente",s:"Carácter",st:"car",base:48,ok:{local:14,car:2,rend:1,msg:"Cobró a favor"},mal:{roja:1,local:-4,rend:-2,msg:"Roja por protestar"}},
     {b:"Callarte y esperar",s:"Sin riesgo",st:"car",base:95,fijo:1,ok:{rend:0,msg:"Siguió el partido"}},
     {b:"Aplaudirle irónicamente",s:"Provocación fina",st:"car",base:58,ok:{local:10,mundo:4,rend:1,msg:"La tribuna se cagó de risa"},mal:{roja:1,plata:-30,rend:-2,msg:"Roja por desafiar"}},
-    {b:"Meterte a mirar el monitor",s:"Locura total",st:"car",base:30,ok:{local:22,mundo:14,rend:1,msg:"Meme eterno y cobró a favor"},mal:{roja:1,plata:-80,mundo:-6,rend:-3,msg:"Roja histórica"}}]}
+    {b:"Meterte a mirar el monitor",s:"Locura total",st:"car",base:30,ok:{local:22,mundo:14,rend:1,msg:"Meme eterno y cobró a favor"},mal:{roja:1,plata:-80,mundo:-6,rend:-3,msg:"Roja histórica"}}]},
+/* ══ v16 · OCHO SITUACIONES NUEVAS ═══════════════════════════════════
+   Escritas por Musa. El motor sigue usando tres estadísticas por debajo
+   (tec, fis, car) pero en pantalla se lee el nombre futbolero de cada
+   una: DEFINICIÓN, POTENCIA, PICARDÍA, MARCA y las demás.            */
+{id:"penal_boqueo",pos:["DEL","MED"],seg:3.0,max:3,peso:2,t:"PENAL A FAVOR",
+ x:"Te parás en los doce pasos y el arquero rival te la está boqueando diciéndote que se la cruces a la derecha.",
+ o:[{b:"Clavarla a la derecha igual",s:"Donde te pidió el arquero",stn:"DEFINICIÓN",st:"tec",base:42,
+     ok:{gol:1,forma:16,local:18,car:2,rend:3,msg:"Gol donde te lo pidió"},
+     mal:{forma:-14,mor:-10,local:-8,rend:-2,msg:"Se la atajó cantada"}},
+    {b:"Abrir el pie a la izquierda",s:"Cambiarle el palo a colocar",stn:"DEFINICIÓN",st:"tec",base:64,
+     ok:{gol:1,forma:12,local:10,rend:2,msg:"Gol al otro palo"},
+     mal:{forma:-12,mor:-8,rend:-2,msg:"Se fue afuera por centímetros"}},
+    {b:"Reventarle el arco al medio",s:"Zapatazo violento al bulto",stn:"POTENCIA",st:"fis",base:58,
+     ok:{gol:1,forma:12,local:12,rend:2,msg:"Le rompió las manos"},
+     mal:{forma:-12,mor:-10,rend:-2,msg:"Se quedó parado y la tapó"}},
+    {b:"Mirarlo a la cara y picarla",s:"Sutileza por el centro",stn:"TALENTO",st:"tec",base:34,
+     ok:{gol:1,forma:20,local:22,mundo:8,tec:1,rend:3,msg:"Panenka en la cara"},
+     mal:{forma:-20,mor:-16,local:-16,rend:-3,mote:"Payaso",msg:"Se la comió el arquero de rodillas"}},
+    {b:"Clavarla arriba al rincón",s:"Buscar la escuadra imposible",stn:"DEFINICIÓN",st:"tec",base:40,
+     ok:{gol:1,forma:18,local:16,mundo:6,rend:3,msg:"Al ángulo, imposible"},
+     mal:{forma:-16,mor:-12,rend:-2,msg:"Al travesaño y afuera"}},
+    {b:"Ojos cerrados y Topo Gigio",s:"Patear a ciegas y cargarlo",stn:"TALENTO",st:"car",base:30,
+     ok:{gol:1,forma:22,local:26,mundo:10,escandalo:1,rend:3,msg:"Gol y Topo Gigio a la popular"},
+     mal:{forma:-18,mor:-14,local:-12,escandalo:1,rend:-3,msg:"Erró y se comió la cargada del país"}}]},
+
+{id:"minuto93",pos:["DEL","MED"],seg:2.6,max:3,peso:2,t:"ÚLTIMA JUGADA (93')",
+ x:"Tiempo de descuento, pelota suelta al borde del área y la defensa rival desesperada.",
+ o:[{b:"Meter un fierrazo agónico",s:"Rematar de una sin dudar",stn:"POTENCIA",st:"fis",base:44,
+     ok:{gol:1,forma:20,local:22,mundo:6,rend:3,msg:"GOL SOBRE LA HORA"},
+     mal:{forma:-10,rend:-1,msg:"Se fue a la tribuna"}},
+    {b:"Colgar el centro al segundo",s:"Buscar al compañero solo",stn:"CENTRO",st:"tec",base:60,
+     ok:{asist:1,forma:14,local:14,rend:2,msg:"Asistencia sobre la hora"},
+     mal:{forma:-8,rend:-1,msg:"La descolgó el arquero"}},
+    {b:"Poner el cuerpo e ir firme",s:"Aguantar y buscar espacio",stn:"FÍSICO",st:"fis",base:66,
+     ok:{forma:10,local:10,car:2,rend:2,msg:"La aguantó como un animal"},
+     mal:{salud:["pubis",-12],forma:-6,rend:-1,msg:"Lo pasaron por arriba"}},
+    {b:"Caer al piso y pedir falta",s:"Comprar el tiro libre",stn:"PICARDÍA",st:"car",base:46,
+     ok:{forma:8,local:6,rend:1,mundo:-4,msg:"Cobró la falta al borde"},
+     mal:{forma:-10,local:-10,rend:-2,mote:"Tirapiedras",msg:"Amarilla por simular en el 93"}},
+    {b:"Guapear y tirar el centro",s:"Forzar la llegada al fondo",stn:"GAMBETA",st:"tec",base:48,
+     ok:{asist:1,forma:16,local:16,rend:2,msg:"Llegó al fondo y la puso"},
+     mal:{salud:["tobR",-14],forma:-8,rend:-1,msg:"Lo barrieron en la raya"}},
+    {b:"Cortinar para que defina él",s:"Bloquear al zaguero rival",stn:"FÍSICO",st:"fis",base:56,
+     ok:{asist:1,forma:12,local:10,car:2,rend:2,msg:"Le abrió el camino y fue gol"},
+     mal:{forma:-8,rend:-1,msg:"Le cobraron obstrucción"}}]},
+
+{id:"presion_arq",pos:["DEL","MED"],seg:2.2,max:3,t:"SALIDA DEL RIVAL",
+ x:"El central rival se la da atrás a su arquero, el uno se duerme al pararla y le caés encima antes de que reviente.",
+ o:[{b:"Trabarle el despeje de una",s:"Meter el pie al impacto",stn:"MARCA",st:"fis",base:44,
+     ok:{gol:1,forma:18,local:20,rend:3,msg:"Le tapó el despeje y adentro"},
+     mal:{salud:["tobL",-18],forma:-8,rend:-1,msg:"Le pegó una patada en el pie"}},
+    {b:"Punteársela bien de pillo",s:"Anticipar el toque corto",stn:"PICARDÍA",st:"car",base:52,
+     ok:{gol:1,forma:16,local:16,car:2,rend:3,msg:"Se la robó al arquero"},
+     mal:{forma:-8,rend:-1,msg:"Se dio cuenta y la reventó"}},
+    {b:"Meterle el hombro al choque",s:"Cargarlo desestabilizando",stn:"FÍSICO",st:"fis",base:50,
+     ok:{gol:1,forma:14,local:18,rend:2,msg:"Lo tiró al piso y la empujó"},
+     mal:{forma:-10,local:-6,rend:-2,msg:"Le cobraron falta al arquero"}},
+    {b:"Tirarse de cabeza al piso",s:"Bloquear el pelotazo",stn:"MARCA",st:"fis",base:38,
+     ok:{gol:1,forma:20,local:24,car:3,rend:3,msg:"Le rebotó en la cabeza y fue gol"},
+     mal:{salud:["pubis",-16],forma:-10,rend:-2,msg:"Le pegó un patadón en la nuca"}},
+    {b:"Apretar la salida sin asco",s:"Cerrarle los caminos",stn:"FÍSICO",st:"fis",base:64,
+     ok:{forma:10,local:10,rend:2,msg:"Lo obligó a tirarla al lateral"},
+     mal:{forma:-6,rend:-1,msg:"Le salió limpia por adentro"}},
+    {b:"Forzar que la tire afuera",s:"Tapar el pase limpio",stn:"MARCA",st:"car",base:72,
+     ok:{forma:8,car:1,rend:1,msg:"Salida rota, lateral a favor"},
+     mal:{forma:-6,rend:-1,msg:"Encontró al lateral y salieron jugando"}}]},
+
+{id:"marca9_giro",pos:["DEF","MED"],seg:2.6,max:3,t:"MARCA REGISTRO",
+ x:"El 9 rival recibe de espaldas al borde del área, la aguanta con el cuerpo y busca girar de frente al arco.",
+ o:[{b:"Anticiparlo abajo con todo",s:"Ir al pie antes que reciba",stn:"MARCA",st:"fis",base:52,
+     ok:{forma:12,local:12,car:2,rend:2,msg:"Se la sacó antes de que la toque"},
+     mal:{gol_rival:1,forma:-12,rend:-2,msg:"Se la dejó pasar y quedó solo"}},
+    {b:"Meterle un codazo en el ojo",s:"Acomodarlo arriba con mala leche",stn:"FÍSICO",st:"fis",base:46,
+     ok:{forma:10,local:16,car:3,rend:1,msg:"No lo vio el juez y no volvió a pedirla"},
+     mal:{roja:1,local:-10,escandalo:1,rend:-3,msg:"Roja directa y escándalo en la tele"}},
+    {b:"Encimarlo sin dejarlo girar",s:"Pegarse a la espalda",stn:"MARCA",st:"fis",base:66,
+     ok:{forma:10,car:2,rend:2,msg:"No pudo girar en todo el partido"},
+     mal:{gol_rival:1,forma:-10,rend:-2,msg:"Se le fue de la espalda"}},
+    {b:"Puntearla limpia al córner",s:"Despejar al tiro de esquina",stn:"MARCA",st:"tec",base:74,
+     ok:{forma:8,rend:1,msg:"Al córner, sin drama"},
+     mal:{gol_rival:1,forma:-8,rend:-2,msg:"Le quedó picando adentro del área"}},
+    {b:"Decirle cornudo y amenazarlo",s:"Hacerle la psicológica",stn:"PICARDÍA",st:"car",base:44,
+     ok:{forma:8,local:14,car:2,rend:1,rivalPica:1,msg:"Lo sacó del partido de la cabeza"},
+     mal:{roja:1,escandalo:1,local:-8,rend:-2,msg:"Se agarraron y los echaron a los dos"}},
+    {b:"Barrer de atrás a la pelota",s:"Ir al piso con todo",stn:"MARCA",st:"fis",base:48,
+     ok:{forma:14,local:16,car:2,rend:2,msg:"Barrida limpia y ovación"},
+     mal:{roja:1,salud:["rodR",-16],rend:-3,msg:"Le llevó la pierna y vio la roja"}}]},
+
+{id:"encarada",pos:["DEL","MED"],seg:2.8,max:3,t:"MANO A MANO AL 2",
+ x:"Encarás mano a mano al 2 rival en tres cuartos de cancha y tenés espacio para desbordar o encarar al arco.",
+ o:[{b:"Tirar la larga por afuera",s:"Ganar en velocidad pura",stn:"VELOCIDAD",st:"fis",base:56,
+     ok:{asist:1,forma:12,local:12,rend:2,msg:"Lo dejó parado y la puso atrás"},
+     mal:{forma:-8,rend:-1,msg:"Se le fue larga al lateral"}},
+    {b:"Enganchar hacia el centro",s:"Perfilarte para tu pie hábil",stn:"GAMBETA",st:"tec",base:54,
+     ok:{gol:1,forma:16,local:14,tec:1,rend:3,msg:"Enganchó y la clavó"},
+     mal:{forma:-8,rend:-1,msg:"Se la comió el cierre del volante"}},
+    {b:"Puntearla antes que llegue",s:"Anticipar el cruce abajo",stn:"VELOCIDAD",st:"fis",base:62,
+     ok:{forma:10,rend:2,msg:"La tocó justo antes del cruce"},
+     mal:{salud:["gemR",-14],forma:-8,rend:-1,msg:"Llegó tarde y se llevó el planchazo"}},
+    {b:"Intentar meterle un caño",s:"Tirarla por entre las piernas",stn:"TALENTO",st:"tec",base:36,
+     ok:{forma:18,local:24,tec:1,mundo:6,rend:3,msg:"Caño y la cancha se vino abajo"},
+     mal:{forma:-10,local:-6,rend:-2,msg:"Le quedó en las canillas y quedó de payaso"}},
+    {b:"Frenar en seco y amagar",s:"Hacerlo pasar de largo",stn:"GAMBETA",st:"tec",base:58,
+     ok:{forma:14,local:12,tec:1,rend:2,msg:"Lo hizo pasar de largo"},
+     mal:{forma:-8,rend:-1,msg:"No se comió el amague"}},
+    {b:"Descargar para que defina",s:"Tocar al compañero mejor ubicado",stn:"PASES",st:"tec",base:76,
+     ok:{asist:1,forma:10,rend:2,msg:"Descarga y gol de {COMPA}"},
+     mal:{forma:-4,rend:-1,msg:"{COMPA} la mandó a la tribuna"}}]},
+
+{id:"tiro_libre",pos:["DEL","MED"],seg:3.4,max:3,peso:2,t:"TIRO LIBRE DIRECTO",
+ x:"Falta a favor en la puerta del área. La barrera bien armada y el arquero acomodando su palo.",
+ o:[{b:"Toque corto al compañero",s:"Abrir la pelota al perfil",stn:"PASES",st:"tec",base:74,
+     ok:{asist:1,forma:8,rend:1,msg:"Jugada armada y gol"},
+     mal:{forma:-4,rend:-1,msg:"Se cortó la jugada enseguida"}},
+    {b:"Buscar por abajo del salto",s:"Sorprender rasante",stn:"TALENTO",st:"tec",base:40,
+     ok:{gol:1,forma:18,local:16,tec:1,rend:3,msg:"Por abajo de la barrera, gol"},
+     mal:{forma:-10,mor:-6,rend:-2,msg:"No saltó nadie y la frenaron"}},
+    {b:"Buscar el palo izquierdo",s:"Superar la barrera con rosca",stn:"DEFINICIÓN",st:"tec",base:48,
+     ok:{gol:1,forma:18,local:18,mundo:6,rend:3,msg:"Rosca perfecta al palo"},
+     mal:{forma:-10,rend:-2,msg:"Rozó el travesaño"}},
+    {b:"Fierrazo al palo derecho",s:"Bomba violenta a ese lado",stn:"POTENCIA",st:"fis",base:46,
+     ok:{gol:1,forma:16,local:16,rend:3,msg:"Bombazo imparable"},
+     mal:{forma:-10,rend:-2,msg:"Se estrelló en la barrera"}},
+    {b:"Amagar y que patee el otro",s:"Desconcertar a la barrera",stn:"PICARDÍA",st:"car",base:56,
+     ok:{asist:1,forma:12,local:10,rend:2,msg:"El amague funcionó y la clavó {COMPA}"},
+     mal:{forma:-6,local:-4,rend:-1,msg:"Se chocaron los dos y quedó en offside"}},
+    {b:"Colocarla arriba al ángulo",s:"Buscar la escuadra más lejana",stn:"DEFINICIÓN",st:"tec",base:34,
+     ok:{gol:1,forma:22,local:22,mundo:10,tec:1,rend:3,msg:"Al ángulo. Gol de otro planeta"},
+     mal:{forma:-12,mor:-8,rend:-2,msg:"Por arriba del travesaño"}}]},
+
+{id:"trabar_medio",pos:["MED","DEF"],seg:2.2,max:3,t:"PELOTA DIVIDIDA",
+ x:"Pelota dividida en el círculo central, venís corriendo a la par del volante rival para disputar la posesión.",
+ o:[{b:"Ir con las dos suelas firme",s:"Trabar fuerte con todo",stn:"FÍSICO",st:"fis",base:44,
+     ok:{forma:14,local:18,car:3,rend:2,msg:"Se la llevó puesta y la cancha rugió"},
+     mal:{roja:1,salud:["tobL",-18],rend:-3,msg:"Plancha y roja directa"}},
+    {b:"Meter el cuerpo de costado",s:"Usar el lomo para desplazar",stn:"FÍSICO",st:"fis",base:66,
+     ok:{forma:10,car:2,rend:2,msg:"Lo sacó del camino con el lomo"},
+     mal:{forma:-6,rend:-1,msg:"Le cobraron la carga"}},
+    {b:"Puntearla rápido para salir",s:"Ganar el balón de primera",stn:"VELOCIDAD",st:"fis",base:60,
+     ok:{forma:10,rend:2,msg:"Se la llevó y salió jugando"},
+     mal:{salud:["gemL",-12],forma:-8,rend:-1,msg:"Llegó justo y se llevó el golpe"}},
+    {b:"Pisar la pelota y girar",s:"Resolver con habilidad",stn:"TALENTO",st:"tec",base:50,
+     ok:{forma:14,local:12,tec:1,rend:2,msg:"Pisó, giró y se fue caminando"},
+     mal:{forma:-8,rend:-2,msg:"Se la robaron en la mitad"}},
+    {b:"Barrer limpio a la pelota",s:"Ir al piso con precisión",stn:"MARCA",st:"fis",base:56,
+     ok:{forma:12,local:14,car:2,rend:2,msg:"Barrida quirúrgica"},
+     mal:{salud:["rodL",-14],forma:-8,rend:-1,msg:"Erró y quedó tirado"}},
+    {b:"Bajarlo de una con falta",s:"Cortar el avance de raíz",stn:"PICARDÍA",st:"car",base:70,
+     ok:{forma:6,car:2,rend:1,msg:"Falta táctica y a acomodarse"},
+     mal:{forma:-6,rend:-1,msg:"Amarilla al minuto veinte"}}]},
+
+{id:"achique_linea",pos:["DEF"],seg:2.0,max:3,t:"TIRAR EL ACHIQUE",
+ x:"Pase filtrado a tu espalda: la línea tiene que decidir si da el paso adelante o retrocede a correrla.",
+ o:[{b:"Dar dos pasos para adelante",s:"Coordinar el fuera de juego",stn:"MARCA",st:"tec",base:52,
+     ok:{forma:14,local:12,car:2,rend:2,msg:"Offside cantado, línea perfecta"},
+     mal:{gol_rival:1,forma:-14,rend:-3,msg:"Uno se quedó y quedaron todos habilitados"}},
+    {b:"Gritar achique y avanzar",s:"Ordenar a toda la defensa",stn:"LIDERAZGO",st:"car",base:58,
+     ok:{forma:12,local:14,car:3,capitan:1,rend:2,msg:"La línea te obedeció como un reloj"},
+     mal:{gol_rival:1,forma:-12,rend:-2,msg:"Nadie te escuchó y quedaste solo adelantado"}},
+    {b:"Quedarse clavado atrás",s:"Cubrir el espacio propio",stn:"MARCA",st:"car",base:72,
+     ok:{forma:6,rend:1,msg:"Cubriste y no pasó nada"},
+     mal:{gol_rival:1,forma:-8,rend:-2,msg:"Le diste diez metros de ventaja"}},
+    {b:"Volver corriendo a cubrir",s:"Cerrar en velocidad hacia el arco",stn:"VELOCIDAD",st:"fis",base:54,
+     ok:{forma:14,local:12,rend:2,msg:"Lo alcanzó de atrás y se la sacó"},
+     mal:{gol_rival:1,salud:["isqR",-16],forma:-10,rend:-2,msg:"Tiró el isquiotibial corriendo de atrás"}},
+    {b:"Levantar la mano al juez",s:"Jugar a la duda del réferi",stn:"PICARDÍA",st:"car",base:46,
+     ok:{forma:8,car:1,rend:1,msg:"El línea levantó la bandera"},
+     mal:{gol_rival:1,forma:-12,local:-8,rend:-3,msg:"Quedaste con la mano arriba mientras la metían"}},
+    {b:"Salir a romper con huevo",s:"Cruzarse a cortar con todo",stn:"FÍSICO",st:"fis",base:48,
+     ok:{forma:16,local:20,car:3,rend:2,msg:"Cruce salvaje y la tribuna de pie"},
+     mal:{roja:1,rend:-3,local:-4,msg:"Último hombre. Roja y a las duchas"}}]}
 ];
 
 /* ══════════════ MUESTRA W1 · esquema nuevo ══════════════
@@ -3654,7 +3834,7 @@ function nuevoJugador(){return{
   rep:{local:20,nac:5,mundo:2},
   salud:{pubis:100,isqL:100,isqR:100,rodL:100,rodR:100,gemL:100,gemR:100,tobL:100,tobR:100},
   historial:[],vinculos:[],vitrina:[],tot:{pj:0,g:0,a:0},
-  enSel:false,mundiales:0,balones:0,racha:0,vistos:{},temp:null,fase:0,
+  enSel:false,mundiales:0,balones:0,racha:0,vistos:{},temp:null,fase:0,duVel:true,
   forzarMercado:false,dt:null,presi:null,
   favorito:"",historia:{},banderas:{},escandalos:0,
   posId:"DC",dorsal:9,seed:0,express:false,generacion:[],puntaje:0,
@@ -3746,7 +3926,12 @@ function cumpleReq(c){
 }
 function disponibles(deck,extraFiltro){
   const filtro=c=>cumpleReq(c)&&(!extraFiltro||extraFiltro(c));
-  let d=deck.filter(c=>filtro(c)&&enfriada(c));
+  /* v16 · el tope de la carta ahora se respeta: una carta con max:1 no vuelve
+     a salir en la misma carrera, salvo que no quede ninguna otra.          */
+  const bajoTope=c=>{const v=vistoDe(c.id);return !v||!c.max||v.n<c.max;};
+  let d=deck.filter(c=>filtro(c)&&bajoTope(c)&&enfriada(c));
+  if(d.length)return d;
+  d=deck.filter(c=>filtro(c)&&bajoTope(c));
   if(d.length)return d;
   /* nadie enfriado: relajo el cooldown a la mitad */
   d=deck.filter(c=>{const v=vistoDe(c.id);
@@ -3928,13 +4113,22 @@ function faseSiguiente(){
   if(p.fase===1){
     const T=p.temp;
     if(T.i>=T.mom.length)abrirPlayoffLiga();   /* v12 · bloque 4 */
-    if(T.i<T.mom.length)return momento();
+    if(T.i<T.mom.length){
+      /* v16 · La vida no espera al final de la temporada. Cada seis o siete
+         fechas se cruza algo de afuera de la cancha y después se sigue.   */
+      T.vistoEx=T.vistoEx||{};
+      if(T.i>0&&T.i%4===0&&!T.vistoEx[T.i]){
+        T.vistoEx[T.i]=1;
+        return cartaExtra(()=>faseSiguiente());
+      }
+      return momento();
+    }
     p.fase=2;
   }
   if(p.fase===2){
     p.fase=3;
     if(tocaTribunero())return programaTribunero();   /* v9 · cada 5 temporadas */
-    if(p.temporadas%3!==0&&p.evTemp!==p.temporadas)return cartaExtra();
+    if(p.evTemp!==p.temporadas)return cartaExtra();
   }
   cierreTemporada();
 }
@@ -4075,13 +4269,14 @@ function cartaPretemporada(){
     opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"PRETEMPORADA",faseSiguiente)}))});
 }
 /* ── FASE 3 · EXTRADEPORTIVO ── */
-function cartaExtra(){
+function cartaExtra(sigue){
+  const seguir=sigue||cierreTemporada;
   /* v10 · una de cada nueve veces sale algo que no se explica */
-  const bizarro=dado(.11);
+  const bizarro=dado(.16);
   const c=rnd(disponibles(bizarro?BIZARROS:EXTRA));marcar(c.id);nuevosTokens();
   c.__o=seis(c.o,"extra");
   carta({eye:bizarro?"ESTO NO PASA NUNCA":"FUERA DE LA CANCHA",titulo:tokens(c.t),texto:tokens(c.x),ciego:1,
-    opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"POLÉMICA",cierreTemporada)}))});
+    opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"POLÉMICA",seguir)}))});
 }
 
 function resolverSimple(o,eyebrow,sigue){
@@ -4428,7 +4623,8 @@ function momentoTexto(){
   carta({eye:"TEMPORADA "+p.anio,comp:m.comp,compTxt:m.fecha,compSub:subCompetencia(m),
     clima:m.clima,mision:T.mision,
     titulo:tokens(j.t),texto:tokens(j.x),seg:j.seg?SEG(j.seg):0,mk:m,prog:[T.i,T.mom.length],ciego:1,
-    opts:seis(j.o,"jugada").map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverJugada(o,false)})),
+    opts:seis(j.o,"jugada").map(o=>({b:tokens(o.b),s:tokens(o.s||''),stn:o.stn,fijo:o.fijo,
+      cb:()=>resolverJugada(o,false)})),
     onTimeout:()=>resolverJugada(null,true)});
 }
 
@@ -7789,7 +7985,7 @@ function munKO(){
     comp:_mun.ko>=MUNDIAL_KO.length-1?"final":"inter",
     rival:{n:_mun.riv,lv:dur},mundial:true,peso:3};
   duelIniciar(m,null,{
-    loc:yo,vis:riv,total:_mun.ko>=2?9:7,
+    loc:yo,vis:riv,total:_mun.ko>=2?6:5,
     est:{n:rnd(ESTADIOS_MUNDIAL),t:[yo.c[0],yo.c[1]],alto:1},
     riv:{n:_mun.riv,fis:clamp(dur+ri(-5,5),50,97),
          tec:clamp(dur+ri(-5,5),50,97),car:clamp(dur+ri(-5,5),50,97)},
@@ -9005,7 +9201,7 @@ function tsuTextoC(s,y,e,col,sombra){
 }
 
 /* ── 2 · EL MOTOR: un canvas, un reloj y una cola de escenas ─────── */
-const TSU={cv:null,g:null,W:256,H:224,veloc:1,zonas:[],raf:0,esc:null,cola:[],fin:null,
+const TSU={cv:null,g:null,W:256,H:288,veloc:1,zonas:[],raf:0,esc:null,cola:[],fin:null,
   shake:0,flash:0,flashCol:"#FCFCFC",cam:0,vivo:false,mundo:520,skip:0};
 function P(x,y,w,h,c){const g=TSU.g;if(!g)return;g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function tsuArranca(){
@@ -9323,25 +9519,24 @@ function dibHud(D){
   P(0,0,W,BARRA,"#000208");P(0,BARRA-1,W,1,"#2A3048");
   const nom=(p&&p.nombre?p.nombre:"VOS").toUpperCase();
   tsuTexto(nom,5,4,1,PAL.blanco);
-  const gl="GUTS "+Math.round(D.guts*8);
+  const gl="AGUANTE "+Math.round(D.guts*8);
   tsuTexto(gl,W-5-anchoTxt(gl,1),4,1,PAL.amar);
   /* panel de abajo */
   P(0,ACCION,W,TSU.H-ACCION,"#000208");
-  caja(4,ACCION+4,66,26);
-  tsuTexto(D.min<=45?"1ER T":"2DO T",10,ACCION+8,1,PAL.gris);
+  if(TSU.menu&&TSU.menu.items.length)return;   /* con el menú abierto, el panel es el menú */
+  caja(4,ACCION+4,74,40);
+  tsuTexto(D.min<=45?"1ER T":"2DO T",12,ACCION+10,1,PAL.gris);
   const rel=(D.min<10?"0":"")+D.min+":00";
-  tsuTexto(rel,10,ACCION+18,1,PAL.blanco);
-  caja(4,ACCION+34,66,48);
+  tsuTexto(rel,12,ACCION+22,2,PAL.blanco);
+  caja(4,ACCION+48,74,62);
   const ia=(D.loc.i||"LOC").slice(0,4), ib=(D.vis.i||"VIS").slice(0,4);
-  tsuTexto(ia,10,ACCION+40,1,PAL.blanco);
-  tsuTexto(D.gol+"",60-anchoTxt(D.gol+"",1),ACCION+40,1,PAL.amar);
-  tsuTexto(ib,10,ACCION+56,1,PAL.blanco);
-  tsuTexto(D.golRival+"",60-anchoTxt(D.golRival+"",1),ACCION+56,1,PAL.amar);
-  tsuTexto(D.mia?"ATACAS":"DEFENDES",10,ACCION+70,1,D.mia?"#3DDC97":"#FF8A3D");
-  if(!TSU.menu||!TSU.menu.items.length){
-    caja(74,ACCION+4,W-78,78);
-    dibRadar(D,78,ACCION+8,W-86,70);
-  }
+  tsuTexto(ia,12,ACCION+56,1,PAL.blanco);
+  tsuTexto(D.gol+"",68-anchoTxt(D.gol+"",2),ACCION+54,2,PAL.amar);
+  tsuTexto(ib,12,ACCION+78,1,PAL.blanco);
+  tsuTexto(D.golRival+"",68-anchoTxt(D.golRival+"",2),ACCION+76,2,PAL.amar);
+  tsuTexto(D.mia?"ATACAS":"DEFENDES",12,ACCION+98,1,D.mia?"#3DDC97":"#FF8A3D");
+  caja(82,ACCION+4,W-88,106);
+  dibRadar(D,86,ACCION+10,W-96,94);
 }
 
 /* ── LA CARA DEL CUT-IN · curvas primero, píxeles después ────────────
@@ -9725,30 +9920,38 @@ function escFinal(D,res){
 /* ── 8 · EL MENÚ DE COMANDOS · adentro de la pantalla, como el cartucho ─ */
 const MX=74,MW=TSU_W_MENU();
 function TSU_W_MENU(){return 256-78;}
+/* La geometría del menú vive acá y en ningún otro lado: lo que se dibuja y
+   lo que se toca salen de la misma cuenta.                               */
+function menuGeo(n){
+  const x=6,y=ACCION+4,w=TSU.W-12,alto=TSU.H-ACCION-8;
+  const util=alto-22;
+  const paso=Math.min(34,Math.floor(util/Math.max(1,n)));
+  const y0=y+20+Math.max(0,Math.floor((util-paso*n)/2));
+  return {x:x,y:y,w:w,alto:alto,paso:paso,y0:y0};
+}
 function dibMenu(D,now){
   const M=TSU.menu; if(!M||!M.items.length)return;
-  const x=MX,y=ACCION+4,w=MW,alto=78;
-  caja(x,y,w,alto);
-  tsuTexto(M.tit,x+7,y+4,1,PAL.gris);
-  const paso=Math.floor((alto-14)/Math.max(1,M.items.length));
+  const G=menuGeo(M.items.length), x=G.x, y=G.y, w=G.w, paso=G.paso;
+  caja(x,y,w,G.alto);
+  tsuTexto(M.tit,x+9,y+6,1,PAL.gris);
   M.items.forEach((it,i)=>{
-    const fy=y+12+i*paso;
+    const fy=G.y0+i*paso+Math.floor((paso-10)/2);
     const sel=(TSU.sel===i);
     const enc=(now-(TSU.selT||0))<170&&sel;
-    if(enc)P(x+3,fy-2,w-6,paso,"#2A3A64");
+    if(enc)P(x+3,G.y0+i*paso,w-6,paso,"#2A3A64");
     const bl=Math.floor(now/230)%2;
-    if(sel&&bl){P(x+6,fy+1,2,6,PAL.amar);P(x+8,fy+3,2,2,PAL.amar);}
+    if(sel&&bl){P(x+8,fy+1,3,9,PAL.amar);P(x+11,fy+4,3,3,PAL.amar);}
     const col=it.no?"#5A6070":sel?PAL.amar:PAL.blanco;
-    tsuTexto(it.t,x+12,fy+1,1,col);
+    tsuTexto(it.t,x+18,fy,2,col);
     if(it.g){const gt=(it.g*8)+"";
-      tsuTexto(gt,x+w-8-anchoTxt(gt,1),fy+1,1,it.no?"#5A6070":"#8C93A8");}
+      tsuTexto(gt,x+w-12-anchoTxt(gt,2),fy,2,it.no?"#5A6070":"#8C93A8");}
   });
 }
 function menuAbrir(D,tit,items){
   TSU.menu={tit:tit,items:items};
   TSU.sel=0;
-  const paso=Math.floor(64/Math.max(1,items.length));
-  TSU.zonas=items.map((it,i)=>({x:MX,y:ACCION+10+i*paso,w:MW,h:paso,i:i,cb:it.cb}));
+  const G=menuGeo(items.length);
+  TSU.zonas=items.map((it,i)=>({x:G.x,y:G.y0+i*G.paso,w:G.w,h:G.paso,i:i,cb:it.cb}));
 }
 function menuCerrar(){TSU.menu=null;TSU.zonas=[];TSU.sel=-1;}
 
@@ -9819,17 +10022,21 @@ function duelPantalla(){
   const D=_du;
   let h='<div class="card duelo">'
     +'<div class="eyebrow"><span>'+(D.eye||D.inst)+'</span><em>'+(p.anio||"")+'</em></div>'
-    +'<div class="tsuwrap"><canvas id="tsucv" class="tsucv" width="256" height="224"></canvas>'
-    +'</div><div class="tsubar"><button id="du-vel" class="minib">'
-    +(p.duVel?'▶▶ RÁPIDO':'▶ NORMAL')+'</button>'
-    +'<span class="tsuhint">tocá la pantalla para adelantar la jugada</span></div>'
+    +'<div class="tsuwrap"><canvas id="tsucv" class="tsucv" width="256" height="288"></canvas>'
+    +'</div><div class="tsubar"><div class="velsel" id="du-vel">'
+    +'<button data-v="0" class="'+(p.duVel?'':'on')+'">NORMAL</button>'
+    +'<button data-v="1" class="'+(p.duVel?'on':'')+'">RÁPIDO</button></div>'
+    +'<span class="tsuhint">tocá la pantalla para adelantar</span></div>'
     +'<div class="duelo-h"><b>'+D.inst+'</b><em>'+D.loc.n+' vs '+D.vis.n+'</em></div>'
     +'<div id="du-txt" class="res"></div><div id="du-opts"></div></div>';
   const c=document.getElementById("cartas");c.dataset.ficha="0";c.innerHTML=h;
-  TSU.veloc=p.duVel?0.4:1;
+  TSU.veloc=p.duVel?0.45:1;
   const bv=document.getElementById("du-vel");
-  if(bv)bv.onclick=()=>{p.duVel=!p.duVel;TSU.veloc=p.duVel?0.4:1;
-    bv.textContent=p.duVel?'▶▶ RÁPIDO':'▶ NORMAL';buzz(8);};
+  if(bv)[...bv.querySelectorAll("button")].forEach(bt=>{bt.onclick=()=>{
+    p.duVel=bt.dataset.v==="1";TSU.veloc=p.duVel?0.45:1;
+    [...bv.querySelectorAll("button")].forEach(o=>o.classList.toggle("on",
+      (o.dataset.v==="1")===p.duVel));
+    buzz(8);sonTic();};});
   c.scrollIntoView({behavior:"smooth",block:"end"});
 }
 function duelTexto(tit,txt,cls){
@@ -9865,7 +10072,7 @@ function duelIniciar(m,cb,op){
   op=op||{};
   const aguante=clamp(104+Math.round((p.stats.fis-55)*0.40),88,132);
   _du={m:m,cb:cb,cierre:op.cierre||null,
-    guts:aguante,gmax:aguante,turno:0,total:op.total||9,
+    guts:aguante,gmax:aguante,turno:0,total:op.total||7,
     gol:0,golRival:0,pos:50,mia:true,min:1,ladoTiro:1,hist:[],
     riv:op.riv||rivalDelDuelo(m),
     est:op.est||(m.comp==="final"?estadioNeutral():estadioDe(p.club)),
@@ -9874,7 +10081,7 @@ function duelIniciar(m,cb,op){
   armarFormaciones(_du);
   duelPantalla();
   duelTexto("SALEN A LA CANCHA","Se juega en "+_du.est.n+". "
-    +"Cada carta te cuesta Guts: si te quedás en cero no ganás una pelota. "
+    +"Cada carta te cuesta aguante: si te quedás en cero no ganás una pelota. "
     +"Llegá al área y definí.");
   if(!tsuArranca()){silbato();return duelTurno();}   /* sin canvas, se juega igual */
   silbato();
@@ -9906,11 +10113,13 @@ function duelTurno(){
   if(D.mia)hasta=clamp(desde+ri(6,14),8,86);
   else hasta=clamp(desde-ri(5,11),14,92);
   const tit=D.mia?(hasta>=70?"LLEGASTE AL ÁREA":"SALÍS JUGANDO"):"TE VIENEN ENCIMA";
-  tsuCola([escAvance(D,desde,hasta,D.mia),
-           escCutIn(D,D.mia,tit)],()=>{
-    D.pos=hasta;
-    duelMenu();
-  });
+  /* v16 · El cara a cara pega cuando es raro. Sale en el arranque, cuando
+     estás metido en el área y cuando sos el último hombre. En el resto de
+     las jugadas va derecho de la corrida al menú.                        */
+  const grande=(D.turno===0)||(D.mia&&hasta>=70)||(!D.mia&&hasta<=26);
+  const cola=[escAvance(D,desde,hasta,D.mia)];
+  if(grande)cola.push(escCutIn(D,D.mia,tit));
+  tsuCola(cola,()=>{D.pos=hasta;duelMenu();});
 }
 /* Primero elegís qué hacés con la pelota y después con qué la jugás,
    igual que en el cartucho: CORRER / PASE / TIRO y recién ahí el remate. */
@@ -9991,7 +10200,7 @@ function duelResolver(k,tipo){
   const r=duelProb(k), ok=r.ok, sinAire=r.sinAire;
   rachaSuma(ok);
   D.hist.push({ok:ok,n:k.n});
-  const nota=sinAire?" Estabas sin Guts y la jugaste a pulmón.":"";
+  const nota=sinAire?" Estabas sin aguante y la jugaste a pulmón.":"";
   if(tipo==="tiro")return duelTiro(k,ok,nota);
   if(tipo==="ultima")return duelUltima(k,ok,nota);
   if(tipo==="ataque")return duelAtaque(k,ok,nota);
@@ -10434,16 +10643,47 @@ function climaDelPartido(){
   return CLIMAS[0];
 }
 /* 13 · Misiones de la hinchada */
+/* v16 · Lo que baja de la popular. Eran cuatro y se repetían veintiséis veces
+   por carrera; ahora son treinta y no las escuchás dos veces seguidas.     */
 const MISIONES=[
  {id:"cano",t:"Hoy hay que meter un caño",tag:"caño"},
  {id:"gol",t:"Que no se vuelvan sin comerse uno",tag:"gol"},
  {id:"aguante",t:"Poné el cuerpo aunque duela",tag:"aguante"},
- {id:"cabeza",t:"Nada de rojas, jugá con la cabeza",tag:"cabeza"}
+ {id:"cabeza",t:"Nada de rojas, jugá con la cabeza",tag:"cabeza"},
+ {id:"m5",t:"Que no se lleven ni un centímetro",tag:"aguante"},
+ {id:"m6",t:"Al 10 de ellos lo querés muerto",tag:"aguante"},
+ {id:"m7",t:"Hoy se deja todo o no se vuelve",tag:"aguante"},
+ {id:"m8",t:"Una gambeta que los mate de risa",tag:"caño"},
+ {id:"m9",t:"Que la pelota no pase la mitad",tag:"cabeza"},
+ {id:"m10",t:"Bailalos como en el potrero",tag:"caño"},
+ {id:"m11",t:"Que se acuerden de esta cancha",tag:"aguante"},
+ {id:"m12",t:"Un gol y te hacemos una bandera",tag:"gol"},
+ {id:"m13",t:"No queremos jugadores tibios",tag:"aguante"},
+ {id:"m14",t:"Que el arquero se vaya llorando",tag:"gol"},
+ {id:"m15",t:"Correlos hasta el último minuto",tag:"aguante"},
+ {id:"m16",t:"Ni una amarilla estúpida hoy",tag:"cabeza"},
+ {id:"m17",t:"Metele un caño y saludá a la popu",tag:"caño"},
+ {id:"m18",t:"Este es nuestro barrio, no el de ellos",tag:"aguante"},
+ {id:"m19",t:"Que se vuelvan en silencio",tag:"gol"},
+ {id:"m20",t:"Jugá como si fuera el último",tag:"aguante"},
+ {id:"m21",t:"Nada de peinarse, hoy se transpira",tag:"aguante"},
+ {id:"m22",t:"Un golazo para el paredón del barrio",tag:"gol"},
+ {id:"m23",t:"Cabeza fría, la copa está cerca",tag:"cabeza"},
+ {id:"m24",t:"Al que te pegue, contestale",tag:"aguante"},
+ {id:"m25",t:"Que la gente se vaya cantando",tag:"gol"},
+ {id:"m26",t:"Hoy se juega por los que no están",tag:"aguante"},
+ {id:"m27",t:"Humillalos con la pelota, no con la pierna",tag:"caño"},
+ {id:"m28",t:"Que no toquen una y se vayan",tag:"cabeza"},
+ {id:"m29",t:"Dejá el alma en la mitad de cancha",tag:"aguante"},
+ {id:"m30",t:"Rompela y después hablamos",tag:"gol"}
 ];
 function nuevaMision(){
   if(!p.temp)return;
-  p.temp.mision=dado(.42)?rnd(MISIONES):null;
-  p.temp.misionOk=false;
+  if(!dado(.42)){p.temp.mision=null;p.temp.misionOk=false;return;}
+  const ult=p.temp.misUlt||"";
+  const pool=MISIONES.filter(m=>m.id!==ult);
+  const m=rnd(pool.length?pool:MISIONES);
+  p.temp.mision=m;p.temp.misUlt=m.id;p.temp.misionOk=false;
 }
 function toastTxt(t){
   const z=document.getElementById("toasts"); if(!z)return;
@@ -10527,6 +10767,7 @@ function carta(o){
     h+='<button class="opt" id="o'+i+'"><span class="n">0'+(i+1)+'</span>'
       +(x.ico?'<span class="oico">'+x.ico+'</span>':'')
       +'<span class="t"><b>'+x.b+'</b><small>'+(x.s||"")+'</small></span>'
+      +(x.stn?'<span class="stn">'+x.stn+'</span>':'')
       +'</button>';   /* v6: sin bolita. Las seis tienen que parecer iguales */
   });
   h+='</div>';
