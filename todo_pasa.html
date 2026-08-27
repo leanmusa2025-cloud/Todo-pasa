@@ -533,6 +533,57 @@ button{font-family:inherit; color:inherit; border:0; background:none; cursor:poi
 @keyframes slide{to{transform:translateX(-100%)}}
 .led-track b{color:var(--ink); font-weight:700}
 
+/* ══ v17 · EL ARRANQUE · portada y pantalla de título ════════════════
+   Dos pantallas antes del menú, como el cartucho: primero la tapa del
+   juego (los seis de la camada y APERTURA 2005) y después el título con
+   el INSERT COIN parpadeando. Todo dibujado acá, sin archivos externos;
+   si algún día se sueltan assets/portada.png y assets/titulo.png en la
+   carpeta, el arranque los usa en lugar del dibujo.                  */
+#s-intro{padding:0}
+.intro{position:fixed;inset:0;z-index:9990;background:#000;display:none;
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:18px 14px;text-align:center;overflow:hidden;cursor:pointer;
+  image-rendering:pixelated}
+.intro.on{display:flex;animation:introIn .45s ease}
+@keyframes introIn{from{opacity:0}to{opacity:1}}
+.intro .scan{position:absolute;inset:0;pointer-events:none;opacity:.30;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.55) 2px 4px)}
+.intro .skip{position:absolute;right:12px;bottom:12px;font-family:var(--mono);
+  font-size:9px;letter-spacing:.24em;color:#5A6070;background:none;border:0;
+  text-transform:uppercase;cursor:pointer;padding:8px}
+.intro .skip:hover{color:#C9CFDD}
+
+/* ── tapa ── */
+.px-tit{font-family:var(--mono);font-weight:700;color:#C9CFDD;line-height:.95;
+  font-size:clamp(30px,10vw,50px);letter-spacing:.14em;
+  text-shadow:3px 3px 0 #2A2E38,6px 6px 0 rgba(0,0,0,.85)}
+.px-sub{font-family:var(--mono);font-weight:700;letter-spacing:.20em;line-height:1;
+  font-size:clamp(24px,8vw,42px);color:#D63B2A;text-shadow:3px 3px 0 #3A0C06}
+.px-sub b{display:block;color:#F5A623;font-size:.82em;margin-top:4px;
+  text-shadow:3px 3px 0 #4A2B02}
+.tapa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+  width:min(360px,88vw);margin:16px 0 14px}
+.tapa-grid .bust{aspect-ratio:1;border:2px solid #14161D;background:#05060A;
+  overflow:hidden}
+.tapa-grid .bust svg{width:100%;height:100%;display:block}
+
+/* ── título ── */
+.tt-logo{font-family:var(--mono);font-weight:700;font-size:clamp(34px,12vw,62px);
+  letter-spacing:.06em;line-height:1;color:#2C7BE5;
+  -webkit-text-stroke:2px #C79A2E;
+  text-shadow:0 4px 0 #123E7A,0 7px 0 #7A5C00}
+.tt-l2{font-family:var(--mono);font-size:clamp(10px,3.4vw,15px);letter-spacing:.24em;
+  color:#EFEFEF;margin-top:14px}
+.tt-iconos{display:flex;align-items:center;justify-content:center;gap:18px;
+  margin:16px 0 10px;font-size:clamp(32px,11vw,52px);line-height:1}
+.tt-escudo{width:clamp(42px,13vw,64px);height:auto;display:block}
+.tt-coin{font-family:var(--mono);font-weight:700;font-size:clamp(13px,4.4vw,20px);
+  letter-spacing:.20em;color:#F5C542;margin:10px 0 14px;
+  text-shadow:2px 2px 0 #4A2B02;animation:coinBlink 1.05s steps(1,end) infinite}
+@keyframes coinBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.tt-pie{font-family:var(--mono);font-size:clamp(8px,2.7vw,11px);letter-spacing:.14em;
+  color:#DADFEA;line-height:2}
+.tt-pie em{font-style:normal;color:#E2622F}
 .screen{display:none; padding:0 14px 24px; position:relative; z-index:2}
 .screen.on{display:block; animation:fade .35s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -768,6 +819,37 @@ button{font-family:inherit; color:inherit; border:0; background:none; cursor:poi
 
 <div class="led"><div class="led-track" id="led">Todo pasa</div></div>
 <div class="toast-zone" id="toasts"></div>
+
+<!-- ═══ ARRANQUE · TAPA Y TÍTULO ═══ -->
+<div class="intro on" id="intro-portada" onclick="introSiguiente()">
+  <div class="dibujo">
+    <div class="px-tit">TODO PASA</div>
+    <div class="tapa-grid" id="tapa-busts"></div>
+    <div class="px-sub">APERTURA<b>2005</b></div>
+  </div>
+  <div class="scan"></div>
+  <button class="skip" onclick="event.stopPropagation();introSaltar()">Saltear</button>
+</div>
+
+<div class="intro" id="intro-titulo" onclick="introSaltar()">
+  <div class="dibujo">
+    <div class="tt-logo">TODO PASA</div>
+    <div class="tt-l2">EL JUEGO DE LA AFA</div>
+    <div class="tt-iconos">
+      <span id="tt-escudo"></span>
+      <span>🏆</span>
+      <span>🚬</span>
+    </div>
+    <div class="tt-coin">INSERT COIN</div>
+    <div class="tt-pie">
+      Asociación del Fútbol Argentino<br>
+      © AFA PRO / GRONDONA EDITIONS<br>
+      © <em>Musa</em> 1990
+    </div>
+  </div>
+  <div class="scan"></div>
+  <button class="skip" onclick="event.stopPropagation();introSaltar()">Empezar</button>
+</div>
 
 <!-- ═══ MODO ═══ -->
 <section id="s-modo" class="screen on">
@@ -3873,6 +3955,9 @@ function nuevoJugador(){return{
   pais:"ARG",ligaCasa:"ARG",tabla:null,posLiga:0,ligaFechas:0,copaHab:"",descensos:0,tribTemp:-99,
   recopa:false,mundialClubes:false,campeonContAnio:0,zonaNom:"",compaNom:"",compaClub:"",repre:"",
   cabala:"",cabalaPart:0,enemigo:"",situVistas:[],mute:false,
+  /* v17 · bolsa de cartas, pretemporada y aguante */
+  robos:0,bolsines:[],pretempTipo:"",pretempVisto:-99,
+  dopajes:0,infiltradas:0,riesgoPend:null,dialTemp:{},
 
   afaFavor:0,idoloTemp:-99,mote:"",calor:false,
 
@@ -3972,9 +4057,55 @@ function disponibles(deck,extraFiltro){
   return d.slice(0,Math.max(1,Math.ceil(d.length/3)));
 }
 function marcar(id){
-  const v=vistoDe(id)||{n:0,t:-99};
-  v.n++;v.t=(p.temporadas||0);p.vistos[id]=v;
+  const v=vistoDe(id)||{n:0,t:-99,d:0};
+  p.robos=(p.robos||0)+1;
+  v.n++;v.t=(p.temporadas||0);v.d=p.robos;p.vistos[id]=v;
   verCarta(id);
+}
+/* ══ v17 · ROTACIÓN SIN REPETICIÓN · LA BOLSA ════════════════════════
+   Antes cada carta se robaba con rnd() puro sobre el mazo disponible:
+   salían siempre las mismas tres y había cartas que no aparecían nunca
+   en toda la carrera. Ahora cada carta anota en qué robo salió (p.robos
+   es un contador global) y el sorteo funciona como una bolsa:
+
+     1 · mientras queden cartas que nunca saliste, se roba SOLO de ahí;
+     2 · cuando la bolsa se vacía, vuelven a entrar todas, pero con peso
+         proporcional a hace cuánto no aparecen y dividido por las veces
+         que ya salieron. La que salió recién es casi imposible que
+         vuelva; la que no sale hace veinte robos entra casi seguro.
+
+   Resultado: todo el mazo aparece de forma progresiva y no se repite
+   una carta con otra fresca disponible.                              */
+function pesoPick(pesos){
+  let t=0;for(let i=0;i<pesos.length;i++)t+=pesos[i];
+  if(t<=0)return Math.floor(azar()*pesos.length);
+  let r=azar()*t;
+  for(let i=0;i<pesos.length;i++){r-=pesos[i];if(r<=0)return i;}
+  return pesos.length-1;
+}
+function robar(pool,excl){
+  if(!pool||!pool.length)return null;
+  let c=pool;
+  if(excl){const f=c.filter(x=>x.id!==excl);if(f.length)c=f;}
+  const virgenes=c.filter(x=>!vistoDe(x.id));
+  if(virgenes.length)return rnd(virgenes);
+  const robos=(p.robos||0);
+  const pesos=c.map(x=>{
+    const v=vistoDe(x.id)||{n:0,d:0};
+    const edad=Math.max(1,robos-(v.d||0));
+    return (edad*edad)/(1+(v.n||0)*(v.n||0));
+  });
+  return c[pesoPick(pesos)];
+}
+/* Lo mismo pero para listas sueltas de textos/situaciones que llevan su
+   propio registro de vistas (diálogos, locuras, cruces de la tribuna).  */
+function robarDe(lista,vistas){
+  if(!lista||!lista.length)return null;
+  let libres=lista.filter(x=>vistas.indexOf(x.id!==undefined?x.id:x)<0);
+  if(!libres.length){vistas.length=0;libres=lista.slice();}
+  const el=rnd(libres);
+  vistas.push(el.id!==undefined?el.id:el);
+  return el;
 }
 
 /* ══════════════ IDOLATRÍA POR CLUB ══════════════
@@ -4034,7 +4165,10 @@ function _prob0(o,m){
   if((p.vestuario||0)<=-55)v-=9;            /* v6: te hicieron la cama */
   else if((p.vestuario||0)>=55)v+=4;        /* v6: el vestuario te empuja */
   if(MODO==="fantasia")v+=10;
-  return Math.round(clamp(v,5,95));
+  if(banderaViva("suspendido"))v-=8;   /* v17 · venís de la sanción */
+  /* v17 · piso de contingencia: por más rota que esté la forma, una
+     jugada nunca es imposible. No se pierde un partido de arranque. */
+  return Math.round(clamp(v,14,95));
 }
 const bolita=(o,m)=>{
   if(o.fijo)return"n";
@@ -4145,7 +4279,7 @@ function faseSiguiente(){
       /* v16 · La vida no espera al final de la temporada. Cada seis o siete
          fechas se cruza algo de afuera de la cancha y después se sigue.   */
       T.vistoEx=T.vistoEx||{};
-      if(T.i>0&&T.i%4===0&&!T.vistoEx[T.i]){
+      if(T.i>0&&T.i%3===0&&!T.vistoEx[T.i]){   /* v17 · antes cada 4 fechas */
         T.vistoEx[T.i]=1;
         return cartaExtra(()=>faseSiguiente());
       }
@@ -4308,40 +4442,136 @@ const BOLSIN=[
  {id:"b_rosario",n:"Rosario de tu abuela",d:"Lo besás en el túnel",
   precio:180,agt:26,car:5,fis:3}
 ];
+/* Las cábalas se acumulan: hasta tres en el bolsín al mismo tiempo. */
+function bolsines(){
+  if(!p.bolsines){p.bolsines=p.bolsin?[p.bolsin]:[];}   /* compat saves viejos */
+  return p.bolsines;
+}
+function cabalasCompradas(){
+  return bolsines().map(id=>BOLSIN.filter(c=>c.id===id)[0]).filter(Boolean);
+}
 function cabalaComprada(){
-  if(!p.bolsin)return null;
-  return BOLSIN.filter(c=>c.id===p.bolsin)[0]||null;
+  const L=cabalasCompradas();
+  if(!L.length)return null;
+  /* una sola "equivalente" con la suma del aguante de todo el bolsín */
+  return {id:"bolsin",n:L.map(c=>c.n).join(" + "),agt:L.reduce((a,c)=>a+(c.agt||0),0)};
 }
 function tiendaBolsin(sigue){
-  const ya=cabalaComprada();
-  const lista=BOLSIN.filter(c=>c.precio<=p.plata&&c.id!==(p.bolsin||""));
-  if(!lista.length)return sigue();
+  const yaL=cabalasCompradas();
+  const TOPE=3;
+  if(yaL.length>=TOPE)return sigue();
+  const lista=BOLSIN.filter(c=>c.precio<=p.plata&&bolsines().indexOf(c.id)<0);
+  if(!lista.length){
+    if(!yaL.length)return sigue();
+    return sigue();
+  }
   const opts=baraja(lista).slice(0,4).map(c=>({
     b:c.n,s:c.d+" · U$D "+c.precio+"k",ico:"🕯",
     cb:()=>{
-      p.plata=Math.max(0,p.plata-c.precio);p.bolsin=c.id;
-      if(c.tec)subir("tec",c.tec); if(c.fis)subir("fis",c.fis); if(c.car)subir("car",c.car);
+      p.plata=Math.max(0,p.plata-c.precio);
+      bolsines().push(c.id);p.bolsin=c.id;
+      /* La cábala sube estadísticas UNA sola vez en toda la carrera: si la
+         volvés a comprar el año que viene sirve por el aguante, no por
+         volver a sumar técnica gratis todos los años.                  */
+      p.bolsinUsados=p.bolsinUsados||[];
+      if(p.bolsinUsados.indexOf(c.id)<0){
+        p.bolsinUsados.push(c.id);
+        if(c.tec)subir("tec",c.tec); if(c.fis)subir("fis",c.fis); if(c.car)subir("car",c.car);
+      }
       calcOVR();render();
       placa({eye:"EL BOLSÍN",titulo:"TE LLEVASTE "+c.n.toUpperCase(),
         sub:c.d+". Te va a acompañar todo el año, en el bolsín, donde no lo ve nadie.",
         stats:[["U$D","−"+c.precio+"k","dn"],["AGUANTE","+"+(c.agt*8),"up"]],
-        onClose:sigue});}
+        onClose:()=>tiendaBolsin(sigue)});}    /* v17 · podés seguir comprando */
   }));
-  opts.push({b:"No gastar un peso",s:ya?"Te quedás con lo que ya tenés":"Sin cábalas este año",
+  opts.push({b:yaL.length?"Cerrar el bolsín":"No gastar un peso",
+    s:yaL.length?"Salir con lo que ya tenés":"Sin cábalas este año",
     ico:"🚫",cb:()=>sigue()});
   carta({eye:"PRETEMPORADA "+p.anio,titulo:"EL BOLSÍN",ciego:1,
     texto:"Antes de que arranque todo pasás por lo del brujo del barrio. "
       +"Tenés U$D "+Math.round(p.plata)+"k en el bolsillo"
-      +(ya?" y en el bolsín todavía llevás "+ya.n.toLowerCase()+".":". "
-        +"Dicen que sin cábala no se juega en este país."),
+      +(yaL.length?" y en el bolsín ya llevás "+yaL.map(c=>c.n.toLowerCase()).join(", ")
+        +" ("+yaL.length+" de "+TOPE+").":". Dicen que sin cábala no se juega en este país."),
+    opts:opts});
+}
+
+/* ══ v17 · EL TIPO DE PRETEMPORADA ═══════════════════════════════════
+   Antes la pretemporada era una carta al azar y la plata no servía para
+   nada. Ahora lo primero que pasa es que mirás cuánta guita tenés y
+   elegís cómo te preparás: lo que no podés pagar se ve en gris, con el
+   precio, así sabés para qué estás juntando.                          */
+const PRETEMPS=[
+ {id:"pt_barrio",n:"Quedarte en el barrio",d:"Gratis. Corridas en el parque y una pelota",
+  precio:0,fis:2,forma:4,mor:4,agt:0,
+  msg:"Corriste por el parque con los pibes de siempre. Sin nada de última tecnología, pero llegaste."},
+ {id:"pt_predio",n:"Doble turno en el predio",d:"El club te banca las dos sesiones",
+  precio:45,fis:4,car:2,forma:7,agt:8,
+  msg:"Mañana y tarde en el predio. Terminaste roto pero entero."},
+ {id:"pt_playa",n:"Playa con los pibes",d:"Descanso puro · vuelve la cabeza, no las piernas",
+  precio:70,mor:16,forma:-4,car:2,agt:4,riesgo:"playa",
+  msg:"Diez días sin pensar en la pelota. Volviste liviano de cabeza y pesado de piernas."},
+ {id:"pt_altura",n:"Concentración en la altura",d:"Tres semanas arriba · pulmón nuevo",
+  precio:130,fis:6,forma:6,agt:20,
+  msg:"Tres semanas a tres mil metros. Abajo vas a respirar por dos."},
+ {id:"pt_gira",n:"Gira por Europa con el plantel",d:"Amistosos en cancha grande · te ven afuera",
+  precio:210,tec:3,forma:8,agt:10,mundo:7,
+  msg:"Cuatro amistosos, tres países y un par de tipos en la tribuna anotando tu nombre."},
+ {id:"pt_guru",n:"El gurú del preparador personal",d:"Lo más caro que hay · te arma el cuerpo",
+  precio:340,fis:5,tec:3,car:3,forma:10,agt:26,repara:8,
+  msg:"Un tipo que le trabajó a tres campeones del mundo te armó el cuerpo de cero."}
+];
+function pretempAgt(){
+  const t=PRETEMPS.filter(x=>x.id===p.pretempTipo)[0];
+  return t?(t.agt||0):0;
+}
+function menuPretemporada(sigue){
+  const plata=Math.round(p.plata);
+  const opts=PRETEMPS.map(t=>{
+    const puedo=plata>=t.precio;
+    return {b:t.n,ico:puedo?"🏃":"🔒",
+      s:t.d+(puedo?"":" · no te alcanza"),
+      stn:t.precio?("U$D "+t.precio+"k"):"GRATIS",
+      cb:()=>{
+        if(!puedo){toastTxt("No te alcanza: te faltan U$D "+(t.precio-plata)+"k");
+          return menuPretemporada(sigue);}
+        p.plata=Math.max(0,p.plata-t.precio);
+        p.pretempTipo=t.id;
+        if(t.fis)subir("fis",t.fis); if(t.tec)subir("tec",t.tec); if(t.car)subir("car",t.car);
+        if(t.forma)mod(p.stats,"forma",t.forma,10,100);
+        if(t.mor)mod(p.stats,"mor",t.mor,5,100);
+        if(t.mundo)mod(p.rep,"mundo",t.mundo);
+        if(t.repara)Object.keys(p.salud).forEach(k=>p.salud[k]=clamp(p.salud[k]+t.repara,0,100));
+        if(t.riesgo==="playa"&&dado(.30)){p.escandalos++;
+          toastTxt("Salieron las fotos de la playa en todos lados");}
+        calcOVR();render();
+        const st=[];
+        if(t.precio)st.push(["U$D","−"+t.precio+"k","dn"]);
+        if(t.forma)st.push(["FORMA",(t.forma>0?"+":"")+t.forma,t.forma>0?"up":"dn"]);
+        if(t.agt)st.push(["AGUANTE","+"+(t.agt*8),"up"]);
+        placa({eye:"PRETEMPORADA "+p.anio,titulo:t.n.toUpperCase(),sub:t.msg,
+          stats:st,onClose:sigue});
+      }};
+  });
+  carta({eye:"PRETEMPORADA "+p.anio,titulo:"¿CÓMO TE PREPARÁS?",ciego:1,
+    texto:"Arranca el año y lo primero es la plata: tenés U$D "+plata+"k. "
+      +"Lo que gastes ahora te lo cobrás durante toda la temporada; lo que no puedas pagar "
+      +"queda ahí, mirándote.",
     opts:opts});
 }
 function cartaPretemporada(){
+  /* 1 · elegís el tipo de pretemporada según lo que tengas en el bolsillo */
+  if(p.pretempVisto!==p.temporadas){
+    p.pretempVisto=p.temporadas;
+    p.bolsines=[];p.bolsin="";      /* cada año se arma el bolsín de nuevo */
+    return menuPretemporada(()=>cartaPretemporada());
+  }
+  /* 2 · el brujo y el bolsín de cábalas */
   if(p.bolsinVisto!==p.temporadas){
     p.bolsinVisto=p.temporadas;
     return tiendaBolsin(()=>cartaPretemporada());
   }
-  const c=rnd(disponibles(PRETEMP));marcar(c.id);nuevosTokens();
+  /* 3 · y recién ahí la carta de siempre */
+  const c=robar(disponibles(PRETEMP));marcar(c.id);nuevosTokens();
   c.__o=seis(c.o,"pretemp");
   carta({eye:"PRETEMPORADA "+p.anio,titulo:tokens(c.t),texto:tokens(c.x),ciego:1,
     opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"PRETEMPORADA",faseSiguiente)}))});
@@ -4351,13 +4581,14 @@ function cartaExtra(sigue){
   const seguir=sigue||cierreTemporada;
   /* v10 · una de cada nueve veces sale algo que no se explica */
   const bizarro=dado(.16);
-  const c=rnd(disponibles(bizarro?BIZARROS:EXTRA));marcar(c.id);nuevosTokens();
+  const c=robar(disponibles(bizarro?BIZARROS:EXTRA));marcar(c.id);nuevosTokens();
   c.__o=seis(c.o,"extra");
   carta({eye:bizarro?"ESTO NO PASA NUNCA":"FUERA DE LA CANCHA",titulo:tokens(c.t),texto:tokens(c.x),ciego:1,
     opts:c.__o.map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>resolverSimple(o,"POLÉMICA",seguir)}))});
 }
 
 function resolverSimple(o,eyebrow,sigue){
+  if(dado(.42))setTimeout(celu,700);      /* v17 · el teléfono no para */
   clearTimeout(tJug);
   const ok=o.fijo?true:dado(prob(o)/100);
   const ef=ok?o.ok:(o.mal||{msg:"No pasó nada"});
@@ -4674,14 +4905,18 @@ function bonusRelacion(){
    Semifinal y final de copa, y todo el Mundial.                      */
 function momento(){
   const T=p.temp,m=T.mom[T.i];
+  segundoAire();     /* v17 · nunca salís a la cancha sin nada en el tanque */
   /* v16 · antes de los que valen, el barra te manda el audio */
   if(m&&!m.apuestaVista){m.apuestaVista=1;
     if(tocaApuesta(m))return cartaApuesta(m,()=>momento());}
+  /* v17 · el médico en el túnel: infiltración o vitamina antes de salir */
+  if(tocaTunel(m))return cartaTunel(m,()=>momento());
   if(esPartidoGrande(m)&&!m.duelHecho){m.duelHecho=1;return elegirModo(m);}
   return momentoTexto();
 }
 function momentoTexto(){
   const T=p.temp,m=T.mom[T.i];
+  const total=jugadasDe(m), nro=(m.jugadas||0)+1;
   let pool=disponibles(JUGADAS,j=>j.pos.indexOf(p.pos)>=0&&(!j.comp||j.comp.indexOf(m.comp)>=0));
   if(!pool.length)pool=disponibles(JUGADAS,j=>j.pos.indexOf(p.pos)>=0);
   let cand=pool;
@@ -4689,19 +4924,22 @@ function momentoTexto(){
   /* v14 · Las situaciones del Capítulo 1 son de partido: entran acá, que
      es donde el jugador pasa el 90% del tiempo, y no una vez cada cinco
      temporadas. Sin repetir hasta agotar las sesenta.                  */
+  /* v17 · con la bolsa: nunca dos veces la misma carta en el mismo partido */
   let j;
   if(dado(.42)){
     p.situVistas=p.situVistas||[];
-    let libres=CAP1.filter(x=>p.situVistas.indexOf(x.id)<0);
-    if(!libres.length){p.situVistas=[];libres=CAP1.slice();}
-    j=rnd(libres);
+    let libres=CAP1.filter(x=>p.situVistas.indexOf(x.id)<0&&x.id!==m.ultJug);
+    if(!libres.length){p.situVistas=[];libres=CAP1.filter(x=>x.id!==m.ultJug);}
+    j=robar(libres,m.ultJug);
     p.situVistas.push(j.id);
-  }else j=rnd(cand);
+  }else j=robar(cand,m.ultJug);
+  m.ultJug=j.id;
   marcar(j.id);nuevosTokens();
   T.jug=j;T.m=m;
   if(!m.clima)m.clima=climaDelPartido();
   nuevaMision();
-  carta({eye:"TEMPORADA "+p.anio,comp:m.comp,compTxt:m.fecha,compSub:subCompetencia(m),
+  const sub=subCompetencia(m)+(total>1?" · decisión "+nro+" de "+total:"");
+  carta({eye:"TEMPORADA "+p.anio,comp:m.comp,compTxt:m.fecha,compSub:sub,
     clima:m.clima,mision:T.mision,
     titulo:tokens(j.t),texto:tokens(j.x),seg:j.seg?SEG(j.seg):0,mk:m,prog:[T.i,T.mom.length],ciego:1,
     opts:seis(j.o,"jugada").map(o=>({b:tokens(o.b),s:tokens(o.s||''),stn:o.stn,fijo:o.fijo,
@@ -4765,6 +5003,14 @@ function aplicar(ef){
   return chips.join("");
 }
 
+/* ══ v17 · CUÁNTAS DECISIONES TIENE ESTE PARTIDO ═════════════════════
+   Los partidos regulares —liga, clásico, copa hasta cuartos, fase de
+   grupos— se juegan con DOS jugadas y el resultado sale de ahí:
+   dos aciertos es victoria, dos errores es derrota y una y una se
+   define por moneda. Las semis, las finales y el Mundial siguen con
+   su propio motor y quedan afuera de esta cuenta.                    */
+function jugadasDe(m){return esPartidoGrande(m)?1:2;}
+
 function resolverJugada(o,dormido){
   clearTimeout(tJug);clearInterval(_agT);
   const T=p.temp,m=T.m;
@@ -4793,17 +5039,65 @@ function resolverJugada(o,dormido){
   if(ef.gol)m.mk[0]++;
   if(ef.gol_rival)m.mk[1]++;
 
+  /* v17 · llevo la cuenta de las decisiones del partido */
+  const total=jugadasDe(m);
+  m.jugadas=(m.jugadas||0)+1;
+  m.aciertos=(m.aciertos||0)+((ok&&!dormido)?1:0);
+
+  const tit=dormido?"TE DORMISTE":tokens(ef.msg||(ok?"SALIÓ":"NO SALIÓ"));
+  const cls=dormido?"no":(ok?"ok":"no");
+  const bajada=dormido?"Te quedaste pensando y la pelota pasó de largo. Así no se llega."
+    :(ok?"Te salió. La gente se acuerda de estas.":"No salió. Mañana lo pasan en loop en la tele.");
+
+  let h='<div class="card"><div class="eyebrow"><span>'+m.fecha+'</span><em>MIN '+m.min+'</em></div>';
+  h+='<div class="res"><h4 class="'+cls+'">'+tit.toUpperCase()+'</h4><p>'+bajada+'</p>';
+  if(chips)h+='<div class="chips2">'+chips+'</div>';
+  h+='</div>';
+
+  /* ── Falta la segunda jugada: el partido sigue, todavía no hay resultado ── */
+  if(m.jugadas<total){
+    const van=m.aciertos;
+    h+='<div class="res"><h4>SIGUE EL PARTIDO · '+m.jugadas+' DE '+total+'</h4>'
+      +'<p>vs '+m.rival.n+' · va '+m.mk[0]+'-'+m.mk[1]+' y queda una pelota más.</p>'
+      +'<p class="cnota">'+(van>=1
+        ? "La primera te salió. Si metés la que viene, el partido es tuyo."
+        : "La primera no salió. Necesitás la que viene para no perderlo.")+'</p></div>';
+    h+='<button class="cta" id="btn-seguir">Ir a la segunda pelota</button></div>';
+    const pintar2=()=>{
+      const c=document.getElementById("cartas");c.innerHTML=h;
+      const bs=document.getElementById("btn-seguir");if(bs)bs.onclick=()=>segundaJugada(m);
+      calcOVR();render();
+      c.scrollIntoView({behavior:"smooth",block:"end"});
+    };
+    if((ef.gol||ef.roja)&&dado(.28)){
+      const cz=document.getElementById("cartas");
+      if(cz)cz.innerHTML='<div class="card"><div class="res"><h4>REVISANDO VAR…</h4>'
+        +'<p>El árbitro se fue al monitor. Aguantá.</p></div></div>';
+      var_(pintar2);
+    }else pintar2();
+    feedDe("jugada",{gol:!!ef.gol,roja:!!ef.roja,fallo:!ok&&!dormido});
+    /* v17 · el celu suena mucho más seguido: también en el entretiempo */
+    if(dado(.46))setTimeout(celu,900);
+    return;
+  }
+
+  /* ── Última decisión: acá se define el partido ── */
   const rest=Math.max(0,90-m.min);
   /* v10 · si el Jefe te debe una, el árbitro cobra distinto. Y si le
      declaraste la guerra, te la cobran: salvo que tengas el audio.   */
   const venganza=banderaViva("afa_venganza")?(banderaViva("tengo_audio")?0.04:0.11):0;
   const fav=clamp((p.afaFavor||0)/340-venganza,-.34,.28);
-  /* v13 · el resultado lo deciden tus dos jugadas del partido */
+  /* v17 · el resultado lo deciden tus jugadas del partido */
   let res;
-  if(m.aciertos>=2)res="gano";
-  else if(m.aciertos<=0)res="perdio";
-  else res=dado(0.5+fav*0.5)?"gano":"perdio";     /* la moneda invisible */
-  m.moneda=(m.aciertos===1);
+  if(total>=2){
+    if(m.aciertos>=2)res="gano";
+    else if(m.aciertos<=0)res="perdio";
+    else res=dado(0.5+fav*0.5)?"gano":"perdio";     /* la moneda al aire */
+    m.moneda=(m.aciertos===1);
+  }else{
+    res=(ok&&!dormido)?"gano":(dado(0.5+fav*0.5)?"gano":"perdio");
+    m.moneda=!(ok&&!dormido);
+  }
   if(res==="gano")m.mk[0]=Math.max(m.mk[0],m.mk[1]+1);
   else m.mk[1]=Math.max(m.mk[1],m.mk[0]+1);
   if(m.comp==="clasico"&&res==="gano"&&p.club!=="Libre")hist(p.club).cla++;
@@ -4814,19 +5108,14 @@ function resolverJugada(o,dormido){
   if(m.liga)avanzarFechaLiga(m.mk[0],m.mk[1]);   /* v12 · tabla en vivo */
   if(m.cup==="pliga")playoffLigaProgreso(m,res);
 
-  const tit=dormido?"TE DORMISTE":tokens(ef.msg||(ok?"SALIÓ":"NO SALIÓ"));
-  const cls=dormido?"no":(ok?"ok":"no");
   const resTxt=(res==="gano"?"GANARON ":res==="perdio"?"PERDIERON ":"EMPATE ")+m.mk[0]+"-"+m.mk[1];
-  const notaJug=m.aciertos>=2?"Las dos jugadas te salieron. Así se gana."
+  const notaJug=total<2?(res==="gano"?"Partido grande: se definió en una sola pelota."
+      :"Partido grande: una sola pelota y se te escapó.")
+    :m.aciertos>=2?"Las dos jugadas te salieron. Así se gana."
     :m.aciertos<=0?"No te salió ninguna de las dos. Así se pierde."
     :"Una sí y una no. Se definió por moneda y "+(res==="gano"?"salió cara.":"salió ceca.");
 
-  let h='<div class="card"><div class="eyebrow"><span>'+m.fecha+'</span><em>MIN '+m.min+'</em></div>';
-  h+='<div class="res"><h4 class="'+cls+'">'+tit.toUpperCase()+'</h4><p>'
-    +(dormido?"Te quedaste pensando y la pelota pasó de largo. Así no se llega."
-      :(ok?"Te salió. La gente se acuerda de estas.":"No salió. Mañana lo pasan en loop en la tele."))+'</p>';
-  if(chips)h+='<div class="chips2">'+chips+'</div>';
-  h+='</div><div class="res"><h4 class="'+(res==="gano"?"ok":res==="perdio"?"no":"")+'">'+resTxt+'</h4>'
+  h+='<div class="res"><h4 class="'+(res==="gano"?"ok":res==="perdio"?"no":"")+'">'+resTxt+'</h4>'
     +'<p>vs '+m.rival.n+' · '+m.fecha.toLowerCase()+'</p>'
     +'<p class="cnota">'+notaJug+'</p>'+notaCopa(m,res)+'</div>';
   if(m.cup==="cont"&&T.copa&&T.copa.msgTabla){h+=T.copa.msgTabla;T.copa.msgTabla=null;}
@@ -4844,11 +5133,18 @@ function resolverJugada(o,dormido){
       +'<p>El árbitro se fue al monitor. Aguantá.</p></div></div>';
     var_(pintar);
   }else pintar();
-  const c=document.getElementById("cartas");
   feedDe("jugada",{gol:!!ef.gol,roja:!!ef.roja,fallo:!ok&&!dormido});
-  if(dado(.20))setTimeout(celu,900);          /* v12 · te escribe el celu */
+  /* v17 · recién con el partido terminado se paga lo que te tomaste */
+  setTimeout(()=>cobrarRiesgos(res),700);
+  /* v17 · el celu suena mucho más seguido que antes */
+  if(dado(.46))setTimeout(celu,900);
   /* El karma vuelve en el pico, nunca en un partido cualquiera */
   if(m.peso>=3&&karmaPendiente())setTimeout(()=>dispararKarma("la final",()=>{}),700);
+}
+/* La segunda pelota del mismo partido: avanza el reloj y roba otra carta */
+function segundaJugada(m){
+  m.min=clamp(m.min+ri(18,40),m.min+8,92);
+  momentoTexto();
 }
 /* v10 · qué pasó con la llave después de este partido */
 /* v10 · La bajada del cartel dice en qué instancia estás, no repite el
@@ -4894,6 +5190,8 @@ function notaCopa(m,res){
 }
 function avanzarMomento(){
   if(!p.temp)return finTurno();   /* v12 · la temporada ya cerró: no rompas */
+  p.aguanteExtra=0;               /* v17 · lo del túnel valía para ESE partido */
+  cobrarRiesgos("fin");           /* y si quedó algo sin cobrar, se cobra acá */
   p.temp.i++;faseSiguiente();
 }
 
@@ -4978,7 +5276,7 @@ const TRIB_CRUCES=[
 ];
 let _trib=null,_tribT=null;
 function tocaTribunero(){
-  return p.temporadas>0&&p.temporadas%5===0&&p.edad>=18&&p.club!=="Libre"
+  return p.temporadas>0&&p.temporadas%3===0&&p.edad>=18&&p.club!=="Libre"
     &&p.tribTemp!==p.temporadas&&todosLosDeLaGeneracion().length>=2;
 }
 function programaTribunero(){
@@ -5270,11 +5568,12 @@ function tocaApuesta(m){
   if(!m||p.club==="Libre")return false;
   if(p.banderas&&banderaViva("sancionApuesta"))return false;
   const grande=(m.comp==="clasico"||m.comp==="final"||(m.peso||0)>=2);
-  if(!grande)return false;
-  return dado(m.comp==="clasico"?.30:.16);
+  /* v17 · el barra también aparece en una fecha cualquiera, con menos plata */
+  if(!grande)return dado(.14);
+  return dado(m.comp==="clasico"?.50:.34);
 }
 function cartaApuesta(m,sigue){
-  const b=barraDe(p.club), ap=rnd(disponibles(APUESTAS));
+  const b=barraDe(p.club), ap=robar(disponibles(APUESTAS));
   const plata=ri(ap.pago[0],ap.pago[1]);
   marcar(ap.id);
   const cerrar=()=>{p.evTemp=p.temporadas;sigue();};
@@ -5884,7 +6183,7 @@ function chisme(txt,delta,ap){
 function eventosCruzados(){
   const G=todosLosDeLaGeneracion(); if(G.length<2)return;
   /* 1 · alguien habla DE VOS */
-  if(dado(.55)){
+  if(dado(.88)){          /* v17 · antes .55: hablaban de vos una temporada sí y otra no */
     const q=rnd(G), bueno=dado(clamp(.58+rel(q.ap)/420+(q.ovr-p.ovr)/-260,.28,.86));
     const t=(bueno?rnd(ELOGIOS):rnd(CRITICAS)).replace("{A}","vos");
     modRel(q.ap,bueno?ri(7,15):-ri(6,13));
@@ -5894,8 +6193,8 @@ function eventosCruzados(){
   }
   /* 2 · v8 · dos cruces por temporada entre ellos: la camada tiene su
      propia novela y no gira alrededor tuyo                            */
-  for(let n=0;n<2;n++){
-    if(!dado(n?.55:.85))continue;
+  for(let n=0;n<3;n++){   /* v17 · tres cruces por temporada en vez de dos */
+    if(!dado(n===0?.95:n===1?.80:.55))continue;
     const a=rnd(G); let b=rnd(G); let g=0;
     while(b.ap===a.ap&&g++<8)b=rnd(G);
     if(b.ap===a.ap)continue;
@@ -6373,6 +6672,7 @@ function finTurno(){
   const bs=document.getElementById("btn-sobre");
   if(bs){bs.style.display=puedeSobre()?"block":"none";
     bs.textContent="Mover un sobre en la prensa · U$D "+p.plata+"k";}
+  if(dado(.62))setTimeout(celu,1200);     /* v17 · el celu también entre temporadas */
   const b=document.getElementById("btn-jugar");
   b.style.display="block";
   b.textContent=(p.dt&&p.dt.activo)?"Dirigir temporada "+p.anio
@@ -6481,7 +6781,7 @@ function dtFase(){
   cierreDT();
 }
 function dtCarta(deck,eye){
-  const c=rnd(disponibles(deck));marcar(c.id);
+  const c=robar(disponibles(deck));marcar(c.id);
   carta({eye:eye,titulo:c.t,texto:c.x,seg:SEG(c.seg),ciego:1,
     opts:seis(c.o,"dt").map(o=>({b:tokens(o.b),s:tokens(o.s||''),fijo:o.fijo,cb:()=>dtResolver(o,eye)})),
     onTimeout:c.seg?()=>dtResolver(null,eye):null});
@@ -8153,7 +8453,7 @@ const MUNDIAL_ERA=[
 ];
 function escenaMundial(sigue){
   const S=sedeMundial(p.anio);
-  const c=rnd(disponibles(MUNDIAL_ERA));marcar(c.id);nuevosTokens();
+  const c=robar(disponibles(MUNDIAL_ERA));marcar(c.id);nuevosTokens();
   carta({eye:"\ud83c\udfc6 COPA DEL MUNDO "+p.anio,comp:"inter",
     compTxt:"COPA DEL MUNDO "+p.anio,compSub:"sede: "+S[0],ciego:1,
     titulo:tokens(c.t),texto:S[1]+" "+tokens(c.x),
@@ -9996,14 +10296,25 @@ function fondoRayas(now,colA,colB){
 
 /* ── 7 · ESCENAS ─────────────────────────────────────────────────── */
 function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
-const ESC_J=1.7;                    /* cuánto se agranda cada jugador */
+/* ══ v17 · ESCALA DE LOS JUGADORES ═══════════════════════════════════
+   Los muñecos de v16 ocupaban media pantalla: tapaban la cancha, se
+   comían las líneas y el arco. Ahora se dibujan bastante más chicos,
+   con la misma cantidad de píxeles, y quedan apoyados sobre el pasto:
+   dibJ() recibe la MISMA Y de siempre y la baja AJ píxeles, que es
+   justo lo que se achicó el sprite, así los pies no quedan flotando. */
+const ESC_J=1.12;                   /* antes 1.7 · jugadores chicos y estilizados */
+const ESC_J_ANT=1.7;
+const AJ=Math.round(32*(ESC_J_ANT-ESC_J));   /* los pies siguen en la misma línea */
+function dibJ(x,y,kit,pose,f,dir,esc,sinSombra){
+  dibJugador(x,y+AJ,kit,pose,f,dir,esc===undefined?ESC_J:esc,sinSombra);
+}
 function escPresentacion(D){
   return {dur:3000,draw:(t,now)=>{
     TSU.cam=(TSU.mundo-TSU.W)*ease(t);
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/110);
-    for(let i=0;i<6;i++)dibJugador(mx(60+i*86),60+((i*37)%20),D.loc,"corre",f+i,1,ESC_J);
-    for(let i=0;i<6;i++)dibJugador(mx(104+i*84),80-((i*41)%18),D.vis,"corre",f+i*2,-1,ESC_J);
+    for(let i=0;i<6;i++)dibJ(mx(60+i*86),60+((i*37)%20),D.loc,"corre",f+i,1,ESC_J);
+    for(let i=0;i<6;i++)dibJ(mx(104+i*84),80-((i*41)%18),D.vis,"corre",f+i*2,-1,ESC_J);
     const a=t<.14?t/.14:t>.88?(1-t)/.12:1;
     TSU.g.globalAlpha=Math.max(0,a);
     caja(14,PISO+8,TSU.W-28,40);
@@ -10021,12 +10332,12 @@ function escAvance(D,desde,hasta,mio){
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/70), yy=72;
     const kit=mio?D.loc:D.vis, kit2=mio?D.vis:D.loc;
-    dibJugador(mx(wx-96*dir),60,kit,"corre",f+1,dir,ESC_J);
-    dibJugador(mx(wx-54*dir),82,kit,"corre",f+3,dir,ESC_J);
-    dibJugador(mx(wx+74*dir),60,kit2,"corre",f+2,-dir,ESC_J);
-    dibJugador(mx(wx+118*dir),82,kit2,"corre",f,-dir,ESC_J);
-    dibJugador(mx(wx),yy,kit,"corre",f,dir,ESC_J);
-    dibPelota(mx(wx)+(dir>0?32:-2),yy+48+Math.abs(Math.sin(now/85))*3,4);
+    dibJ(mx(wx-96*dir),60,kit,"corre",f+1,dir,ESC_J);
+    dibJ(mx(wx-54*dir),82,kit,"corre",f+3,dir,ESC_J);
+    dibJ(mx(wx+74*dir),60,kit2,"corre",f+2,-dir,ESC_J);
+    dibJ(mx(wx+118*dir),82,kit2,"corre",f,-dir,ESC_J);
+    dibJ(mx(wx),yy,kit,"corre",f,dir,ESC_J);
+    dibPelota(mx(wx)+(dir>0?22:-1),yy+52+Math.abs(Math.sin(now/85))*2,3);
     dibHud(D);
   }};
 }
@@ -10058,9 +10369,9 @@ function escEspera(D,mio){
     const wx=wxDe(D.pos);camA(wx,true);
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/230), dir=mio?1:-1;
-    dibJugador(mx(wx)+(mio?44:-44),66,kit2,"quieto",f+1,-dir,ESC_J);
-    dibJugador(mx(wx),72,kit,"quieto",f,dir,ESC_J);
-    dibPelota(mx(wx)+(dir>0?32:-2),120+Math.sin(now/230)*1.5,4);
+    dibJ(mx(wx)+(mio?44:-44),66,kit2,"quieto",f+1,-dir,ESC_J);
+    dibJ(mx(wx),72,kit,"quieto",f,dir,ESC_J);
+    dibPelota(mx(wx)+(dir>0?22:-1),125+Math.sin(now/230)*1.2,3);
     dibHud(D);
     dibMenu(D,now);
   }};
@@ -10078,9 +10389,9 @@ function escDuelo(D,mio,ok,esp){
     const poseA=!ok?(t>.5?"caido":"corre"):"corre";
     const poseB=(gana===mio)?(t>.5?"barrida":"corre"):"corre";
     if(t>.36&&t<.43){temblor(3);chispazo("#FCD800",.30);}
-    dibJugador(xB,poseB==="barrida"?80:66,kit2,poseB,f+2,-dir,ESC_J);
-    dibJugador(xA,poseA==="caido"?82:72,kit,poseA,f,dir,ESC_J);
-    dibPelota((gana===mio?xA:xB)+(dir>0?32:-2),118+Math.abs(Math.sin(now/70))*4,4);
+    dibJ(xB,poseB==="barrida"?80:66,kit2,poseB,f+2,-dir,ESC_J);
+    dibJ(xA,poseA==="caido"?82:72,kit,poseA,f,dir,ESC_J);
+    dibPelota((gana===mio?xA:xB)+(dir>0?22:-1),124+Math.abs(Math.sin(now/70))*3,3);
     if(t>.43&&esp){
       TSU.g.globalAlpha=Math.max(0,1-(t-.43)*1.8);
       caja(12,PISO-16,TSU.W-24,22);
@@ -10114,11 +10425,11 @@ function escRemate(D,ok,nombre,mio){
     P(ax-3,ay-3,aw+6,3,PAL.blanco);
     const lado=(D.ladoTiro||1);
     const tv=clamp((t-.30)/.38,0,1);
-    const ez=1.5*z;
+    const ez=1.15*z;
     const kx=ax+aw/2-9*ez+(ok?-lado*12:lado*(30+40*tv))*z;
     const ky=ay+ah-30*ez-(ok?0:16*tv*z);
     dibArquero(kx,ky,tv>.12?"vuela":"quieto",Math.floor(now/90),lado>0?1:-1,ez);
-    if(t<.40)dibJugador(W/2-16,ACCION-56,kitT,t<.20?"corre":"patea",Math.floor(now/60),1,1.9,0);
+    if(t<.40)dibJugador(W/2-11,ACCION-44,kitT,t<.20?"corre":"patea",Math.floor(now/60),1,1.35,0);
     const bt=clamp((t-.16)/.52,0,1), be=bt*bt;
     const bx0=W/2, by0=ACCION-14;
     const bx1=ax+aw/2+lado*(ok?aw*0.34:aw*0.30);
@@ -10153,7 +10464,7 @@ function escFestejo(D,mio){
     dibCancha(now,D.est,TSU.cam);
     const f=Math.floor(now/80);
     for(let i=0;i<5;i++)
-      dibJugador(mx(wc-80+i*40),60+((i*29)%22),kit,i===2?"salta":"corre",f+i,mio?1:-1,ESC_J);
+      dibJ(mx(wc-80+i*40),60+((i*29)%22),kit,i===2?"salta":"corre",f+i,mio?1:-1,ESC_J);
     for(let i=0;i<52;i++){
       const px=(i*53+now/6)%TSU.W, py=((i*91)+now/3.2)%(ACCION-BARRA)+BARRA;
       P(px,py,2,3,[PAL.amar,PAL.blanco,PAL.naranja,"#3DDC97"][i%4]);
@@ -10171,7 +10482,7 @@ function escFinal(D,res){
     const f=Math.floor(now/130);
     const kit=res==="perdio"?D.vis:D.loc;
     for(let i=0;i<6;i++)
-      dibJugador(mx(46+i*84),60+((i*33)%20),kit,res==="empate"?"quieto":"salta",f+i,1,ESC_J);
+      dibJ(mx(46+i*84),60+((i*33)%20),kit,res==="empate"?"quieto":"salta",f+i,1,ESC_J);
     if(res!=="perdio")for(let i=0;i<44;i++){
       const px=(i*61+now/7)%TSU.W, py=((i*83)+now/3.6)%(ACCION-BARRA)+BARRA;
       P(px,py,2,3,[PAL.amar,PAL.blanco,"#3DDC97"][i%3]);
@@ -10323,9 +10634,53 @@ function duelOpts(mazo,tipo){
       +'<span class="t"><b>'+tokens(k.n)+'</b><small>'+k.d+'</small></span>'
       +'<span class="cost">'+(k.g*8)+' G</span></button>';
   });
+  /* v17 · sin lienzo el aguante también es una opción más de la lista */
+  if(_du&&tipo){
+    h+='<button class="opt" id="d-agt"><span class="n">AG</span>'
+      +'<span class="t"><b>Aguante</b><small>Bidón, aguja o vitamina · '
+      +Math.round(_du.guts*8)+' de aguante</small></span>'
+      +'<span class="cost">0 G</span></button>';
+  }
   e.innerHTML=h;
   mazo.forEach((k,i)=>{const el=document.getElementById("d"+i);
     if(el)el.onclick=()=>{buzz(12);sonTic();duelOpts([]);duelResolver(k,tipo);};});
+  const ag=document.getElementById("d-agt");
+  if(ag)ag.onclick=()=>{buzz(12);sonTic();duelAguanteHTML(tipo,mazo);};
+}
+/* La misma decisión de aguante, pero con botones: para cuando el canvas
+   no está disponible y el partido grande se juega en lista.           */
+function duelAguanteHTML(tipo,mazo){
+  const D=_du; if(!D)return;
+  const e=document.getElementById("du-opts"); if(!e)return;
+  const volver=()=>duelOpts(mazo,tipo);
+  const items=[["TOMAR AIRE","Diez segundos y perdés metros","aire"]];
+  if(!D.bidon)items.push(["EL BIDÓN DEL UTILERO","Agua y sales · una sola vez","bidon"]);
+  if(!D.infil&&!p.riesgoPend)items.push(["INFILTRARSE","Aguante al tope · se paga después","infil"]);
+  if(!D.dopado&&!p.riesgoPend&&!banderaViva("suspendido"))
+    items.push(["LA VITAMINA","Aguante al tope y más puntería · hay control","dopa"]);
+  items.push(["VOLVER A LA JUGADA","Salir sin tocar nada","volver"]);
+  e.innerHTML=items.map((it,i)=>'<button class="opt" id="a'+i+'">'
+    +'<span class="n">0'+(i+1)+'</span><span class="t"><b>'+it[0]+'</b>'
+    +'<small>'+it[1]+'</small></span></button>').join("");
+  items.forEach((it,i)=>{
+    const el=document.getElementById("a"+i); if(!el)return;
+    el.onclick=()=>{
+      buzz(12);sonTic();
+      const k=it[2];
+      if(k==="aire"){D.guts=clamp(D.guts+Math.round(D.gmax*0.14),0,D.gmax);
+        duelTexto("MANOS EN LAS RODILLAS","Pediste diez segundos y volviste con aire.","");}
+      else if(k==="bidon"){D.bidon=1;D.guts=clamp(D.guts+Math.round(D.gmax*0.26),0,D.gmax);
+        duelTexto("AGUA Y SALES","Un trago largo del bidón del utilero y el cuerpo arranca.","ok");}
+      else if(k==="infil"){D.infil=1;const z=zonaMasRota();anotarRiesgo("infiltracion",z);
+        D.guts=D.gmax;D.piso=Math.round(D.gmax*0.34);
+        duelTexto("TE PINCHAN EN LA LINEA","Dos pinchazos y adentro: "+zonaTxt(z)
+          +" ya no existe hasta el pitazo final.","ok");}
+      else if(k==="dopa"){D.dopado=1;anotarRiesgo("dopaje",zonaMasRota());
+        D.guts=D.gmax;D.piso=Math.round(D.gmax*0.30);
+        duelTexto("UN VASITO Y ADENTRO","Nadie miró. Las piernas te van solas.","ok");}
+      volver();
+    };
+  });
 }
 function duelBoton(txt,cb){
   const e=document.getElementById("du-opts");if(!e)return;
@@ -10338,9 +10693,15 @@ function duelIniciar(m,cb,op){
   clearTimeout(tJug);clearInterval(_agT);   /* nada de relojes viejos encima */
   op=op||{};
   const _bol=cabalaComprada();
-  const aguante=clamp(104+Math.round((p.stats.fis-55)*0.40)+(_bol?_bol.agt:0),88,158);
+  /* v17 · el aguante lo arma todo lo que hiciste antes: el cuerpo, el
+     bolsín del brujo, el tipo de pretemporada que pagaste y lo que te
+     tomaste en el túnel. Y nunca arranca en cero.                     */
+  const aguante=clamp(104+Math.round((p.stats.fis-55)*0.40)+(_bol?_bol.agt:0)
+    +pretempAgt()+(p.aguanteExtra||0)+penalDopaje(),92,230);
+  p.aguanteExtra=0;
   _du={m:m,cb:cb,cierre:op.cierre||null,
-    guts:aguante,gmax:aguante,turno:0,total:op.total||7,
+    guts:aguante,gmax:aguante,piso:Math.round(aguante*AGT_PISO),
+    bidon:0,infil:0,dopado:0,fundido:0,turno:0,total:op.total||7,
     gol:0,golRival:0,pos:50,mia:true,min:1,ladoTiro:1,hist:[],
     riv:op.riv||rivalDelDuelo(m),
     est:op.est||(m.comp==="final"?estadioNeutral():estadioDe(p.club)),
@@ -10349,7 +10710,8 @@ function duelIniciar(m,cb,op){
   armarFormaciones(_du);
   duelPantalla();
   duelTexto("SALEN A LA CANCHA","Se juega en "+_du.est.n+". "
-    +"Cada carta te cuesta aguante: si te quedás en cero no ganás una pelota. "
+    +"Cada carta te cuesta aguante, pero nunca te quedás en cero: abajo del piso se juega "
+    +"a pulmón y se paga. En el menú de AGUANTE tenés el bidón, la aguja y lo otro. "
     +"Llegá al área y definí.");
   if(!tsuArranca()){silbato();return duelTurno();}   /* sin canvas, se juega igual */
   silbato();
@@ -10420,15 +10782,18 @@ function tocaVestuario(D){
   if(!D||D.vestHecho)return false;
   if(D.turno!==Math.floor(D.total/2))return false;
   const salud=Math.min.apply(null,Object.values(p.salud));
+  /* v17 · el entretiempo es donde se habla: sale siempre que haya algo
+     que contar y, si no lo hay, igual sale dos de cada tres veces.   */
   return D.golRival>D.gol || D.m.comp==="clasico" || D.m.comp==="final"
-    || p.stats.forma<=42 || salud<45;
+    || p.stats.forma<=42 || salud<45 || dado(.66);
 }
 function duelVestuario(D,sigue){
   D.vestHecho=1;
   const pool=(D.golRival>D.gol)
     ? VESTUARIO.filter(c=>c.id==="v_perdiendo").concat(VESTUARIO)
     : VESTUARIO;
-  const c=rnd(pool); nuevosTokens();
+  p.vestVistos=p.vestVistos||[];
+  const c=robarDe(pool,p.vestVistos)||rnd(pool); nuevosTokens();
   menuCerrar();
   tsuEscena(escEspera(D,D.mia));
   duelTexto("ENTRETIEMPO · "+tokens(c.t),
@@ -10462,7 +10827,7 @@ function duelTurno(){
   if(tocaVestuario(D))return duelVestuario(D,()=>duelTurno());
   if(D.turno>=D.total)return duelFinal();
   D.min=clamp(Math.round(4+D.turno*(86/D.total))+ri(0,3),1,94);
-  if(D.turno)D.guts=clamp(D.guts+11,0,D.gmax);      /* aire entre jugada y jugada */
+  if(D.turno)D.guts=clamp(Math.max(D.guts,D.piso||0)+11,0,D.gmax);  /* aire entre jugada y jugada */
   const desde=D.pos;
   let hasta;
   if(D.mia)hasta=clamp(desde+ri(6,14),8,86);
@@ -10527,6 +10892,8 @@ function menuNivel1(D,tipo){
     return {t:nom,g:0,
       cb:()=>menuCartas(D,nom,grupo,tipo,()=>menuNivel1(D,tipo))};
   });
+  /* v17 · el aguante es un comando más: bidón, aguja o vitamina */
+  items.push({t:"AGUANTE",g:0,cb:()=>menuAguante(D,()=>menuNivel1(D,tipo))});
   menuAbrir(D,ataca?(tipo==="tiro"?"¡ESTAS EN EL AREA!":"¿QUE HACES?"):"¿COMO LO PARAS?",items);
 }
 function menuCartas(D,tit,grupo,tipo,volver){
@@ -10540,22 +10907,31 @@ function menuCartas(D,tit,grupo,tipo,volver){
 }
 function duelProb(k){
   const D=_du;
-  const sinAire=D.guts<k.g;
-  D.guts=clamp(D.guts-(sinAire?D.guts:k.g),0,D.gmax);
+  const piso=D.piso||0;
+  /* v17 · PISO MÍNIMO DE AGUANTE. Antes la carta te dejaba en cero
+     absoluto y con −36 de probabilidad: era perder el partido sin poder
+     hacer nada. Ahora el aguante nunca baja del piso; si la jugada no
+     te entra en el aire que te queda, la jugás igual a pulmón, con una
+     penalidad chica que crece si insistís. Siempre podés seguir.     */
+  const sinAire=(D.guts-k.g)<piso;
+  D.guts=Math.max(piso,D.guts-k.g);
+  if(sinAire)D.fundido=(D.fundido||0)+1;
   const mio=(p.stats[k.st]||55)+(p.ovr-62)*0.40;
   const suyo=(D.riv[k.st]||60);
   let pr=k.base+(mio-suyo)*0.55+(D.guts/D.gmax-0.5)*22;
-  if(sinAire)pr-=36;
+  if(sinAire)pr-=14+Math.min(14,(D.fundido-1)*4);
+  if(D.dopado)pr+=12;
+  if(D.infil)pr+=7;
   if(enLlamas())pr+=15;
   const cab=cabalaActiva(); if(cab&&cab[k.st])pr+=cab[k.st];
-  return {ok:dado(clamp(pr,5,93)/100),sinAire:sinAire};
+  return {ok:dado(clamp(pr,14,93)/100),sinAire:sinAire};
 }
 function duelResolver(k,tipo){
   const D=_du;
   const r=duelProb(k), ok=r.ok, sinAire=r.sinAire;
   rachaSuma(ok);
   D.hist.push({ok:ok,n:k.n});
-  const nota=sinAire?" Estabas sin aguante y la jugaste a pulmón.":"";
+  const nota=sinAire?" Estabas en el piso de aguante y la jugaste a pulmón.":"";
   if(tipo==="tiro")return duelTiro(k,ok,nota);
   if(tipo==="ultima")return duelUltima(k,ok,nota);
   if(tipo==="ataque")return duelAtaque(k,ok,nota);
@@ -10687,6 +11063,12 @@ function duelCierre(res){
   }
   mod(p.rep,"local",res==="gano"?12:res==="perdio"?-8:0);
   if(m.comp==="clasico"&&res==="gano"&&p.club!=="Libre")hist(p.club).cla++;
+  /* v17 · lo que te pinchaste o te tomaste se paga cuando termina */
+  if((D.fundido||0)>=3&&dado(.34)){
+    const z=zonaMasRota();p.salud[z]=clamp(p.salud[z]-ri(5,12),0,100);
+    toastTxt("Jugaste fundido: lo vas a sentir mañana");
+  }
+  setTimeout(()=>cobrarRiesgos(res),500);
   copaProgreso(m,res);
   if(m.cup==="pliga")playoffLigaProgreso(m,res);
   if(p.apuesta)setTimeout(()=>cobrarApuesta(res),60);
@@ -10696,6 +11078,9 @@ function duelCierre(res){
   const sigue=D.cb;
   duelBoton("Seguir",()=>{_du=null;if(sigue)sigue();});
   feedDe("jugada",{gol:D.gol>0,roja:false,fallo:res==="perdio"});
+  /* v17 · después del partido grande siempre hay alguien escribiendo */
+  setTimeout(celu,1100);
+  if(dado(.42))setTimeout(()=>celuBarra(barraDe(p.club),rnd(BARRA_FRASE)),2600);
 }
 
 /* ══════ v14 · CAMISETA DIBUJADA · SVG, con el patrón real del club ══ */
@@ -10931,9 +11316,14 @@ const CELU_MSJ=[
  {q:"Tu viejo",t:"Vi el partido en el bar. Andá a marcar más al 10 de ellos"}
 ];
 let _celuT=null;
+/* v17 · Los diálogos son los mismos de siempre, pero suenan mucho más
+   seguido y en muchos más momentos del juego: entretiempo, cierre de
+   partido, pretemporada, mercado y fin de temporada. Y rotan sin
+   repetirse hasta agotar la lista.                                   */
 function celu(){
   try{
-    const m=rnd(CELU_MSJ);
+    p.celuVistos=p.celuVistos||[];
+    const m=robarDe(CELU_MSJ,p.celuVistos)||rnd(CELU_MSJ);
     const old=document.querySelector(".celu"); if(old)old.remove();
     const d=document.createElement("div"); d.className="celu";
     d.innerHTML='<span style="font-size:18px;line-height:1">💬</span>'
@@ -10985,6 +11375,178 @@ function equiparCabala(id){
 }
 function gastarCabala(){
   if(p.cabalaPart>0){p.cabalaPart--;if(p.cabalaPart===0){p.cabala="";toastTxt("Se te acabó la cábala");}}
+}
+/* ══════════════════════════════════════════════════════════════════
+   v17 · EL AGUANTE, DE NUEVO
+   ------------------------------------------------------------------
+   Tres cosas cambian respecto de antes:
+
+   1 · PISO MÍNIMO. El aguante ya no puede llegar a cero absoluto.
+       Siempre queda un piso (AGT_PISO del máximo) y, si una carta te
+       deja abajo, la jugás igual "a pulmón": pagás una penalidad, pero
+       nunca quedás bloqueado ni perdés el partido de arranque por
+       falta de aire mientras venías ganando.
+   2 · SEGUNDO AIRE. Fuera de la cancha pasa lo mismo con la forma:
+       si venís por el piso, el cuerpo te devuelve lo justo para
+       poder jugar el partido que viene.
+   3 · RIESGO / RECOMPENSA. Podés infiltrarte o doparte, antes o
+       durante el partido, para recuperar aguante de golpe. Sale
+       carísimo después: la infiltración te rompe la zona que
+       tapaste y el dopaje te puede dar positivo en el control.
+   ══════════════════════════════════════════════════════════════════ */
+const AGT_PISO=0.20;          /* nunca bajás de este % del máximo */
+const FORMA_PISO=22;          /* ni de esta forma antes de un partido */
+
+function segundoAire(){
+  if(p.stats.forma<FORMA_PISO){
+    p.stats.forma=FORMA_PISO;
+    toastTxt("Segundo aire: el cuerpo te da para una más");
+  }
+}
+const ZONAS_RIESGO=["pubis","isqL","isqR","rodL","rodR","gemL","gemR","tobL","tobR"];
+/* "el isquiotibial derecho" se lee mejor que "Isquiotibial Der" */
+const ZONA_FRASE={pubis:"el pubis",isqL:"el isquiotibial izquierdo",isqR:"el isquiotibial derecho",
+  rodL:"la rodilla izquierda",rodR:"la rodilla derecha",gemL:"el gemelo izquierdo",
+  gemR:"el gemelo derecho",tobL:"el tobillo izquierdo",tobR:"el tobillo derecho"};
+const zonaTxt=z=>ZONA_FRASE[z]||(ZONAS[z]?ZONAS[z].n.toLowerCase():"el cuerpo");
+function zonaMasRota(){
+  let z=ZONAS_RIESGO[0];
+  ZONAS_RIESGO.forEach(k=>{if(p.salud[k]<p.salud[z])z=k;});
+  return z;
+}
+/* Lo que te tomaste queda anotado y se cobra cuando termina el partido. */
+function anotarRiesgo(tipo,zona){
+  p.riesgoPend={tipo:tipo,zona:zona||zonaMasRota()};
+}
+function cobrarRiesgos(res){
+  const R=p.riesgoPend; if(!R)return;
+  p.riesgoPend=null;
+  if(R.tipo==="infiltracion"){
+    p.infiltradas=(p.infiltradas||0)+1;
+    const dano=ri(10,20)+Math.min(10,p.infiltradas*2);
+    p.salud[R.zona]=clamp(p.salud[R.zona]-dano,0,100);
+    mod(p.stats,"forma",-8,10,100);
+    const grave=p.salud[R.zona]<=26&&dado(.42);
+    placa({eye:"DESPUÉS DEL PARTIDO",titulo:grave?"SE ROMPIÓ LO QUE TAPASTE":"SE PASÓ LA INFILTRACIÓN",
+      sub:grave
+        ? "Te bajaste del micro y no podías apoyar: lo que la aguja tapó en "+zonaTxt(R.zona)
+          +", el cuerpo lo cobró entero."
+        : "En el vestuario se te fue la anestesia de golpe y "+zonaTxt(R.zona)
+          +" quedó peor que antes del partido.",
+      stats:[[ZONAS[R.zona].n.toUpperCase(),"−"+dano,"dn"],["FORMA","−8","dn"]]});
+    if(grave){mod(p.stats,"mor",-10,5,100);ponerBandera("infiltrado_roto",1);}
+  }else if(R.tipo==="dopaje"){
+    p.dopajes=(p.dopajes||0)+1;
+    /* cuanto más lo hacés, más te miran: el control te busca a vos */
+    const riesgo=clamp(0.16+p.dopajes*0.07+(res==="gano"?0.06:0),0.16,0.62);
+    if(dado(riesgo)){
+      p.escandalos=(p.escandalos||0)+1;
+      mod(p.rep,"mundo",-14);mod(p.rep,"nac",-12);mod(p.rep,"local",-9);
+      mod(p.stats,"mor",-16,5,100);mod(p.stats,"forma",-14,10,100);
+      ponerBandera("suspendido",1);
+      placa({eye:"CONTROL ANTIDOPAJE",titulo:"DIO POSITIVO",
+        sub:"Te sortearon para el control y saltó. Suspensión, conferencia de prensa y "
+          +"la foto tuya en todos los canales con la palabra en rojo abajo.",
+        stats:[["MUNDO","−14","dn"],["SELECCIÓN","−12","dn"],["MORAL","−16","dn"]]});
+      tuitarSobre([["dio positivo. Después se quejan de que no creemos en nada 😡",false,ri(20000,90000)],
+        ["POSITIVO EN EL CONTROL. Suspensión a la vista y un vestuario que va a tener que salir a explicar.",true,ri(25000,110000)]]);
+    }else{
+      mod(p.stats,"forma",-9,10,100);mod(p.stats,"mor",-4,5,100);
+      const z=R.zona; p.salud[z]=clamp(p.salud[z]-ri(3,8),0,100);
+      toastTxt("Zafaste del control, pero el cuerpo lo sintió");
+    }
+  }
+}
+/* La suspensión no te deja jugar tranquilo la temporada siguiente */
+function penalDopaje(){return banderaViva("suspendido")?-8:0;}
+
+/* ══ EL TÚNEL · antes de salir a la cancha ════════════════════════════
+   Sale cuando venís golpeado o con la forma por el piso: es ahí donde
+   el médico del club te ofrece la solución rápida.                    */
+function tocaTunel(m){
+  if(!m||m.tunelVisto)return false;
+  if(banderaViva("suspendido"))return false;
+  const flojo=(p.stats.forma<=54)||(saludProm()<80);
+  if(!flojo)return false;
+  return dado(m.peso>=2?0.5:0.34);
+}
+function cartaTunel(m,sigue){
+  m.tunelVisto=1;
+  const z=zonaMasRota();
+  const med=rnd(["el médico del club","el kinesiólogo","el doctor de toda la vida"]);
+  carta({eye:"EL TÚNEL",comp:m.comp,compTxt:m.fecha,compSub:"antes de salir a la cancha",
+    titulo:"TE FRENAN ANTES DE SALIR",
+    texto:med.charAt(0).toUpperCase()+med.slice(1)+" te aprieta "+zonaTxt(z)
+      +" y hace una mueca. Afuera ya suena el bombo y el técnico te puso de titular igual.",
+    ciego:1,
+    opts:[
+      {b:"Salir así como estás",s:"Sin nada raro en el cuerpo",ico:"🙏",
+       cb:()=>{toastTxt("Saliste a la cancha con lo puesto");sigue();}},
+      {b:"Que te infiltren",s:"No sentís nada por 90 minutos · se paga después",ico:"💉",
+       stn:"RIESGO",
+       cb:()=>{
+         anotarRiesgo("infiltracion",z);
+         mod(p.stats,"forma",14,10,100);p.aguanteExtra=(p.aguanteExtra||0)+30;
+         p.salud[z]=clamp(p.salud[z]+18,0,100);   /* la aguja tapa, no cura */
+         calcOVR();render();
+         placa({eye:"EL TÚNEL",titulo:"LA AGUJA Y A LA CANCHA",
+           sub:"Dos pinchazos y dejaste de sentirlo. Vas a jugar los noventa como si tuvieras veinte años. "
+             +"Lo que venga después, se ve después.",
+           stats:[["FORMA","+14","up"],["AGUANTE","+240","up"],[ZONAS[z].n.toUpperCase(),"TAPADO","dn"]],
+           onClose:sigue});}},
+      {b:"La vitamina del utilero",s:"Nadie pregunta qué es · hay control",ico:"💊",
+       stn:"RIESGO",
+       cb:()=>{
+         anotarRiesgo("dopaje",z);
+         mod(p.stats,"forma",20,10,100);p.aguanteExtra=(p.aguanteExtra||0)+44;
+         calcOVR();render();
+         placa({eye:"EL TÚNEL",titulo:"TE LA TOMASTE DE UN TRAGO",
+           sub:"El utilero te pasó el vasito sin mirarte a los ojos. A los diez minutos "
+             +"del primer tiempo sentís que podés correr hasta mañana.",
+           stats:[["FORMA","+20","up"],["AGUANTE","+352","up"],["CONTROL","SORTEO","dn"]],
+           onClose:sigue});}}
+    ]});
+}
+
+/* ══ EN LA CANCHA · el menú de AGUANTE del motor de partido ═════════ */
+function menuAguante(D,volver){
+  const items=[];
+  const pct=v=>Math.round(D.gmax*v);
+  items.push({t:"TOMAR AIRE",g:0,cb:()=>{
+    menuCerrar();
+    D.guts=clamp(D.guts+pct(0.14),0,D.gmax);
+    D.pos=clamp(D.pos+(D.mia?-5:-4),8,92);
+    duelTexto("MANOS EN LAS RODILLAS","Pediste diez segundos, respiraste hondo y volviste. "
+      +"Perdiste metros, pero volviste con aire.","");
+    setTimeout(()=>volver(),320);
+  }});
+  if(!D.bidon)items.push({t:"EL BIDON DEL UTILERO",g:0,cb:()=>{
+    menuCerrar();D.bidon=1;
+    D.guts=clamp(D.guts+pct(0.26),0,D.gmax);
+    duelTexto("AGUA Y SALES","El utilero te tira el bidón desde la línea. Un trago largo "
+      +"y el cuerpo vuelve a arrancar.","ok");
+    setTimeout(()=>volver(),320);
+  }});
+  if(!D.infil&&!p.riesgoPend)items.push({t:"INFILTRARSE",g:0,cb:()=>{
+    menuCerrar();D.infil=1;
+    const z=zonaMasRota();
+    anotarRiesgo("infiltracion",z);
+    D.guts=D.gmax;D.piso=Math.round(D.gmax*0.34);
+    duelTexto("TE PINCHAN EN LA LINEA","Saliste al costado, dos pinchazos y adentro otra vez. "
+      +"No sentís nada: "+zonaTxt(z)+" ya no existe hasta el pitazo final.","ok");
+    setTimeout(()=>volver(),380);
+  }});
+  if(!D.dopado&&!p.riesgoPend&&!banderaViva("suspendido"))
+    items.push({t:"LA VITAMINA",g:0,cb:()=>{
+      menuCerrar();D.dopado=1;
+      anotarRiesgo("dopaje",zonaMasRota());
+      D.guts=D.gmax;D.piso=Math.round(D.gmax*0.30);
+      duelTexto("UN VASITO Y ADENTRO","Nadie miró. En dos minutos las piernas te van solas "
+        +"y el rival empieza a parecerte lento.","ok");
+      setTimeout(()=>volver(),380);
+    }});
+  items.push({t:"VOLVER",g:0,cb:()=>volver()});
+  menuAbrir(D,"AGUANTE "+Math.round(D.guts*8),items);
 }
 /* 9 · Marcador de enemigo en cancha */
 function esTarget(o){
@@ -11364,6 +11926,49 @@ function pintarCabalas(){
 }
 
 /* ══════════════ ARRANQUE ══════════════ */
+/* ══ v17 · EL ARRANQUE ═══════════════════════════════════════════════
+   Dos pantallas de cartucho antes del menú. Se dibujan con lo que ya
+   tiene el juego: los bustos son el mismo caraPixel de las figuritas y
+   el escudo es el mismo escudo() de los clubes: se dibuja entero acá y no
+   se pide un solo archivo externo, como manda la ley 1 del proyecto.  */
+/* Los seis de la tapa: un pibe por cada camiseta grande del Apertura */
+const TAPA_CLUBES=["Boca Juniors","River Plate","Independiente",
+  "Vélez Sarsfield","San Lorenzo","Racing Club"];
+let _introT=null, _introPaso=0;
+
+function pintarIntro(){
+  /* seis bustos con los colores de cada club, uno por cuadrito */
+  const box=document.getElementById("tapa-busts");
+  if(box){
+    box.innerHTML=TAPA_CLUBES.map(n=>{
+      const c=club(n);
+      return '<div class="bust">'+caraPixel(genCara(),ri(19,31),ri(55,80),c.c)+'</div>';
+    }).join("");
+  }
+  const esc=document.getElementById("tt-escudo");
+  if(esc)esc.innerHTML='<div class="tt-escudo">'
+    +escudo({n:"AFA",c:["#75AADB","#FFFFFF"],f:"escudo",pa:"franjas",i:"AFA"},58)+'</div>';
+  _introT=setTimeout(introSiguiente,5200);
+}
+function introSiguiente(){
+  clearTimeout(_introT);
+  if(_introPaso>=1)return introSaltar();
+  _introPaso=1;
+  const a=document.getElementById("intro-portada"), b=document.getElementById("intro-titulo");
+  if(a)a.classList.remove("on");
+  if(b)b.classList.add("on");
+  try{bip(880,1320,0.16,"square",0.035);}catch(e){}
+  _introT=setTimeout(()=>{},0);
+}
+function introSaltar(){
+  clearTimeout(_introT);
+  _introPaso=2;
+  ["intro-portada","intro-titulo"].forEach(id=>{
+    const e=document.getElementById(id); if(e)e.classList.remove("on");
+  });
+  try{silbato();}catch(e){}
+}
+
 (function boot(){
   /* país y club del que sos hincha */
   const selp=document.getElementById("f-pais");
@@ -11420,6 +12025,7 @@ function pintarCabalas(){
 
 led(["Todo pasa · Oaky Edition","El modo termo está encendido","De la chatarra al álbum de figuritas"]);
 prevUpdate();
+pintarIntro();
 
 </script>
 </body>

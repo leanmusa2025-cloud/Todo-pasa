@@ -59,13 +59,13 @@ Reglas que no se rompen. Cada una salió de una decisión explícita del autor.
 | | |
 |---|---|
 | Archivo | `todo_pasa.html` |
-| Peso | **731.014 bytes (714 KB)** |
-| Líneas | 10.829 |
-| Funciones | 365 |
-| Constantes | 166 |
+| Peso | **800.641 bytes (782 KB)** |
+| Líneas | 12.032 |
+| Funciones | 401 |
+| Constantes | 174 |
 | Cartas totales (según el validador) | **260** |
-| Commits | 26 |
-| Rama | `claude/todo-pasa-refactor-l0go8w` |
+| Commits | 30 |
+| Rama | `claude/game-logic-refactor-xlrp9c` |
 
 **Reparto del peso:** JavaScript 91%, CSS 6%, HTML 2%. De ese JavaScript, la
 mayor parte es contenido de texto (cartas, clubes, prensa), no lógica. La
@@ -109,7 +109,7 @@ el Mundial.
 
 | Mazo | Cartas | Para qué |
 |---|---|---|
-| `JUGADAS` | 25 | Momentos de partido |
+| `JUGADAS` | 43 | Momentos de partido (se roban 2 por partido regular) |
 | `CAP1` (desde `SITU_C1`) | 60 | Las situaciones del Capítulo 1 |
 | `EXTRA` | 87 | Eventos fuera de la cancha |
 | `MEDIO` | 43 | Prensa y medios |
@@ -122,6 +122,58 @@ el Mundial.
 
 Cartas de duelo del motor NES: `CARTAS_ATAQUE` (7), `CARTAS_TIRO` (6),
 `CARTAS_DEFENSA` (6), `CARTAS_ULTIMA` (4).
+
+### Cómo se roba una carta (v17) — la bolsa
+
+Antes cada carta salía con `rnd()` puro sobre el mazo disponible: salían
+siempre las mismas tres y había cartas que no aparecían nunca en toda la
+carrera. Ahora manda `robar(pool, excluir)`:
+
+1. `p.robos` es un contador global de robos. `marcar(id)` anota en qué robo
+   salió cada carta (`v.d`), además de cuántas veces (`v.n`) y en qué
+   temporada (`v.t`).
+2. Mientras queden cartas del pool que **nunca** saliste, se roba sólo de
+   ahí. Esa es la bolsa.
+3. Cuando la bolsa se vacía vuelven a entrar todas, con peso
+   `antigüedad² / (1 + veces²)`: la que salió recién es casi imposible que
+   vuelva, la que no sale hace veinte robos entra casi seguro.
+4. `robar()` acepta un id a excluir, que se usa para que la segunda decisión
+   de un partido nunca repita la carta de la primera.
+5. `robarDe(lista, vistas)` hace lo mismo para las listas sueltas de textos
+   (mensajes del celu, cartas del entretiempo) que llevan su propio registro.
+
+Verificado en una carrera automática de cuatro temporadas: 63 cartas
+distintas, ninguna repetida más de dos veces, cero repeticiones dentro del
+mismo partido.
+
+### El resultado de un partido regular (v17)
+
+Un partido regular —liga, clásico, copa hasta cuartos, fase de grupos— se
+juega con **dos decisiones** (`jugadasDe(m)` devuelve 2; devuelve 1 para
+semifinales, finales y Mundial, que tienen su propio motor). Entre una y otra
+avanza el reloj (`segundaJugada`) y se roba otra carta.
+
+| Aciertos | Resultado |
+|---|---|
+| 2 de 2 | Victoria garantizada |
+| 0 de 2 | Derrota garantizada |
+| 1 de 2 | Moneda al aire, 50/50 (la inclina el favor de la AFA) |
+
+Ese cálculo ya estaba escrito en `resolverJugada`, pero `m.aciertos` no se
+incrementaba en ningún lado: quedaba `undefined`, las dos comparaciones daban
+falso y **todos los partidos se resolvían por moneda**. Ahora se lleva la
+cuenta de verdad y el resultado depende de lo que elegiste.
+
+### La pretemporada (v17)
+
+`cartaPretemporada()` corre tres pasos en orden: `menuPretemporada()` mira
+`p.plata` y te deja elegir entre seis pretemporadas (de gratis a U$D 340k; las
+que no podés pagar salen con candado y el precio a la vista), después
+`tiendaBolsin()` te vende hasta tres cábalas del brujo con lo que te quedó, y
+recién ahí sale la carta de siempre del mazo `PRETEMP`. Cada pretemporada
+suma aguante para todo el año (`pretempAgt()`). El bolsín se arma de cero
+cada temporada, pero el bono de estadísticas de cada cábala se cobra una sola
+vez en toda la carrera.
 
 ### Formato de una carta
 
@@ -153,6 +205,17 @@ Los partidos grandes se juegan en una pantalla de cartucho de 256 × 224.
 de liga, y toda la eliminación directa del Mundial. Antes de cada uno, el
 jugador elige si lo juega en la cancha o lo lee como carta de siempre.
 
+### La escala de los jugadores (v17)
+
+Los muñecos de v16 se dibujaban a `ESC_J = 1.7` (18×32 px × 1,7 = 31×54): a
+esa escala tapaban media cancha, se comían las líneas y el arco. Ahora
+`ESC_J = 1.12` y todas las llamadas de cancha pasan por `dibJ()`, que recibe
+la misma Y de siempre y la baja `AJ` píxeles —justo lo que se achicó el
+sprite— para que los pies queden apoyados sobre el pasto en vez de flotando.
+La pelota bajó de radio 4 a 3 y se acercó al pie. El primer plano del remate
+también se achicó (rematador 1,9 → 1,35; arquero 1,5 → 1,15), pero sigue
+siendo un plano corto.
+
 ### Las franjas de la pantalla
 
 ```
@@ -183,16 +246,56 @@ cuatro cartas de último hombre sin menú previo.
 mueve 16 a 28. Al pasar de 70 aparece TIRO. Al bajar de 26 defendiendo, sos el
 último hombre.
 
-### Los Guts
+### El Aguante (ex Guts) — rediseñado en v17
 
-Aguante que sale de tu físico (80 a 124 internos, mostrados ×8 como en el
-cartucho). Cada carta cuesta. Se recuperan 9 entre jugada y jugada. Si te
-quedás sin nada podés jugarla igual, con 42 puntos de castigo.
+Sale de tu físico, del bolsín del brujo, del tipo de pretemporada que pagaste
+y de lo que te hayas tomado en el túnel (92 a 230 internos, mostrados ×8 como
+en el cartucho). Cada carta cuesta.
+
+**Piso mínimo.** El aguante nunca llega a cero absoluto: hay un piso del 20%
+del máximo (`AGT_PISO`). Si una carta no te entra en el aire que te queda, la
+jugás igual "a pulmón" con un castigo chico (−14, que crece de a 4 si
+insistís) en vez del −36 de antes, que era perder el partido sin poder hacer
+nada. Fuera de la cancha pasa lo mismo con la forma: `segundoAire()` la
+levanta a 22 antes de cada partido, y `_prob0()` tiene piso de 14, así que
+una jugada nunca es imposible.
+
+**Riesgo y recompensa.** En el menú del partido hay un comando `AGUANTE`
+(`menuAguante`, y `duelAguanteHTML` para el modo sin lienzo) con cuatro
+opciones: tomar aire, el bidón del utilero, **infiltrarse** y **la vitamina
+del utilero**. Antes de salir a la cancha aparece además `cartaTunel()`
+cuando venís golpeado o con la forma por el piso.
+
+Las consecuencias no son cosméticas y se cobran al terminar el partido
+(`cobrarRiesgos`):
+
+| | Recompensa | Lo que se paga después |
+|---|---|---|
+| Infiltración | Aguante al tope, piso al 34%, +7 de probabilidad | La zona tapada pierde 10–20 (más cuanto más lo repetís), −8 de forma y chance de romperse del todo |
+| Vitamina (dopaje) | Aguante al tope, piso al 30%, +12 de probabilidad | Control antidopaje: 16% a 62% según cuántas veces lo hiciste. Positivo = suspensión, escándalo, −14 mundo, −12 selección, −16 moral |
 
 ### Balance verificado
 
 Con un jugador de 76 contra un rival de 74: gana 58%, empata 25%, pierde 17%.
 Con 63 contra Real Madrid: gana 17%, pierde 67%.
+
+---
+
+### Las dos pantallas de arranque (v17)
+
+Antes del menú de modo salen dos pantallas de cartucho, dibujadas enteras con
+lo que ya tenía el juego (ley 1: cero archivos externos):
+
+- **La tapa.** `TODO PASA`, seis bustos y `APERTURA 2005`. Los bustos son el
+  mismo `caraPixel()` de las figuritas, uno por cada camiseta grande, con los
+  colores reales de cada club (`TAPA_CLUBES`).
+- **El título.** `TODO PASA / EL JUEGO DE LA AFA`, el escudo dibujado con
+  `escudo()`, el `INSERT COIN` parpadeando y el pie
+  `© AFA PRO / GRONDONA EDITIONS · © Musa 1990`.
+
+`pintarIntro()` las arma al cargar, `introSiguiente()` pasa de una a otra (a
+los 5,2 segundos o al tocar) y `introSaltar()` las cierra. Ambas tienen
+scanlines por CSS y botón para saltear.
 
 ---
 
@@ -260,6 +363,13 @@ Los 26 commits, del más viejo al más nuevo:
 24. `c7fb608` Motor NES: pantalla 256×224, radar y comandos
 25. `b0b304d` Especificación técnica del arte
 26. `0b9c085` Ajuste de la especificación al límite de 1024
+27. `097cd3a` Cuaderno del proyecto para NotebookLM
+28. `72a42a6` Variedad, ritmo del partido y las ocho situaciones de Musa
+29. `c602e0c` La tapa del diario reemplaza las cinco placas del cierre
+30. `5d9cee9` Barras con apuestas, entretiempo y el bolsín del brujo
+31. **v17** Dos decisiones por partido, bolsa de cartas, pretemporada por
+    presupuesto, aguante con infiltración y dopaje, sprites chicos y las dos
+    pantallas de arranque
 
 ---
 
